@@ -73,9 +73,9 @@ resources:
 	$(_BUILD_TOOLS)/aapt package \
 		-f \
 		-m \
-		-J src \
-		-M AndroidManifest.xml \
-		-S res \
+		-J src/main/java \
+		-M src/main/AndroidManifest.xml \
+		-S src/main/res \
 		-I $(_ANDROID_JAR_PATH)
 
 # Compile Java code.
@@ -99,8 +99,8 @@ $(OUT_DIR)/app.apk.unaligned: resources compile dex
 		-f \
 		-m \
 		-F $(OUT_DIR)/app.apk.unaligned \
-		-M AndroidManifest.xml \
-		-S res \
+		-M src/main/AndroidManifest.xml \
+		-S src/main/res \
 		-I $(_ANDROID_JAR_PATH)
 
 	cd $(OUT_DIR) && $(_BUILD_TOOLS)/aapt add \
@@ -121,4 +121,4 @@ $(OUT_DIR)/app.apk: .keystore $(OUT_DIR)/app.apk.unaligned
 		$(OUT_DIR)/app.apk
 
 clean:
-	@rm -rf $(OUT_DIR)
+	git clean -ffdx

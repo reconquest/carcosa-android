@@ -1,8 +1,8 @@
 /bin
 /out
+/target
 /.keystore
 /.settings
 /.project
-/.classpath
 
 *.class

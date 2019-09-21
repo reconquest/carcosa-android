@@ -10,7 +10,11 @@ package io.reconquest.carcosa;
 public final class R {
     public static final class attr {
     }
+    public static final class id {
+        public static final int text=0x7f030000;
+    }
     public static final class layout {
-        public static final int main=0x7f020000;
+        public static final int list_item=0x7f020000;
+        public static final int main=0x7f020001;
     }
 }

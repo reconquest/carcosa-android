@@ -5,5 +5,5 @@ public class Carcosa {
     System.loadLibrary("carcosa");
   }
 
-  public native void sync();
+  public native void sync(String path);
 }

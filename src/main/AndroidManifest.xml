@@ -1,6 +1,8 @@
 <?xml version='1.0'?>
 <manifest xmlns:a='http://schemas.android.com/apk/res/android' package='io.reconquest.carcosa' a:versionCode='0' a:versionName='0'>
-    <application a:label='ebiten'>
+    <uses-permission a:name="android.permission.INTERNET" />
+    <uses-permission a:name="android.permission.ACCESS_NETWORK_STATE" />
+    <application a:label='carcosa'>
         <activity a:name='io.reconquest.carcosa.MainActivity' a:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
              <intent-filter>
                 <category a:name='android.intent.category.LAUNCHER'/>
