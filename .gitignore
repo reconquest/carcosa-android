@@ -3,5 +3,6 @@
 /.keystore
 /.settings
 /.project
+/.classpath
 
 *.class

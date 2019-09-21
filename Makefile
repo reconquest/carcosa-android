@@ -28,7 +28,7 @@ OUT_DIR=out
 _BUILD_TOOLS=$(ANDROID_SDK_PATH)/build-tools/$(ANDROID_SDK_VERSION)
 _ANDROID_JAR_PATH=$(ANDROID_SDK_PATH)/platforms/android-$(ANDROID_TOOLCHAIN_VERSION)/android.jar
 _ANDROID_TOOLCHAIN_PATH=$(ANDROID_NDK_PATH)/toolchains/llvm/prebuilt/linux-x86_64/bin
-_JAVA_SRC=$(shell find java/src -name '*.java')
+_JAVA_SRC=$(shell find src -name '*.java')
 
 _JAVAC=javac -classpath src -bootclasspath $(_ANDROID_JAR_PATH)
 _MAKE=$(MAKE) --no-print-directory
@@ -48,7 +48,7 @@ $(OUT_DIR)/lib/%/libcarcosa.so:
 		 CXX=$(CCARCH)-linux-android21-clang++ \
 		 go build \
 		 	-o=$@ \
-			-buildmode=c-shared ./go
+			-buildmode=c-shared ./pkg/lib
 
 run: install
 	adb shell am start -n $(ANDROID_PACKAGE)/.MainActivity
@@ -73,7 +73,7 @@ resources:
 	$(_BUILD_TOOLS)/aapt package \
 		-f \
 		-m \
-		-J java/src \
+		-J src \
 		-M AndroidManifest.xml \
 		-S res \
 		-I $(_ANDROID_JAR_PATH)

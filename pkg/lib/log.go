@@ -21,9 +21,9 @@ var (
 	tag = C.CString("carcosa")
 )
 
-type writer struct{}
+type logcat struct{}
 
-func (writer) Write(p []byte) (n int, err error) {
+func (logcat) Write(p []byte) (n int, err error) {
 	text := C.CString(string(p))
 	C.__android_log_write(C.ANDROID_LOG_ERROR, tag, text)
 	C.free(unsafe.Pointer(text))
@@ -31,6 +31,6 @@ func (writer) Write(p []byte) (n int, err error) {
 }
 
 func init() {
-	log.SetOutput(&writer{})
+	log.SetOutput(&logcat{})
 	log.SetLevel(lorg.LevelTrace)
 }
