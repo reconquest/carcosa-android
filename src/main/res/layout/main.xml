@@ -1,12 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:a="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        xmlns:app="http://schemas.android.com/app"
         tools:context="io.reconquest.carcosa.MainActivity"
-        android:keepScreenOn="true">
+        a:layout_width="match_parent"
+        a:layout_height="match_parent"
+        a:keepScreenOn="true">
+    <android.support.v7.widget.Toolbar
+            a:id="@+id/my_toolbar"
+            a:layout_width="match_parent"
+            a:layout_height="?attr/actionBarSize"
+            a:background="?attr/colorPrimary"
+            a:elevation="4dp"
+            a:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+            app:popupTheme="@style/ThemeOverlay.AppCompat"/>
     <ListView
-            android:id="@android:id/list"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            a:id="@android:id/list"
+            a:layout_width="match_parent"
+            a:layout_height="match_parent" />
 </RelativeLayout>

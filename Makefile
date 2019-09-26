@@ -11,6 +11,7 @@ ANDROID_SDK_VERSION=28.0.3
 ANDROID_SDK_PATH=/opt/android-sdk
 ANDROID_NDK_PATH=/opt/android-ndk
 ANDROID_TOOLCHAIN_VERSION=29
+ANDROID_M2REPO=$(ANDROID_SDK_PATH)/extras/android/m2repository
 
 # Target package name.
 ANDROID_PACKAGE=io.reconquest.carcosa
@@ -25,15 +26,34 @@ KEYS_SIZE=2048
 # Target build dir. Resulting APK file will be available here.
 OUT_DIR=out
 
+SUPPORT_AAR=appcompat-v7:25.3.1
+SUPPORT_JAR=v4/android-support-v4.jar android-support-vectordrawable.jar
+
+define support_extract
+	unzip -qq -d $(OUT_DIR)/support/$(1) -o \
+		$(ANDROID_M2REPO)/com/android/support/$(1)/$(2)/$(1)-$(2).aar
+	unzip -qq -d $(OUT_DIR)/support/$(1)/java/ -o \
+		$(OUT_DIR)/support/$(1)/classes.jar
+	find $(OUT_DIR)/support/$(1)/java -name '*.java' -exec \
+		$(_JAVAC) -d $(OUT_DIR)/obj {} \;
+endef
+
 _BUILD_TOOLS=$(ANDROID_SDK_PATH)/build-tools/$(ANDROID_SDK_VERSION)
 _ANDROID_JAR_PATH=$(ANDROID_SDK_PATH)/platforms/android-$(ANDROID_TOOLCHAIN_VERSION)/android.jar
 _ANDROID_TOOLCHAIN_PATH=$(ANDROID_NDK_PATH)/toolchains/llvm/prebuilt/linux-x86_64/bin
-_JAVA_SRC=$(shell find src -name '*.java')
 
+# Tools helpers.
 _JAVAC=javac -classpath src -bootclasspath $(_ANDROID_JAR_PATH)
 _MAKE=$(MAKE) --no-print-directory
-
-#_ARCHS=$(wildcard $(_ANDROID_TOOLCHAIN_PATH)/*-linux-android$(ANDROID_TOOLCHAIN_VERSION)-clang)
+_AAPT_PACKAGE=$(_BUILD_TOOLS)/aapt package \
+	-f \
+	-m \
+	-M src/main/AndroidManifest.xml \
+	-S src/main/res \
+	$(foreach lib,\
+		$(SUPPORT_AAR),\
+		-S $(OUT_DIR)/support/$(firstword $(subst :, ,$(lib)))/res) \
+	-I $(_ANDROID_JAR_PATH)
 
 lib: lib-aarch64
 
@@ -69,14 +89,8 @@ install: $(OUT_DIR)/app.apk
 		-deststoretype pkcs12
 
 # Collect resources and generate R.java.
-resources:
-	$(_BUILD_TOOLS)/aapt package \
-		-f \
-		-m \
-		-J src/main/java \
-		-M src/main/AndroidManifest.xml \
-		-S src/main/res \
-		-I $(_ANDROID_JAR_PATH)
+resources: $(OUT_DIR)/support
+	$(_AAPT_PACKAGE) -J src/main/java
 
 # Compile Java code.
 compile: lib
@@ -84,24 +98,31 @@ compile: lib
 
 	$(_JAVAC) \
 		-d $(OUT_DIR)/obj \
-		$(_JAVA_SRC)
+		$(shell find src -name '*.java')
 
 # Convert compiled Java code into DEX file (required by Android).
 dex:
 	$(_BUILD_TOOLS)/dx \
 		--dex \
 		--output $(OUT_DIR)/classes.dex \
-		$(OUT_DIR)/obj
+		$(OUT_DIR)/obj \
+		$(OUT_DIR)/support/*/classes.jar \
+		$(foreach jar, \
+			$(SUPPORT_JAR), \
+			$(shell \
+				find $(ANDROID_SDK_PATH)/extras/android/support \
+					-path '*/$(jar)'))
+
+# Unpack support libraries.
+$(OUT_DIR)/support:
+	@mkdir -p $(OUT_DIR)/support
+	$(foreach aar, \
+		$(SUPPORT_AAR), \
+		$(call support_extract,$(firstword $(subst :, ,$(aar))),$(lastword $(subst :, ,$(aar)))))
 
 # Package everything into unaligned APK file.
 $(OUT_DIR)/app.apk.unaligned: resources compile dex
-	$(_BUILD_TOOLS)/aapt package \
-		-f \
-		-m \
-		-F $(OUT_DIR)/app.apk.unaligned \
-		-M src/main/AndroidManifest.xml \
-		-S src/main/res \
-		-I $(_ANDROID_JAR_PATH)
+	$(_AAPT_PACKAGE) -F $(OUT_DIR)/app.apk.unaligned
 
 	cd $(OUT_DIR) && $(_BUILD_TOOLS)/aapt add \
 		app.apk.unaligned \
