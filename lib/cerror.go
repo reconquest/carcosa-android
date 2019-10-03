@@ -1,7 +1,6 @@
 package main
 
 // #include "c/_/error.h"
-// #include "c/_/j_maybe.c"
 import "C"
 
 func CError(err error) C.error {

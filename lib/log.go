@@ -10,8 +10,6 @@ import (
 // #cgo LDFLAGS: -landroid -llog
 //
 // #include <android/log.h>
-// #include <string.h>
-// #include <stdlib.h>
 import "C"
 
 var (
