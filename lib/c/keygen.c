@@ -1,7 +1,7 @@
 #include <jni.h>
 
-#include "_error.h"
-#include "_string.h"
+#include "_/error.h"
+#include "_/string.h"
 #include "ssh_key.h"
 
 extern error Keygen(ssh_key *);

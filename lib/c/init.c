@@ -1,6 +1,6 @@
 #include <jni.h>
 
-#include "_string.h"
+#include "_/string.h"
 
 extern void Init(string root);
 

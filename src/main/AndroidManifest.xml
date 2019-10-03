@@ -12,7 +12,7 @@
                 <action android:name='android.intent.action.MAIN'/>
              </intent-filter>
         </activity>
-        <activity android:name=".RepoAddActivity"
+        <activity android:name=".RepoActivity"
                 android:parentActivityName=".MainActivity"
                 android:theme="@style/Theme.AppCompat.NoActionBar">
             <meta-data

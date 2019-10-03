@@ -1,8 +1,9 @@
 #include <android/log.h>
 #include <jni.h>
 
-#include "_j_maybe.h"
-#include "_string.h"
+#include "_/j_maybe.h"
+#include "_/string.h"
+
 #include "connect.h"
 
 extern error Connect(connect_in, connect_out *);
