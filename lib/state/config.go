@@ -29,7 +29,6 @@ type Config struct {
 	NS         string           `json:"ns"`
 	Filter     string           `json:"filter"`
 	SyncStatus ConfigSyncStatus `json:"sync_status"`
-	Master     *ConfigMaster    `json:"master"`
 }
 
 func LoadConfig(path string) (*Config, error) {

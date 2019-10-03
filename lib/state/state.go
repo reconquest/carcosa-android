@@ -8,36 +8,79 @@ import (
 	"path/filepath"
 	"time"
 
+	"carcosa/lib/vault"
+
+	"github.com/kovetskiy/lorg"
 	"github.com/reconquest/karma-go"
 	"github.com/seletskiy/carcosa/pkg/carcosa"
 	"github.com/seletskiy/carcosa/pkg/carcosa/auth"
+	"github.com/seletskiy/carcosa/pkg/carcosa/cache"
 )
 
+type Token struct {
+	Name string
+}
+
 type Repo struct {
-	Carcosa *carcosa.Carcosa
 	Config  *Config
+	Carcosa *carcosa.Carcosa
+	Tokens  []Token
 }
 
 type State struct {
-	root string
+	log   lorg.Logger
+	root  string
+	vault *vault.Vault
+	cache *cache.Cache
 }
 
-func NewState(root string) *State {
-	return &State{
+func NewState(root string, log lorg.Logger) (*State, error) {
+	state := &State{
+		log:  log,
 		root: root,
 	}
+
+	var err error
+
+	state.vault, err = vault.New(state.getVaultPath())
+	if err != nil {
+		return nil, karma.Format(
+			err,
+			"unable to open vault",
+		)
+	}
+
+	state.cache = cache.NewDefault(state.vault)
+
+	return state, nil
 }
 
-func (state *State) getDir(id string) string {
-	return filepath.Join(state.root, `repos`, id)
+func (state *State) getReposDir() string {
+	return filepath.Join(state.root, "repos")
 }
 
 func (state *State) getRepoDir(id string) string {
-	return filepath.Join(state.getDir(id), "repo")
+	return filepath.Join(state.getReposDir(), id, "repo")
 }
 
 func (state *State) getRepoConfigPath(id string) string {
 	return filepath.Join(state.getRepoDir(id), "config.json")
+}
+
+func (state *State) getVaultPath() string {
+	return filepath.Join(state.root, "vault.json")
+}
+
+func (state *State) IsPinSet() bool {
+	return state.vault.IsLocked()
+}
+
+func (state *State) SetPin(pin string) error {
+	return state.vault.Lock(pin)
+}
+
+func (state *State) CheckPin(pin string) bool {
+	return state.vault.Unlock(pin)
 }
 
 func (state *State) Connect(
@@ -106,7 +149,6 @@ func (state *State) Unlock(id string, key string, cache bool) (int, error) {
 	//        "unable to compile filter regexp",
 	//    )
 	//}
-
 	carcosa := carcosa.NewDefault(state.getRepoDir(config.ID), config.NS)
 
 	secrets, err := carcosa.List([]byte(key))
@@ -117,31 +159,67 @@ func (state *State) Unlock(id string, key string, cache bool) (int, error) {
 		)
 	}
 
+	err = state.cache.Set(config.ID, []byte(key))
+	if err != nil {
+		return 0, karma.Format(
+			err,
+			"unable to set master cache",
+		)
+	}
+
 	return len(secrets), nil
 }
 
-func (state *State) List() error {
+func (state *State) List() ([]Repo, error) {
 	var repos []Repo
 
-	err := filepath.Walk(state.root, func(path string, info os.FileInfo, err error) error {
-		if !info.IsDir() {
-			return nil
-		}
+	err := filepath.Walk(
+		state.getReposDir(),
+		func(path string, info os.FileInfo, err error) error {
+			if path == state.getReposDir() {
+				return nil
+			}
 
-		id := filepath.Base(path)
+			if !info.IsDir() {
+				return nil
+			}
 
-		config, err := LoadConfig(state.getRepoConfigPath(id))
-		if err != nil {
-			return err
-		}
+			id := filepath.Base(path)
 
-		repos = append(repos, Repo{
-			Config:  config,
-			Carcosa: carcosa.NewDefault(state.getRepoDir(id), config.NS),
-		})
+			config, err := LoadConfig(state.getRepoConfigPath(id))
+			if err != nil {
+				return err
+			}
 
-		return nil
-	})
+			repo := Repo{
+				Config:  config,
+				Carcosa: carcosa.NewDefault(state.getRepoDir(id), config.NS),
+			}
 
-	return err
+			master, err := state.vault.Get(id)
+			if err != nil {
+				return err
+			}
+
+			secrets, err := repo.Carcosa.List(master)
+			if err != nil {
+				return err
+			}
+
+			for _, secret := range secrets {
+				repo.Tokens = append(
+					repo.Tokens,
+					Token{
+						Name: string(secret.Token),
+					},
+				)
+			}
+
+			repos = append(repos, repo)
+
+			return filepath.SkipDir
+		},
+	)
+
+	return repos, err
 }

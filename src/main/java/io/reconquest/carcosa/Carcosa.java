@@ -1,6 +1,7 @@
 package io.reconquest.carcosa;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 @SuppressWarnings("serial")
 public class Carcosa implements Serializable {
@@ -13,7 +14,7 @@ public class Carcosa implements Serializable {
     int deleted;
   }
 
-  public native void init(String root);
+  public native Maybe<Void> init(String root);
 
   public class SSHKey {
     public String privateKey;
@@ -36,4 +37,14 @@ public class Carcosa implements Serializable {
   }
 
   public native Maybe<UnlockResult> unlock(String id, String key, Boolean cache);
+
+  public class Repo {
+    String name;
+  }
+
+  public class ListResult {
+    ArrayList<Repo> repos;
+  }
+
+  public native Maybe<ListResult> list();
 }

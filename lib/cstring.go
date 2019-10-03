@@ -1,6 +1,6 @@
 package main
 
-// #include "c/_/string.c"
+// #include "c/_/string.h"
 import "C"
 
 func CString(str string) C.string {

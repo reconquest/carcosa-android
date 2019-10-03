@@ -9,8 +9,11 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 
-public class MainActivity extends AppActivity {
+public class MainActivity extends AppCompatActivity {
   private Carcosa carcosa;
 
   @Override
@@ -18,13 +21,27 @@ public class MainActivity extends AppActivity {
     super.onCreate(savedInstanceState);
 
     carcosa = new Carcosa();
-    carcosa.init(Paths.get(getApplicationContext().getFilesDir().getPath()).toString());
+    Maybe<Void> init =
+        carcosa.init(Paths.get(getApplicationContext().getFilesDir().getPath()).toString());
+    if (init.error != null) {
+      new FatalErrorDialog(this, init.error).show();
+    }
 
     setContentView(R.layout.main);
     Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_main);
     toolbar.setSubtitle("secrets");
     setSupportActionBar(toolbar);
     // setListAdapter(new List());
+
+    Maybe<Carcosa.ListResult> list = carcosa.list();
+    if (list.error != null) {
+      new FatalErrorDialog(this, list.error).show();
+    } else {
+      for (Carcosa.Repo repo : list.result.repos) {
+        System.err.printf(
+            "!!! src/main/java/io/reconquest/carcosa/MainActivity.java:55 %s\n", repo.name);
+      }
+    }
   }
 
   @Override
@@ -49,30 +66,29 @@ public class MainActivity extends AppActivity {
     return true;
   }
 
-  // public class List extends BaseAdapter {
+  // public class RepoList extends BaseAdapter {
   //  @Override
   //  public int getCount() {
-  //    // TODO Auto-generated method stub
   //    return 1;
   //  }
 
   //  @Override
   //  public String getItem(int position) {
-  //    // TODO Auto-generated method stub
   //    return "test";
   //  }
 
   //  @Override
   //  public long getItemId(int arg0) {
-  //    // TODO Auto-generated method stub
   //    return "test".hashCode();
   //  }
 
   //  @Override
   //  public View getView(int position, View convertView, ViewGroup container) {
   //    if (convertView == null) {
-  //      convertView = getLayoutInflater().inflate(R.layout.list_item, container, false);
+  //      convertView = getLayoutInflater().inflate(R.layout.repo_list_item, container, false);
   //    }
+
+  //    text()
 
   //    ((TextView) convertView.findViewById(R.id.text)).setText(getItem(position));
 
