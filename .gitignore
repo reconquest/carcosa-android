@@ -1,8 +1,9 @@
-/bin
 /out
 /target
 /.keystore
 /.settings
 /.project
+/go.sum
 
 *.class
+R.java

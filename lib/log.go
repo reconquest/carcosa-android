@@ -7,26 +7,27 @@ import (
 	"github.com/seletskiy/carcosa/pkg/carcosa"
 )
 
-/*
-#cgo LDFLAGS: -landroid -llog
-
-#include <android/log.h>
-#include <string.h>
-#include <stdlib.h>
-*/
+// #cgo LDFLAGS: -landroid -llog
+//
+// #include <android/log.h>
+// #include <string.h>
+// #include <stdlib.h>
 import "C"
 
 var (
-	log = carcosa.GetLogger()
+	log = carcosa.Logger()
 	tag = C.CString("carcosa")
 )
 
 type logcat struct{}
 
 func (logcat) Write(p []byte) (n int, err error) {
-	text := C.CString(string(p))
-	C.__android_log_write(C.ANDROID_LOG_ERROR, tag, text)
-	C.free(unsafe.Pointer(text))
+	C.__android_log_write(
+		C.ANDROID_LOG_ERROR,
+		tag,
+		(*C.char)(unsafe.Pointer(&p[0])),
+	)
+
 	return len(p), nil
 }
 

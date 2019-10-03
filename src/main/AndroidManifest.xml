@@ -1,16 +1,23 @@
 <?xml version='1.0'?>
-<manifest xmlns:a='http://schemas.android.com/apk/res/android' package='io.reconquest.carcosa' a:versionCode='0' a:versionName='0'>
+<manifest xmlns:android='http://schemas.android.com/apk/res/android' package='io.reconquest.carcosa' android:versionCode='0' android:versionName='0'>
     <uses-sdk
-      a:minSdkVersion="14"
-      a:targetSdkVersion="29" />
-    <uses-permission a:name="android.permission.INTERNET" />
-    <uses-permission a:name="android.permission.ACCESS_NETWORK_STATE" />
-    <application a:label='carcosa'>
-        <activity a:name='io.reconquest.carcosa.MainActivity' a:theme="@style/Theme.AppCompat.NoActionBar">
+      android:minSdkVersion="19"
+      android:targetSdkVersion="25" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <application android:label='carcosa'>
+        <activity android:name='io.reconquest.carcosa.MainActivity' android:theme="@style/Theme.AppCompat.NoActionBar">
              <intent-filter>
-                <category a:name='android.intent.category.LAUNCHER'/>
-                <action a:name='android.intent.action.MAIN'/>
+                <category android:name='android.intent.category.LAUNCHER'/>
+                <action android:name='android.intent.action.MAIN'/>
              </intent-filter>
+        </activity>
+        <activity android:name=".RepoAddActivity"
+                android:parentActivityName=".MainActivity"
+                android:theme="@style/Theme.AppCompat.NoActionBar">
+            <meta-data
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value=".MainActivity" />
         </activity>
     </application>
 </manifest>

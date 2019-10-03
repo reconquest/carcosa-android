@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="repo_protocols_list">
+        <item>git</item>
+        <item>git+ssh</item>
+    </string-array>
+</resources>

@@ -26,16 +26,34 @@ KEYS_SIZE=2048
 # Target build dir. Resulting APK file will be available here.
 OUT_DIR=out
 
-SUPPORT_AAR=appcompat-v7:25.3.1
-SUPPORT_JAR=v4/android-support-v4.jar android-support-vectordrawable.jar
+SUPPORT=android.support.v7.appcompat:appcompat-v7:25.3.1 \
+		android.support.v7.appcompat:design:25.3.1
+
+define support
+	$(call support_extract,$(word 2,$(subst :, ,$(1))),$(word 3,$(subst :, ,$(1))))
+endef
+
+define support_deps
+	xml2 < $(ANDROID_M2REPO)/com/android/support/$(1)/$(2)/$(1)-$(2).pom \
+		| grep -Po 'dependency/(groupId|artifactId|version)=\K.*' \
+		| paste -sd'::\n'
+endef
 
 define support_extract
-	unzip -qq -d $(OUT_DIR)/support/$(1) -o \
-		$(ANDROID_M2REPO)/com/android/support/$(1)/$(2)/$(1)-$(2).aar
-	unzip -qq -d $(OUT_DIR)/support/$(1)/java/ -o \
-		$(OUT_DIR)/support/$(1)/classes.jar
-	find $(OUT_DIR)/support/$(1)/java -name '*.java' -exec \
-		$(_JAVAC) -d $(OUT_DIR)/obj {} \;
+	$(foreach dep,$(shell $(call support_deps,$(1),$(2))),$(call support,$(dep)))
+
+	@artifact=$(ANDROID_M2REPO)/com/android/support/$(1)/$(2)/$(1)-$(2); \
+	[ ! -d $(OUT_DIR)/support/$(1) ] \
+		&& echo :: collecting android support lib $(1) $(2) \
+		&& ( \
+			mkdir -p $(OUT_DIR)/support/$(1) && \
+			[ -f $$artifact.aar ] \
+				&& unzip -qq -o -d $(OUT_DIR)/support/$(1) $$artifact.aar \
+				&& mkdir -p $(OUT_DIR)/support/$(1)/java \
+				|| cp $$artifact.jar $(OUT_DIR)/support/$(1)/classes.jar && \
+			unzip -qq -o -d $(OUT_DIR)/support/$(1)/java/ \
+				$(OUT_DIR)/support/$(1)/classes.jar \
+		) || :
 endef
 
 _BUILD_TOOLS=$(ANDROID_SDK_PATH)/build-tools/$(ANDROID_SDK_VERSION)
@@ -43,32 +61,34 @@ _ANDROID_JAR_PATH=$(ANDROID_SDK_PATH)/platforms/android-$(ANDROID_TOOLCHAIN_VERS
 _ANDROID_TOOLCHAIN_PATH=$(ANDROID_NDK_PATH)/toolchains/llvm/prebuilt/linux-x86_64/bin
 
 # Tools helpers.
-_JAVAC=javac -classpath src -bootclasspath $(_ANDROID_JAR_PATH)
-_MAKE=$(MAKE) --no-print-directory
+_JAVAC=javac \
+	-classpath src:$(shell find $(OUT_DIR)/support -name classes.jar | paste -sd:) \
+	-bootclasspath $(_ANDROID_JAR_PATH) \
+	-d $(OUT_DIR)/obj
+
+_MAKE=$(MAKE) \
+	  --no-print-directory \
+	  -s
+
 _AAPT_PACKAGE=$(_BUILD_TOOLS)/aapt package \
 	-f \
 	-m \
-	-M src/main/AndroidManifest.xml \
-	-S src/main/res \
-	$(foreach lib,\
-		$(SUPPORT_AAR),\
-		-S $(OUT_DIR)/support/$(firstword $(subst :, ,$(lib)))/res) \
+	--auto-add-overlay \
 	-I $(_ANDROID_JAR_PATH)
+
+_AAPT_PACKAGE_RES=$(_AAPT_PACKAGE) \
+	-S src/main/res \
+	$(foreach lib,$(SUPPORT),-S $(OUT_DIR)/support/$(word 2,$(subst :, ,$(lib)))/res) \
+	--extra-packages \
+	$(subst $() $(),:,$(foreach lib,$(SUPPORT),$(word 1,$(subst :, ,$(lib)))))
+
+_JAVA_SRC=$(shell find src -name '*.java')
 
 lib: lib-aarch64
 
 lib-aarch64:
 	@rm -rf $(OUT_DIR)/lib
 	@$(_MAKE) GOARCH=arm64 CCARCH=aarch64 $(OUT_DIR)/lib/arm64-v8a/libcarcosa.so
-
-$(OUT_DIR)/lib/%/libcarcosa.so:
-	CGO_ENABLED=1 \
-		GOOS=android \
-		 CC=$(CCARCH)-linux-android21-clang \
-		 CXX=$(CCARCH)-linux-android21-clang++ \
-		 go build \
-		 	-o=$@ \
-			-buildmode=c-shared ./pkg/lib
 
 run: install
 	adb shell am start -n $(ANDROID_PACKAGE)/.MainActivity
@@ -78,7 +98,8 @@ install: $(OUT_DIR)/app.apk
 
 # Initialize keystore to sign APK.
 .keystore:
-	keytool -genkeypair \
+	@echo :: initializing keystore
+	@keytool -genkeypair \
 		-validity $(KEYS_VALIDITY) \
 		-keystore $@ \
 		-keyalg $(KEYS_ALGORITHM) \
@@ -90,56 +111,86 @@ install: $(OUT_DIR)/app.apk
 
 # Collect resources and generate R.java.
 resources: $(OUT_DIR)/support
-	$(_AAPT_PACKAGE) -J src/main/java
+	@echo :: packaging project resources
+	@$(_AAPT_PACKAGE_RES) \
+		-M src/main/AndroidManifest.xml \
+		-J src/main/java
 
 # Compile Java code.
-compile: lib
+compile: $(_JAVA_SRC)
 	@mkdir -p $(OUT_DIR)/obj
 
-	$(_JAVAC) \
-		-d $(OUT_DIR)/obj \
-		$(shell find src -name '*.java')
+	@echo :: compiling project java files
+	@$(_JAVAC) $(_JAVA_SRC)
 
 # Convert compiled Java code into DEX file (required by Android).
 dex:
-	$(_BUILD_TOOLS)/dx \
+	@echo :: dexing java compiled code
+	@$(_BUILD_TOOLS)/dx \
 		--dex \
+		--incremental \
 		--output $(OUT_DIR)/classes.dex \
 		$(OUT_DIR)/obj \
-		$(OUT_DIR)/support/*/classes.jar \
-		$(foreach jar, \
-			$(SUPPORT_JAR), \
-			$(shell \
-				find $(ANDROID_SDK_PATH)/extras/android/support \
-					-path '*/$(jar)'))
-
-# Unpack support libraries.
-$(OUT_DIR)/support:
-	@mkdir -p $(OUT_DIR)/support
-	$(foreach aar, \
-		$(SUPPORT_AAR), \
-		$(call support_extract,$(firstword $(subst :, ,$(aar))),$(lastword $(subst :, ,$(aar)))))
-
-# Package everything into unaligned APK file.
-$(OUT_DIR)/app.apk.unaligned: resources compile dex
-	$(_AAPT_PACKAGE) -F $(OUT_DIR)/app.apk.unaligned
-
-	cd $(OUT_DIR) && $(_BUILD_TOOLS)/aapt add \
-		app.apk.unaligned \
-		classes.dex \
-		lib/*/*
-
-# Align unaligned APK file and sign it using keystore.
-$(OUT_DIR)/app.apk: .keystore $(OUT_DIR)/app.apk.unaligned
-	$(_BUILD_TOOLS)/zipalign \
-		-f 4 \
-		$(OUT_DIR)/app.apk.unaligned \
-		$(OUT_DIR)/app.apk
-
-	$(_BUILD_TOOLS)/apksigner sign \
-		--ks .keystore \
-		--ks-pass pass:$(KEYS_PASS) \
-		$(OUT_DIR)/app.apk
+		$(OUT_DIR)/support/*/classes.jar
 
 clean:
 	git clean -ffdx
+
+$(OUT_DIR)/lib/%/libcarcosa.so:
+	@echo :: compiling carcosa shared lib
+	@CGO_ENABLED=1 GO111MODULE=on \
+		GOOS=android \
+		 CC=$(CCARCH)-linux-android21-clang \
+		 CXX=$(CCARCH)-linux-android21-clang++ \
+		 go build \
+		 	-o=$@ \
+			-buildmode=c-shared ./lib
+
+# Unpack support libraries.
+$(OUT_DIR)/support:
+	$(foreach dep,$(SUPPORT),$(call support,$(dep)))
+
+# Package everything into unaligned APK file.
+$(OUT_DIR)/app.unaligned.apk: resources lib compile dex
+	@echo :: packaging unaligned apk
+	@$(_AAPT_PACKAGE_RES) \
+		-M src/main/AndroidManifest.xml \
+		-F $(OUT_DIR)/app.unaligned.base.apk
+	@cd $(OUT_DIR) && $(_BUILD_TOOLS)/aapt add \
+		app.unaligned.base.apk \
+		lib/*/*
+	@cp $(OUT_DIR)/app.unaligned.base.apk $(OUT_DIR)/app.unaligned.apk
+	@cd $(OUT_DIR) && $(_BUILD_TOOLS)/aapt add \
+		app.unaligned.apk \
+		classes.dex
+
+run+java: resources compile dex
+	@echo :: packaging unaligned apk - java updates
+	@$(_AAPT_PACKAGE_RES) \
+		-M src/main/AndroidManifest.xml \
+		-u \
+		-F $(OUT_DIR)/app.unaligned.base.apk
+	@cp $(OUT_DIR)/app.unaligned.base.apk $(OUT_DIR)/app.unaligned.apk
+	@cd $(OUT_DIR) && $(_BUILD_TOOLS)/aapt add \
+		app.unaligned.apk \
+		classes.dex
+	@$(_BUILD_TOOLS)/apksigner sign \
+		--ks .keystore \
+		--ks-pass pass:$(KEYS_PASS) \
+		$(OUT_DIR)/app.unaligned.apk
+	adb install $(OUT_DIR)/app.unaligned.apk
+	adb shell am start -n $(ANDROID_PACKAGE)/.MainActivity
+
+# Align unaligned APK file and sign it using keystore.
+$(OUT_DIR)/app.apk: .keystore $(OUT_DIR)/app.unaligned.apk
+	@echo :: packaging final apk
+	@$(_BUILD_TOOLS)/zipalign \
+		-f 4 \
+		$(OUT_DIR)/app.unaligned.apk \
+		$(OUT_DIR)/app.apk
+
+	@echo :: signing final apk
+	@$(_BUILD_TOOLS)/apksigner sign \
+		--ks .keystore \
+		--ks-pass pass:$(KEYS_PASS) \
+		$(OUT_DIR)/app.apk

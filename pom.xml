@@ -17,5 +17,19 @@
             <version>4.1.1.4</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.android.support</groupId>
+            <artifactId>support-v4</artifactId>
+            <version>19.0.1</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/out/support/support-v4/classes.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>com.android.support</groupId>
+            <artifactId>appcompat-v7</artifactId>
+            <version>25.3.1</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/out/support/appcompat-v7/classes.jar</systemPath>
+        </dependency>
     </dependencies>
 </project>
