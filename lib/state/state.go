@@ -201,12 +201,15 @@ func (state *State) List() ([]Repo, error) {
 				return err
 			}
 
+			state.log.Debugf("XXX %s", master)
+
 			secrets, err := repo.Carcosa.List(master)
 			if err != nil {
 				return err
 			}
 
 			for _, secret := range secrets {
+				state.log.Debugf("XXX %s", secret)
 				repo.Tokens = append(
 					repo.Tokens,
 					Token{

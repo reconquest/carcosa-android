@@ -20,6 +20,7 @@ func List(in C.list_in, out *C.list_out) C.error {
 		c_repo.tokens = C.token_list_new(C.int(len(repo.Tokens)))
 
 		for i, token := range repo.Tokens {
+			log.Debugf("XXX %s", token)
 			C.token_list_set(c_repo.tokens, C.int(i), C.token{
 				name: CString(token.Name),
 			})

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/rand"
 	"encoding/json"
+	"fmt"
 	"os"
 
 	"github.com/reconquest/karma-go"
@@ -18,7 +19,7 @@ type Vault struct {
 	Pin struct {
 		Hash []byte `json:"hash,omitempty"`
 		Salt []byte `json:"salt,omitempty"`
-	} `json:"pin,omitempty""`
+	} `json:"pin,omitempty"`
 
 	Tokens map[string][]byte `json:"tokens,omitempty"`
 }
@@ -89,6 +90,8 @@ func (vault *Vault) Get(token string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	fmt.Fprintln(os.Stderr, "XXXXXX vault.go:92", token)
 
 	return vault.Tokens[token], nil
 }
