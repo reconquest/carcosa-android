@@ -18,6 +18,15 @@ public class UI {
   Searchable root;
   Handler handler;
 
+  UI(final View view) {
+    this(
+        new Searchable() {
+          public View findViewById(int id) {
+            return view.findViewById(id);
+          }
+        });
+  }
+
   UI(Searchable root) {
     this.root = root;
     this.handler = new Handler(Looper.getMainLooper());

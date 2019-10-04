@@ -1,3 +1,4 @@
+#include <android/log.h>
 #include <jni.h>
 
 #include "_/error.h"

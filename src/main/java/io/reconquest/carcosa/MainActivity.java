@@ -1,6 +1,7 @@
 package io.reconquest.carcosa;
 
 import java.nio.file.Paths;
+import java.util.ArrayList;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ListView;
 
 public class MainActivity extends AppCompatActivity {
   private Carcosa carcosa;
@@ -20,6 +22,8 @@ public class MainActivity extends AppCompatActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
+    setContentView(R.layout.main);
+
     carcosa = new Carcosa();
     Maybe<Void> init =
         carcosa.init(Paths.get(getApplicationContext().getFilesDir().getPath()).toString());
@@ -27,20 +31,15 @@ public class MainActivity extends AppCompatActivity {
       new FatalErrorDialog(this, init.error).show();
     }
 
-    setContentView(R.layout.main);
     Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_main);
     toolbar.setSubtitle("secrets");
     setSupportActionBar(toolbar);
-    // setListAdapter(new List());
 
     Maybe<Carcosa.ListResult> list = carcosa.list();
     if (list.error != null) {
       new FatalErrorDialog(this, list.error).show();
     } else {
-      for (Carcosa.Repo repo : list.result.repos) {
-        System.err.printf(
-            "!!! src/main/java/io/reconquest/carcosa/MainActivity.java:55 %s\n", repo.name);
-      }
+      ((ListView) findViewById(R.id.repo_list)).setAdapter(new RepoList(list.result.repos));
     }
   }
 
@@ -66,33 +65,39 @@ public class MainActivity extends AppCompatActivity {
     return true;
   }
 
-  // public class RepoList extends BaseAdapter {
-  //  @Override
-  //  public int getCount() {
-  //    return 1;
-  //  }
+  public class RepoList extends BaseAdapter {
+    ArrayList<Carcosa.Repo> repos;
 
-  //  @Override
-  //  public String getItem(int position) {
-  //    return "test";
-  //  }
+    RepoList(ArrayList<Carcosa.Repo> repos) {
+      this.repos = repos;
+    }
 
-  //  @Override
-  //  public long getItemId(int arg0) {
-  //    return "test".hashCode();
-  //  }
+    @Override
+    public int getCount() {
+      return repos.size();
+    }
 
-  //  @Override
-  //  public View getView(int position, View convertView, ViewGroup container) {
-  //    if (convertView == null) {
-  //      convertView = getLayoutInflater().inflate(R.layout.repo_list_item, container, false);
-  //    }
+    @Override
+    public Carcosa.Repo getItem(int i) {
+      return repos.get(i);
+    }
 
-  //    text()
+    @Override
+    public long getItemId(int i) {
+      return getItem(i).name.hashCode();
+    }
 
-  //    ((TextView) convertView.findViewById(R.id.text)).setText(getItem(position));
+    @Override
+    public View getView(int position, View view, ViewGroup container) {
+      if (view == null) {
+        view = getLayoutInflater().inflate(R.layout.repo_list_item, container, false);
+      }
 
-  //    return convertView;
-  //  }
-  // }
+      UI ui = new UI(view);
+
+      ui.text(R.id.repo_list_item_name, getItem(position).name);
+
+      return view;
+    }
+  }
 }
