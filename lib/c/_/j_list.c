@@ -16,7 +16,6 @@ jboolean j_list_add(JNIEnv *env, jobject j_list, jobject j_item) {
   jboolean j_result =
       (*env)->CallBooleanMethod(env, j_list, j_list_add, j_item);
 
-  (*env)->DeleteLocalRef(env, j_list_add);
   (*env)->DeleteLocalRef(env, j_list_class);
 
   return j_result;

@@ -8,7 +8,7 @@ jobject j_object_new_void(JNIEnv *env, const char *classname) {
 
   jobject j_object = (*env)->NewObject(env, j_class, j_class_new);
 
-  (*env)->DeleteLocalRef(env, j_class_new);
+  (*env)->DeleteLocalRef(env, j_class);
 
   return j_object;
 }
@@ -27,6 +27,5 @@ void j_object_set(JNIEnv *env, jobject j_object, const char *field,
 
   (*env)->SetObjectField(env, j_object, j_field, j_value);
 
-  (*env)->DeleteLocalRef(env, j_field);
   (*env)->DeleteLocalRef(env, j_class);
 }

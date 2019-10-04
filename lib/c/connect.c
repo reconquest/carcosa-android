@@ -29,10 +29,10 @@ jobject j_connect_out(JNIEnv *env, connect_out out) {
   (*env)->SetObjectField(env, j_connect_out, j_connect_out_id, j_id);
   (*env)->SetIntField(env, j_connect_out, j_connect_out_tokens, out.tokens);
 
-  (*env)->DeleteLocalRef(env, j_connect_out_id);
-  (*env)->DeleteLocalRef(env, j_connect_out_tokens);
-  (*env)->DeleteLocalRef(env, j_connect_out_new);
-  (*env)->DeleteLocalRef(env, j_connect_out_class);
+  /*(*env)->DeleteLocalRef(env, j_connect_out_id);*/
+  /*(*env)->DeleteLocalRef(env, j_connect_out_tokens);*/
+  /*(*env)->DeleteLocalRef(env, j_connect_out_new);*/
+  /*(*env)->DeleteLocalRef(env, j_connect_out_class);*/
 
   return j_connect_out;
 }

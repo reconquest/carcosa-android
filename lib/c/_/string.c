@@ -56,7 +56,7 @@ jstring string_to_jstring(JNIEnv *env, string string) {
       env, j_string_class, j_string_new, j_byte_array,
       (*env)->NewStringUTF(env, "UTF-8"));
 
-  /*(*env)->DeleteLocalRef(env, j_byte_array);*/
+  (*env)->DeleteLocalRef(env, j_byte_array);
   (*env)->DeleteLocalRef(env, j_string_class);
 
   return j_string;

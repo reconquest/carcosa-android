@@ -22,8 +22,6 @@ jobject j_unlock_out(JNIEnv *env, unlock_out out) {
 
   (*env)->SetIntField(env, j_unlock_out, j_unlock_out_tokens, out.tokens);
 
-  (*env)->DeleteLocalRef(env, j_unlock_out_tokens);
-  (*env)->DeleteLocalRef(env, j_unlock_out_new);
   (*env)->DeleteLocalRef(env, j_unlock_out_class);
 
   return j_unlock_out;
