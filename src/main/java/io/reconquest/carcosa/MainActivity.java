@@ -96,6 +96,9 @@ public class MainActivity extends AppCompatActivity {
       UI ui = new UI(view);
 
       ui.text(R.id.repo_list_item_name, getItem(position).name);
+      System.err.printf(
+          "!!! src/main/java/io/reconquest/carcosa/MainActivity.java:101 %d\n",
+          getItem(position).tokens.size());
 
       return view;
     }

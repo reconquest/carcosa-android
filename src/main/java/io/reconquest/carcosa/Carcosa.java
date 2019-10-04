@@ -38,8 +38,13 @@ public class Carcosa implements Serializable {
 
   public native Maybe<UnlockResult> unlock(String id, String key, Boolean cache);
 
+  public class Token {
+    String name;
+  }
+
   public class Repo {
     String name;
+    ArrayList<Token> tokens;
   }
 
   public class ListResult {

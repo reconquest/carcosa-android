@@ -15,19 +15,8 @@ jobject j_object_new_void(JNIEnv *env, const char *classname) {
 
 void j_object_set_string(JNIEnv *env, jobject j_object, const char *field,
                          string value) {
-  j_object_set(env, j_object, field, "Ljava/lang/String;",
+  j_object_set(env, j_object, field, class_StringL,
                string_to_jstring(env, value));
-  /*jclass j_class = (*env)->GetObjectClass(env, j_object);*/
-
-  /*jfieldID j_field =*/
-  /*    (*env)->GetFieldID(env, j_class, field, "Ljava/lang/String;");*/
-
-  /*jstring j_value = string_to_jstring(env, value);*/
-
-  /*(*env)->SetObjectField(env, j_object, j_field, j_value);*/
-
-  /*(*env)->DeleteLocalRef(env, j_field);*/
-  /*(*env)->DeleteLocalRef(env, j_class);*/
 }
 
 void j_object_set(JNIEnv *env, jobject j_object, const char *field,
