@@ -2,17 +2,14 @@
 <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
         >
 
     <TextView
-            android:id="@+id/repo_list_item_name"
-            android:layout_width="fill_parent"
+            android:id="@+id/repo_token_list_item_name"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text=""
         />
-
-    <include layout="@layout/repo_token_list"/>
 
 </LinearLayout>

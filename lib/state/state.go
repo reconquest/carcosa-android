@@ -196,12 +196,10 @@ func (state *State) List() ([]Repo, error) {
 				Carcosa: carcosa.NewDefault(state.getRepoDir(id), config.NS),
 			}
 
-			master, err := state.vault.Get(id)
+			master, err := state.cache.Get(id)
 			if err != nil {
 				return err
 			}
-
-			state.log.Debugf("XXX %s", master)
 
 			secrets, err := repo.Carcosa.List(master)
 			if err != nil {
@@ -209,7 +207,6 @@ func (state *State) List() ([]Repo, error) {
 			}
 
 			for _, secret := range secrets {
-				state.log.Debugf("XXX %s", secret)
 				repo.Tokens = append(
 					repo.Tokens,
 					Token{

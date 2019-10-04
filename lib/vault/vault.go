@@ -4,12 +4,16 @@ import (
 	"bytes"
 	"crypto/rand"
 	"encoding/json"
-	"fmt"
 	"os"
 
 	"github.com/reconquest/karma-go"
+	"github.com/seletskiy/carcosa/pkg/carcosa"
 	"github.com/seletskiy/carcosa/pkg/carcosa/cache"
 	"github.com/seletskiy/carcosa/pkg/carcosa/crypto"
+)
+
+var (
+	log = carcosa.Logger()
 )
 
 type Vault struct {
@@ -91,7 +95,7 @@ func (vault *Vault) Get(token string) ([]byte, error) {
 		return nil, err
 	}
 
-	fmt.Fprintln(os.Stderr, "XXXXXX vault.go:92", token)
+	log.Debugf("XXX token: %s", token)
 
 	return vault.Tokens[token], nil
 }

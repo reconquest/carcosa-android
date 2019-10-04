@@ -1,6 +1,6 @@
 package io.reconquest.carcosa;
 
 public class Maybe<T> {
-  String error;
-  T result;
+  public String error;
+  public T result;
 }

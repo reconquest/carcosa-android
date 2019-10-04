@@ -10,7 +10,7 @@ extern error Connect(connect_in, connect_out *);
 
 jobject j_connect_out(JNIEnv *env, connect_out out) {
   jclass j_connect_out_class =
-      (*env)->FindClass(env, "io/reconquest/carcosa/Carcosa$ConnectResult");
+      (*env)->FindClass(env, "io/reconquest/carcosa/lib/ConnectResult");
 
   jmethodID j_connect_out_new =
       (*env)->GetMethodID(env, j_connect_out_class, "<init>", "()V");
@@ -37,7 +37,7 @@ jobject j_connect_out(JNIEnv *env, connect_out out) {
   return j_connect_out;
 }
 
-JNIEXPORT jobject JNICALL Java_io_reconquest_carcosa_Carcosa_connect(
+JNIEXPORT jobject JNICALL Java_io_reconquest_carcosa_lib_Carcosa_connect(
     JNIEnv *env, jobject this, jstring j_protocol, jstring j_address,
     jstring j_ns, jstring j_filter) {
 

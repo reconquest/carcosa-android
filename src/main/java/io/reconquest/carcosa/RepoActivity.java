@@ -9,6 +9,7 @@ import android.view.animation.RotateAnimation;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Spinner;
+import io.reconquest.carcosa.lib.*;
 
 public class RepoActivity extends AppCompatActivity implements UI.Searchable {
   private UI ui;
@@ -91,7 +92,7 @@ public class RepoActivity extends AppCompatActivity implements UI.Searchable {
 
     class KeygenThread extends Thread implements Runnable {
       public void run() {
-        final Carcosa.SSHKey key = carcosa.keygen();
+        final SSHKey key = carcosa.keygen();
 
         ui.hide(R.id.repo_ssh_key_generate_progress_panel);
         ui.show(R.id.repo_ssh_key_fingerprint_panel);
@@ -110,8 +111,7 @@ public class RepoActivity extends AppCompatActivity implements UI.Searchable {
         String namespace = ui.text(R.id.repo_token_namespace);
         String filter = ui.text(R.id.repo_token_filter);
 
-        Maybe<Carcosa.ConnectResult> connect =
-            carcosa.connect(protocol, address, namespace, filter);
+        Maybe<ConnectResult> connect = carcosa.connect(protocol, address, namespace, filter);
         if (connect.error != null) {
           ui.hide(R.id.repo_connect_progress_panel);
           ui.text(R.id.repo_error, connect.error);
@@ -148,7 +148,7 @@ public class RepoActivity extends AppCompatActivity implements UI.Searchable {
 
       String key = ui.text(R.id.repo_master_password);
 
-      Maybe<Carcosa.UnlockResult> unlock = carcosa.unlock(repoID, key, false);
+      Maybe<UnlockResult> unlock = carcosa.unlock(repoID, key, false);
       if (unlock.error != null) {
         ui.text(R.id.repo_error, unlock.error);
         ui.show(R.id.repo_error);

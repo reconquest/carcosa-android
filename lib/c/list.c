@@ -38,14 +38,14 @@ void token_list_set(token_list list, int index, token token) {
 }
 
 jobject j_token(JNIEnv *env, token token) {
-  jobject j_token = j_object_new_void(env, class_Carcosa "$Token");
+  jobject j_token = j_object_new_void(env, class_Lib "/Token");
   j_object_set_string(env, j_token, "name", token.name);
 
   return j_token;
 }
 
 jobject j_repo(JNIEnv *env, repo repo) {
-  jobject j_repo = j_object_new_void(env, class_Carcosa "$Repo");
+  jobject j_repo = j_object_new_void(env, class_Lib "/Repo");
   j_object_set_string(env, j_repo, "name", repo.name);
 
   jobject j_repo_tokens = j_list_new(env);
@@ -60,7 +60,7 @@ jobject j_repo(JNIEnv *env, repo repo) {
 }
 
 jobject j_list_out(JNIEnv *env, list_out out) {
-  const char *class_ListResult = class_Carcosa "$ListResult";
+  const char *class_ListResult = class_Lib "/ListResult";
 
   jobject j_list_out = j_object_new_void(env, class_ListResult);
 
@@ -76,7 +76,7 @@ jobject j_list_out(JNIEnv *env, list_out out) {
 }
 
 JNIEXPORT jobject JNICALL
-Java_io_reconquest_carcosa_Carcosa_list(JNIEnv *env, jobject this) {
+Java_io_reconquest_carcosa_lib_Carcosa_list(JNIEnv *env, jobject this) {
   list_in in = {};
 
   list_out out;

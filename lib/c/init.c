@@ -7,7 +7,7 @@
 
 extern error Init(string root);
 
-JNIEXPORT jobject JNICALL Java_io_reconquest_carcosa_Carcosa_init(
+JNIEXPORT jobject JNICALL Java_io_reconquest_carcosa_lib_Carcosa_init(
     JNIEnv *env, jobject this, jstring j_root) {
   string root = string_from_jstring(env, j_root);
 

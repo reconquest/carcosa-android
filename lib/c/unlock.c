@@ -9,7 +9,7 @@ extern error Unlock(unlock_in, unlock_out *);
 
 jobject j_unlock_out(JNIEnv *env, unlock_out out) {
   jclass j_unlock_out_class =
-      (*env)->FindClass(env, "io/reconquest/carcosa/Carcosa$UnlockResult");
+      (*env)->FindClass(env, "io/reconquest/carcosa/lib/UnlockResult");
 
   jmethodID j_unlock_out_new =
       (*env)->GetMethodID(env, j_unlock_out_class, "<init>", "()V");
@@ -27,7 +27,7 @@ jobject j_unlock_out(JNIEnv *env, unlock_out out) {
   return j_unlock_out;
 }
 
-JNIEXPORT jobject JNICALL Java_io_reconquest_carcosa_Carcosa_unlock(
+JNIEXPORT jobject JNICALL Java_io_reconquest_carcosa_lib_Carcosa_unlock(
     JNIEnv *env, jobject this, jstring j_id, jstring j_key, jboolean j_cache) {
 
   string id = string_from_jstring(env, j_id);

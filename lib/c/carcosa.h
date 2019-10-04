@@ -1,1 +1,1 @@
-#define class_Carcosa "io/reconquest/carcosa/Carcosa"
+#define class_Lib "io/reconquest/carcosa/lib"

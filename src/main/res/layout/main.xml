@@ -18,5 +18,5 @@
             app:popupTheme="@style/ThemeOverlay.AppCompat"
         />
 
-    <include layout="@layout/repo_list"/>
+    <include layout="@layout/repo_list" />
 </LinearLayout>

@@ -84,17 +84,22 @@ _AAPT_PACKAGE_RES=$(_AAPT_PACKAGE) \
 
 _JAVA_SRC=$(shell find src -name '*.java')
 
-lib: lib-aarch64
+#_ADB=adb -s QMU7N17B03000481
+_ADB=adb -s emulator-5554
 
-lib-aarch64:
-	@rm -rf $(OUT_DIR)/lib
-	@$(_MAKE) GOARCH=arm64 CCARCH=aarch64 $(OUT_DIR)/lib/arm64-v8a/libcarcosa.so
+so:
+	#@$(_MAKE) GOARCH=arm64 CCARCH=aarch64 lib-arm64-v8a
+	@$(_MAKE) GOARCH=amd64 CCARCH=x86_64 lib-x86_64
+
+lib-%:
+	@rm -rf $(OUT_DIR)/lib/$*/libcarcosa.so
+	@$(_MAKE) $(OUT_DIR)/lib/$*/libcarcosa.so
 
 run: install
-	adb shell am start -n $(ANDROID_PACKAGE)/.MainActivity
+	$(_ADB) shell am start -n $(ANDROID_PACKAGE)/.MainActivity
 
 install: $(OUT_DIR)/app.apk
-	adb install $(OUT_DIR)/app.apk
+	$(_ADB) install -r --fastdeploy $(OUT_DIR)/app.apk
 
 # Initialize keystore to sign APK.
 .keystore:
@@ -137,7 +142,7 @@ clean:
 	git clean -ffdx
 
 $(OUT_DIR)/lib/%/libcarcosa.so:
-	@echo :: compiling carcosa shared lib
+	@echo :: compiling carcosa shared lib CCARCH=$(CCARCH) GOARCH=$(GOARCH)
 	@CGO_ENABLED=1 GO111MODULE=on \
 		GOOS=android \
 		 CC=$(CCARCH)-linux-android21-clang \
@@ -151,7 +156,7 @@ $(OUT_DIR)/support:
 	$(foreach dep,$(SUPPORT),$(call support,$(dep)))
 
 # Package everything into unaligned APK file.
-$(OUT_DIR)/app.unaligned.apk: resources lib compile dex
+$(OUT_DIR)/app.unaligned.apk: resources so compile dex
 	@echo :: packaging unaligned apk
 	@$(_AAPT_PACKAGE_RES) \
 		-M src/main/AndroidManifest.xml \
@@ -178,8 +183,8 @@ run+java: resources compile dex
 		--ks .keystore \
 		--ks-pass pass:$(KEYS_PASS) \
 		$(OUT_DIR)/app.unaligned.apk
-	adb install $(OUT_DIR)/app.unaligned.apk
-	adb shell am start -n $(ANDROID_PACKAGE)/.MainActivity
+	$(_ADB) install -r --fastdeploy $(OUT_DIR)/app.unaligned.apk
+	$(_ADB) shell am start -n $(ANDROID_PACKAGE)/.MainActivity
 
 # Align unaligned APK file and sign it using keystore.
 $(OUT_DIR)/app.apk: .keystore $(OUT_DIR)/app.unaligned.apk

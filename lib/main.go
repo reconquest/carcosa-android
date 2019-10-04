@@ -11,4 +11,7 @@ package main
 // #include "c/list.c"
 import "C"
 
+func init() {
+}
+
 func main() {}
