@@ -6,6 +6,7 @@
 
 typedef struct {
   string name;
+  string payload;
 } token;
 
 typedef struct {

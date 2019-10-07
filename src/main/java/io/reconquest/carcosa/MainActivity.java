@@ -3,6 +3,7 @@ package io.reconquest.carcosa;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -11,11 +12,16 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import io.reconquest.carcosa.lib.*;
+import android.widget.Toast;
+import io.reconquest.carcosa.lib.Carcosa;
+import io.reconquest.carcosa.lib.ListResult;
+import io.reconquest.carcosa.lib.Repo;
+import io.reconquest.carcosa.lib.Token;
 
 public class MainActivity extends AppCompatActivity {
   private Carcosa carcosa;
@@ -121,6 +127,22 @@ public class MainActivity extends AppCompatActivity {
   }
 
   public class RepoTokenList extends BaseAdapter {
+    public class CopyButton implements OnClickListener {
+      String secret;
+
+      CopyButton(String secret) {
+        this.secret = secret;
+      }
+
+      public void onClick(View v) {
+        Context context = getApplicationContext();
+        int duration = Toast.LENGTH_SHORT;
+
+        Toast toast = Toast.makeText(context, secret, duration);
+        toast.show();
+      }
+    }
+
     ArrayList<Token> tokens;
 
     RepoTokenList(ArrayList<Token> tokens) {
@@ -129,8 +151,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public int getCount() {
-      System.err.printf(
-          "!!! src/main/java/io/reconquest/carcosa/MainActivity.java:119 %s\n", tokens.size());
       return tokens.size();
     }
 
@@ -146,15 +166,16 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public View getView(int position, View view, ViewGroup container) {
-      System.err.printf(
-          "!!! src/main/java/io/reconquest/carcosa/MainActivity.java:133 %s\n", position);
       if (view == null) {
         view = getLayoutInflater().inflate(R.layout.repo_token_list_item, container, false);
       }
 
       UI ui = new UI(view);
 
-      ui.text(R.id.repo_token_list_item_name, getItem(position).name);
+      Token token = getItem(position);
+
+      ui.text(R.id.repo_token_list_item_name, token.name);
+      ui.onClick(R.id.repo_token_list_item_copy, new CopyButton(token.payload));
 
       return view;
     }

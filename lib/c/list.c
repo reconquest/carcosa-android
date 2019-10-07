@@ -1,5 +1,6 @@
 #include <android/log.h>
 #include <jni.h>
+#include <string.h>
 
 #include "_/j_list.h"
 #include "_/j_maybe.h"
@@ -39,13 +40,17 @@ void token_list_set(token_list list, int index, token token) {
 
 jobject j_token(JNIEnv *env, token token) {
   jobject j_token = j_object_new_void(env, class_Lib "/Token");
+
   j_object_set_string(env, j_token, "name", token.name);
+  j_object_set_string(env, j_token, "payload", token.payload);
 
   return j_token;
 }
 
 jobject j_repo(JNIEnv *env, repo repo) {
+
   jobject j_repo = j_object_new_void(env, class_Lib "/Repo");
+
   j_object_set_string(env, j_repo, "name", repo.name);
 
   jobject j_repo_tokens = j_list_new(env);
@@ -85,4 +90,3 @@ Java_io_reconquest_carcosa_lib_Carcosa_list(JNIEnv *env, jobject this) {
 
   return j_maybe(env, j_list_out(env, out), err);
 }
-/*void token_list_add(token_list list, token token);*/

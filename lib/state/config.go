@@ -19,10 +19,6 @@ type ConfigSyncStatus struct {
 	Stats carcosa.SyncStats `json:"stats"`
 }
 
-type ConfigMaster struct {
-	Cache string `json:"cache"`
-}
-
 type Config struct {
 	ID         string           `json:"id"`
 	URL        ConfigURL        `json:"url"`

@@ -4,21 +4,27 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"time"
 
 	"carcosa/lib/vault"
 
-	"github.com/kovetskiy/lorg"
 	"github.com/reconquest/karma-go"
 	"github.com/seletskiy/carcosa/pkg/carcosa"
 	"github.com/seletskiy/carcosa/pkg/carcosa/auth"
 	"github.com/seletskiy/carcosa/pkg/carcosa/cache"
+	"github.com/seletskiy/carcosa/pkg/carcosa/crypto"
+)
+
+var (
+	log = carcosa.Logger()
 )
 
 type Token struct {
-	Name string
+	Name    string
+	Payload string
 }
 
 type Repo struct {
@@ -28,31 +34,17 @@ type Repo struct {
 }
 
 type State struct {
-	log   lorg.Logger
-	root  string
-	vault *vault.Vault
-	cache *cache.Cache
+	pin  string
+	root string
 }
 
-func NewState(root string, log lorg.Logger) (*State, error) {
+func NewState(root string, pin string) *State {
 	state := &State{
-		log:  log,
+		pin:  pin,
 		root: root,
 	}
 
-	var err error
-
-	state.vault, err = vault.New(state.getVaultPath())
-	if err != nil {
-		return nil, karma.Format(
-			err,
-			"unable to open vault",
-		)
-	}
-
-	state.cache = cache.NewDefault(state.vault)
-
-	return state, nil
+	return state
 }
 
 func (state *State) getReposDir() string {
@@ -60,27 +52,26 @@ func (state *State) getReposDir() string {
 }
 
 func (state *State) getRepoDir(id string) string {
-	return filepath.Join(state.getReposDir(), id, "repo")
+	return filepath.Join(state.getReposDir(), id)
+}
+
+func (state *State) getRepoGitDir(id string) string {
+	return filepath.Join(state.getRepoDir(id), "git")
 }
 
 func (state *State) getRepoConfigPath(id string) string {
 	return filepath.Join(state.getRepoDir(id), "config.json")
 }
 
-func (state *State) getVaultPath() string {
-	return filepath.Join(state.root, "vault.json")
+func (state *State) cache(id string) *cache.Cache {
+	core := crypto.DefaultCore
+	core.KDF.Iterations = 1048576
+
+	return cache.New(vault.New(state.getRepoDir(id), state.pin), &core)
 }
 
-func (state *State) IsPinSet() bool {
-	return state.vault.IsLocked()
-}
-
-func (state *State) SetPin(pin string) error {
-	return state.vault.Lock(pin)
-}
-
-func (state *State) CheckPin(pin string) bool {
-	return state.vault.Unlock(pin)
+func (state *State) carcosa(id string, ns string) *carcosa.Carcosa {
+	return carcosa.NewDefault(state.getRepoGitDir(id), ns)
 }
 
 func (state *State) Connect(
@@ -99,7 +90,7 @@ func (state *State) Connect(
 
 	id = hex.EncodeToString(bytes[:])
 
-	carcosa := carcosa.NewDefault(state.getRepoDir(id), ns)
+	carcosa := state.carcosa(id, ns)
 
 	err = carcosa.Init(
 		fmt.Sprintf("%s://%s", protocol, address),
@@ -142,14 +133,7 @@ func (state *State) Unlock(id string, key string, cache bool) (int, error) {
 		return 0, err
 	}
 
-	//filter, err := regexp.Compile(config.Filter)
-	//if err != nil {
-	//    return 0, karma.Format(
-	//        err,
-	//        "unable to compile filter regexp",
-	//    )
-	//}
-	carcosa := carcosa.NewDefault(state.getRepoDir(config.ID), config.NS)
+	carcosa := state.carcosa(id, config.NS)
 
 	secrets, err := carcosa.List([]byte(key))
 	if err != nil {
@@ -159,7 +143,7 @@ func (state *State) Unlock(id string, key string, cache bool) (int, error) {
 		)
 	}
 
-	err = state.cache.Set(config.ID, []byte(key))
+	err = state.cache(id).Set(id, []byte(key))
 	if err != nil {
 		return 0, karma.Format(
 			err,
@@ -193,10 +177,10 @@ func (state *State) List() ([]Repo, error) {
 
 			repo := Repo{
 				Config:  config,
-				Carcosa: carcosa.NewDefault(state.getRepoDir(id), config.NS),
+				Carcosa: state.carcosa(id, config.NS),
 			}
 
-			master, err := state.cache.Get(id)
+			master, err := state.cache(id).Get(id)
 			if err != nil {
 				return err
 			}
@@ -207,10 +191,19 @@ func (state *State) List() ([]Repo, error) {
 			}
 
 			for _, secret := range secrets {
+				payload, err := ioutil.ReadAll(secret.StreamReader)
+				if err != nil {
+					return karma.Format(
+						err,
+						"unable to read secret payload",
+					)
+				}
+
 				repo.Tokens = append(
 					repo.Tokens,
 					Token{
-						Name: string(secret.Token),
+						Name:    string(secret.Token),
+						Payload: string(payload),
 					},
 				)
 			}

@@ -21,7 +21,8 @@ func List(in C.list_in, out *C.list_out) C.error {
 
 		for i, token := range repo.Tokens {
 			C.token_list_set(c_repo.tokens, C.int(i), C.token{
-				name: CString(token.Name),
+				name:    CString(token.Name),
+				payload: CString(token.Payload),
 			})
 		}
 
