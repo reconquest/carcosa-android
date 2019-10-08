@@ -27,7 +27,7 @@ KEYS_SIZE=2048
 OUT_DIR=out
 
 SUPPORT=android.support.v7.appcompat:appcompat-v7:25.3.1 \
-		android.support.v7.appcompat:design:25.3.1
+		android.support.design:design:25.3.1
 
 define support
 	$(call support_extract,$(word 2,$(subst :, ,$(1))),$(word 3,$(subst :, ,$(1))))
