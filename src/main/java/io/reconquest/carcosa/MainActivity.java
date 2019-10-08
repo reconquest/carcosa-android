@@ -6,8 +6,6 @@ import java.util.ArrayList;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -18,9 +16,15 @@ import android.widget.BaseAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import io.reconquest.carcosa.MainActivity.RepoList;
+import io.reconquest.carcosa.MainActivity.RepoTokenList;
+import io.reconquest.carcosa.MainActivity.RepoTokenList.CopyButton;
 import io.reconquest.carcosa.lib.Carcosa;
 import io.reconquest.carcosa.lib.ListResult;
 import io.reconquest.carcosa.lib.Repo;
+// import androidx.biometric.BiometricManager;
 import io.reconquest.carcosa.lib.Token;
 
 public class MainActivity extends AppCompatActivity {
@@ -49,6 +53,22 @@ public class MainActivity extends AppCompatActivity {
     } else {
       ((ListView) findViewById(R.id.repo_list)).setAdapter(new RepoList(list.result.repos));
     }
+
+    // BiometricManager biometricManager = BiometricManager.from(this);
+    // switch (biometricManager.canAuthenticate()) {
+    //  case BiometricManager.BIOMETRIC_SUCCESS:
+    //    Log.d("App can authenticate using biometrics.");
+    //    break;
+    //  case BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE:
+    //    Log.e("No biometric features available on this device.");
+    //    break;
+    //  case BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE:
+    //    Log.e("Biometric features are currently unavailable.");
+    //    break;
+    //  case BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED:
+    //    Log.e("The user hasn't associated any biometric credentials " + "with their account.");
+    //    break;
+    // }
   }
 
   @Override

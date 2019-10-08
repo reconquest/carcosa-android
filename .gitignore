@@ -1,9 +1,13 @@
-/out
 /target
 /.keystore
 /.settings
 /.project
 /go.sum
-
-*.class
-R.java
+/build/
+/.gradle
+/src/main/jniLibs
+/gradlew.bat
+/.classpath
+/bin
+/gradle
+project.properties

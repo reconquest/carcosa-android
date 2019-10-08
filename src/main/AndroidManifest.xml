@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="io.reconquest.carcosa" android:versionCode="0" android:versionName="0">
+<manifest package="io.reconquest.carcosa"  xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="0" android:versionName="0">
     <uses-sdk
       android:minSdkVersion="19"
       android:targetSdkVersion="25" />

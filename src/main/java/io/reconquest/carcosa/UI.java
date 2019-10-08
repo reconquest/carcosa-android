@@ -9,6 +9,7 @@ import android.view.View.OnClickListener;
 import android.view.animation.Animation;
 import android.widget.Spinner;
 import android.widget.TextView;
+import androidx.appcompat.app.AppCompatActivity;
 
 public class UI {
   public interface Searchable {
@@ -19,6 +20,15 @@ public class UI {
   Handler handler;
 
   UI(final View view) {
+    this(
+        new Searchable() {
+          public View findViewById(int id) {
+            return view.findViewById(id);
+          }
+        });
+  }
+
+  UI(final AppCompatActivity view) {
     this(
         new Searchable() {
           public View findViewById(int id) {

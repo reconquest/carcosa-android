@@ -1,17 +1,27 @@
 package io.reconquest.carcosa;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.animation.RotateAnimation;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Spinner;
-import io.reconquest.carcosa.lib.*;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import io.reconquest.carcosa.RepoActivity.AdvancedSettingsPanel;
+import io.reconquest.carcosa.RepoActivity.ConnectButton;
+import io.reconquest.carcosa.RepoActivity.ConnectButton.ConnectThread;
+import io.reconquest.carcosa.RepoActivity.GenerateKeyButton;
+import io.reconquest.carcosa.RepoActivity.GenerateKeyButton.KeygenThread;
+import io.reconquest.carcosa.RepoActivity.ProtocolSelect;
+import io.reconquest.carcosa.RepoActivity.UnlockButton;
+import io.reconquest.carcosa.lib.Carcosa;
+import io.reconquest.carcosa.lib.ConnectResult;
+import io.reconquest.carcosa.lib.SSHKey;
+import io.reconquest.carcosa.lib.UnlockResult;
 
-public class RepoActivity extends AppCompatActivity implements UI.Searchable {
+public class RepoActivity extends AppCompatActivity {
   private UI ui;
   private Carcosa carcosa;
 
