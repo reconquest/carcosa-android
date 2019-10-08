@@ -15,7 +15,8 @@ _MAKE=$(MAKE) \
 _ADB=adb
 
 so:
-	@$(_MAKE) GOARCH=arm64 CCARCH=aarch64 lib-arm64-v8a
+	#@$(_MAKE) GOARCH=arm64 CCARCH=aarch64 lib-arm64-v8a
+	@$(_MAKE) GOARCH=amd64 CCARCH=x86_64 lib-x86_64
 
 lib-%:
 	@rm -rf src/main/jniLibs/$*
