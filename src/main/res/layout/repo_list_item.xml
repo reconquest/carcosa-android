@@ -23,6 +23,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:src="@drawable/ic_refresh_24dp"
+                style="@style/Widget.AppCompat.Button.Borderless"
             />
 
     </RelativeLayout>

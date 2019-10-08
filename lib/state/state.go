@@ -93,9 +93,9 @@ func (state *State) Connect(
 	carcosa := state.carcosa(id, ns)
 
 	err = carcosa.Init(
-		fmt.Sprintf("%s://%s", protocol, address),
 		"origin",
-		nil,
+		fmt.Sprintf("%s://%s", protocol, address),
+		ns,
 	)
 	if err != nil {
 		return nil, err
