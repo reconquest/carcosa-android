@@ -85,11 +85,11 @@ _AAPT_PACKAGE_RES=$(_AAPT_PACKAGE) \
 _JAVA_SRC=$(shell find src -name '*.java')
 
 #_ADB=adb -s QMU7N17B03000481
-_ADB=adb -s emulator-5554
+_ADB=adb
 
 so:
-	#@$(_MAKE) GOARCH=arm64 CCARCH=aarch64 lib-arm64-v8a
-	@$(_MAKE) GOARCH=amd64 CCARCH=x86_64 lib-x86_64
+	@$(_MAKE) GOARCH=arm64 CCARCH=aarch64 lib-arm64-v8a
+	#@$(_MAKE) GOARCH=amd64 CCARCH=x86_64 lib-x86_64
 
 lib-%:
 	@rm -rf $(OUT_DIR)/lib/$*/libcarcosa.so
@@ -99,7 +99,7 @@ run: install
 	$(_ADB) shell am start -n $(ANDROID_PACKAGE)/.MainActivity
 
 install: $(OUT_DIR)/app.apk
-	$(_ADB) install -r --fastdeploy $(OUT_DIR)/app.apk
+	$(_ADB) install -r $(OUT_DIR)/app.apk
 
 # Initialize keystore to sign APK.
 .keystore:
