@@ -17,7 +17,7 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar; // import androidx.biometric.BiometricManager
+import androidx.appcompat.widget.Toolbar;
 import io.reconquest.carcosa.lib.Carcosa;
 import io.reconquest.carcosa.lib.ListResult;
 import io.reconquest.carcosa.lib.Repo;
