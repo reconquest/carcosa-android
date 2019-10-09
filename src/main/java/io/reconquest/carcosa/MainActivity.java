@@ -122,6 +122,21 @@ public class MainActivity extends AppCompatActivity {
       Repo repo = getItem(position);
 
       ui.text(R.id.repo_list_item_name, repo.name);
+      ui.text(R.id.repo_list_item_sync_stat_date, repo.syncStat.date);
+
+      if (repo.syncStat.added > 0) {
+        ui.text(R.id.repo_list_item_sync_stat_added, String.format("+%d", repo.syncStat.added));
+        ui.show(R.id.repo_list_item_sync_stat_added);
+      }
+
+      if (repo.syncStat.deleted > 0) {
+        ui.text(R.id.repo_list_item_sync_stat_deleted, String.format("−%d", repo.syncStat.deleted));
+        ui.show(R.id.repo_list_item_sync_stat_deleted);
+      }
+
+      if (repo.syncStat.added + repo.syncStat.deleted == 0) {
+        ui.show(R.id.repo_list_item_sync_stat_uptodate);
+      }
 
       ListView tokensView = (ListView) view.findViewById(R.id.repo_token_list);
       ListAdapter tokensAdapter = new RepoTokenList(repo.tokens);
@@ -190,7 +205,19 @@ public class MainActivity extends AppCompatActivity {
 
       Token token = getItem(position);
 
-      ui.text(R.id.repo_token_list_item_name, token.name);
+      if (token.resource.equals("")) {
+        ui.text(R.id.repo_token_list_item_name, token.name);
+      } else {
+        ui.hide(R.id.repo_token_list_item_name_panel);
+        if (!token.login.equals("")) {
+          ui.text(R.id.repo_token_list_item_login, token.login);
+          ui.show(R.id.repo_token_list_item_login_panel);
+        }
+
+        ui.text(R.id.repo_token_list_item_resource, token.resource);
+        ui.show(R.id.repo_token_list_item_resource_panel);
+      }
+
       ui.onClick(R.id.repo_token_list_item_copy, new CopyButton(token.payload));
 
       return view;

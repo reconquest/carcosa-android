@@ -1,6 +1,7 @@
 package io.reconquest.carcosa.lib;
 
 public class SyncStat {
-  int added;
-  int deleted;
+  public String date;
+  public int added;
+  public int deleted;
 }

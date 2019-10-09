@@ -3,6 +3,8 @@
 #include "error.h"
 #include "string.h"
 
+#define class_Maybe "io/reconquest/carcosa/Maybe"
+
 #ifndef _CARCOSA_J_MAYBE_JNI_H
 #define _CARCOSA_J_MAYBE_JNI_H
 

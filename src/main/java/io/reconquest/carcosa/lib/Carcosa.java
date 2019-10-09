@@ -11,12 +11,11 @@ public class Carcosa implements Serializable {
 
   public native Maybe<Void> init(String root);
 
-  public native SSHKey keygen();
+  public native Maybe<SSHKey> keygen();
 
-  public native Maybe<ConnectResult> connect(
-      String protocol, String address, String ns, String filter);
+  public native Maybe<ConnectResult> connect(String protocol, String address, String ns);
 
-  public native Maybe<UnlockResult> unlock(String id, String key, Boolean cache);
+  public native Maybe<UnlockResult> unlock(String id, String key, String filter, Boolean cache);
 
   public native Maybe<ListResult> list();
 }

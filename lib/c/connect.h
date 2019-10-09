@@ -7,7 +7,6 @@ typedef struct {
   string protocol;
   string address;
   string ns;
-  string filter;
 } connect_in;
 
 typedef struct {

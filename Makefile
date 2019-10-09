@@ -11,8 +11,8 @@ KEYS_ALIAS     = carcosa
 _MAKE=$(MAKE) \
 	  --no-print-directory \
 	  -s
-#_ADB=adb -s QMU7N17B03000481
-_ADB=adb
+
+_ADB=adb -s $(shell adb devices -l | tail -n+2 | cut -f1 -d' ' | head -n1)
 
 
 ifdef PHONE

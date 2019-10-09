@@ -19,6 +19,17 @@ void j_object_set_string(JNIEnv *env, jobject j_object, const char *field,
                string_to_jstring(env, value));
 }
 
+void j_object_set_int(JNIEnv *env, jobject j_object, const char *field,
+                      int value) {
+  jclass j_class = (*env)->GetObjectClass(env, j_object);
+
+  jfieldID j_field = (*env)->GetFieldID(env, j_class, field, "I");
+
+  (*env)->SetIntField(env, j_object, j_field, value);
+
+  (*env)->DeleteLocalRef(env, j_class);
+}
+
 void j_object_set(JNIEnv *env, jobject j_object, const char *field,
                   const char *kind, jobject j_value) {
   jclass j_class = (*env)->GetObjectClass(env, j_object);

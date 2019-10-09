@@ -1,4 +1,5 @@
 #include "_/string.h"
+#include "sync_stat.h"
 #include <stdbool.h>
 
 #ifndef _CARCOSA_LIST_H
@@ -6,6 +7,8 @@
 
 typedef struct {
   string name;
+  string resource;
+  string login;
   string payload;
 } token;
 
@@ -17,6 +20,7 @@ typedef struct {
 typedef struct {
   string id;
   string name;
+  sync_stat sync_stat;
   bool is_locked;
   token_list tokens;
 } repo;

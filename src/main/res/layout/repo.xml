@@ -57,6 +57,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="fill_parent"
                     android:theme="@style/Spinner"
+                    android:enabled="false"
                     style="@style/Base.Widget.AppCompat.Spinner.Underlined"
                     android:entries="@array/repo_protocols_list"
                 />
@@ -343,6 +344,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Cache master password"
+                android:enabled="false"
+                android:checked="true"
             />
 
         <LinearLayout

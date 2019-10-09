@@ -7,11 +7,13 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"regexp"
 	"time"
 
 	"carcosa/lib/vault"
 
 	"github.com/reconquest/karma-go"
+	"github.com/reconquest/regexputil-go"
 	"github.com/seletskiy/carcosa/pkg/carcosa"
 	"github.com/seletskiy/carcosa/pkg/carcosa/auth"
 	"github.com/seletskiy/carcosa/pkg/carcosa/cache"
@@ -23,8 +25,10 @@ var (
 )
 
 type Token struct {
-	Name    string
-	Payload string
+	Name     string
+	Resource string
+	Login    string
+	Payload  string
 }
 
 type Repo struct {
@@ -64,10 +68,22 @@ func (state *State) getRepoConfigPath(id string) string {
 }
 
 func (state *State) cache(id string) *cache.Cache {
-	core := crypto.DefaultCore
-	core.KDF.Iterations = 1048576
+	return cache.New(
+		vault.New(state.getRepoDir(id), state.pin),
+		&crypto.DefaultCore,
+	)
+}
 
-	return cache.New(vault.New(state.getRepoDir(id), state.pin), &core)
+func (state *State) filter(filter string) (*regexp.Regexp, error) {
+	re, err := regexp.Compile(`^` + filter + `$`)
+	if err != nil {
+		return nil, karma.Format(
+			err,
+			"unable to compile filter regexp",
+		)
+	}
+
+	return re, nil
 }
 
 func (state *State) carcosa(id string, ns string) *carcosa.Carcosa {
@@ -127,7 +143,12 @@ func (state *State) Connect(
 	return config, nil
 }
 
-func (state *State) Unlock(id string, key string, cache bool) (int, error) {
+func (state *State) Unlock(
+	id string,
+	key string,
+	filter string,
+	cache bool,
+) (int, error) {
 	config, err := LoadConfig(state.getRepoConfigPath(id))
 	if err != nil {
 		return 0, err
@@ -149,6 +170,18 @@ func (state *State) Unlock(id string, key string, cache bool) (int, error) {
 			err,
 			"unable to set master cache",
 		)
+	}
+
+	_, err = state.filter(filter)
+	if err != nil {
+		return 0, err
+	}
+
+	config.Filter = filter
+
+	err = config.Store(state.getRepoConfigPath(id))
+	if err != nil {
+		return 0, err
 	}
 
 	return len(secrets), nil
@@ -190,6 +223,11 @@ func (state *State) List() ([]Repo, error) {
 				return err
 			}
 
+			filter, err := state.filter(config.Filter)
+			if err != nil {
+				return err
+			}
+
 			for _, secret := range secrets {
 				payload, err := ioutil.ReadAll(secret.StreamReader)
 				if err != nil {
@@ -199,13 +237,17 @@ func (state *State) List() ([]Repo, error) {
 					)
 				}
 
-				repo.Tokens = append(
-					repo.Tokens,
-					Token{
-						Name:    string(secret.Token),
-						Payload: string(payload),
-					},
-				)
+				token := Token{
+					Name:    string(secret.Token),
+					Payload: string(payload),
+				}
+
+				matches := filter.FindStringSubmatch(token.Name)
+
+				token.Resource = regexputil.Subexp(filter, matches, "resource")
+				token.Login = regexputil.Subexp(filter, matches, "login")
+
+				repo.Tokens = append(repo.Tokens, token)
 			}
 
 			repos = append(repos, repo)
