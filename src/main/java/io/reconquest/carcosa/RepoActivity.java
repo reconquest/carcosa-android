@@ -1,9 +1,29 @@
 package io.reconquest.carcosa;
 
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
+import java.util.Arrays;
+import java.util.concurrent.Executor;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
+
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.animation.RotateAnimation;
@@ -11,19 +31,73 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Spinner;
 import android.widget.Toast;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.biometric.BiometricManager;
+import androidx.biometric.BiometricPrompt;
 import io.reconquest.carcosa.lib.Carcosa;
 import io.reconquest.carcosa.lib.ConnectResult;
 import io.reconquest.carcosa.lib.SSHKey;
 import io.reconquest.carcosa.lib.UnlockResult;
 
 public class RepoActivity extends AppCompatActivity {
+  private static final String TAG = RepoActivity.class.getName();
+  private static final String BIOMETRIC_KEY_NAME = "carcosa";
+  private BiometricPrompt biometricPrompt;
+  private final BiometricPrompt.PromptInfo biometricPromptInfo =
+      new BiometricPrompt.PromptInfo.Builder()
+          .setTitle("Title")
+          .setSubtitle("Subtitle")
+          .setDescription("Description")
+          .setNegativeButtonText("Negative Button")
+          .build();
+
+  private final BiometricPrompt.AuthenticationCallback biometricCallback =
+      new BiometricPrompt.AuthenticationCallback() {
+        @Override
+        public void onAuthenticationError(int err, @NonNull CharSequence message) {
+          Log.d(TAG, "onAuthenticationError " + err + ": " + message);
+        }
+
+        @Override
+        public void onAuthenticationSucceeded(
+            @NonNull BiometricPrompt.AuthenticationResult result) {
+          final BiometricPrompt.CryptoObject cryptoObject = result.getCryptoObject();
+          Log.d(TAG, "onAuthenticationSucceeded, cryptoObject: " + cryptoObject);
+          if (cryptoObject != null) {
+            try {
+              byte[] encrypted =
+                  cryptoObject.getCipher().doFinal("payload".getBytes(Charset.defaultCharset()));
+              Log.d(TAG, "Test payload: " + "payload");
+              Log.d(TAG, "Encrypted payload: " + Arrays.toString(encrypted));
+            } catch (BadPaddingException | IllegalBlockSizeException e) {
+              Log.e(TAG, "Failed to encrypt", e);
+            }
+          }
+        }
+
+        @Override
+        public void onAuthenticationFailed() {
+          Log.d(TAG, "onAuthenticationFailed");
+          biometricPrompt.cancelAuthentication();
+        }
+      };
+
   private UI ui;
   private Carcosa carcosa;
 
   private String repoID;
   private SSHKey repoSSHKey;
+
+  private Handler handler = new Handler();
+  private Executor executor =
+      new Executor() {
+        @Override
+        public void execute(Runnable command) {
+          handler.post(command);
+        }
+      };
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +121,66 @@ public class RepoActivity extends AppCompatActivity {
     toolbar.setSubtitle("add repository");
     setSupportActionBar(toolbar);
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+    this.initBiometrics();
+  }
+
+  private void initBiometrics() {
+    BiometricManager biometricManager = BiometricManager.from(this);
+    switch (biometricManager.canAuthenticate()) {
+      case BiometricManager.BIOMETRIC_SUCCESS:
+        Log.d(TAG, "App can authenticate using biometrics.");
+        break;
+      case BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE:
+        Log.d(TAG, "No biometric features available on this device.");
+        break;
+      case BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE:
+        Log.d(TAG, "Biometric features are currently unavailable.");
+        break;
+      case BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED:
+        Log.d(TAG, "The user hasn't associated any biometric credentials with their account.");
+        break;
+    }
+
+    try {
+      BiometricPromptDemoSecretKeyHelper.generateBiometricBoundKey(
+          BIOMETRIC_KEY_NAME, true /* invalidatedByBiometricEnrollment */);
+      Log.d(TAG, "Generated a key");
+    } catch (InvalidAlgorithmParameterException
+        | NoSuchAlgorithmException
+        | NoSuchProviderException e) {
+      Log.e(TAG, "Failed to generate key", e);
+    }
+
+    Cipher cipher = null;
+    try {
+      cipher = BiometricPromptDemoSecretKeyHelper.getCipher();
+    } catch (NoSuchPaddingException | NoSuchAlgorithmException e) {
+      Log.e(TAG, "Failed to get cipher", e);
+    }
+
+    SecretKey secretKey = null;
+    try {
+      secretKey = BiometricPromptDemoSecretKeyHelper.getSecretKey(BIOMETRIC_KEY_NAME);
+    } catch (KeyStoreException
+        | CertificateException
+        | NoSuchAlgorithmException
+        | IOException
+        | UnrecoverableKeyException e) {
+      Log.e(TAG, "Failed to get secret key", e);
+    }
+
+    biometricPrompt = new BiometricPrompt(this, executor, biometricCallback);
+
+    if (cipher != null && secretKey != null) {
+      try {
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+        biometricPrompt.authenticate(biometricPromptInfo, new BiometricPrompt.CryptoObject(cipher));
+        Log.d(TAG, "Started authentication with a crypto object");
+      } catch (InvalidKeyException e) {
+        Log.e(TAG, "Failed to init cipher", e);
+      }
+    }
   }
 
   public class AdvancedSettingsPanel implements OnClickListener {
