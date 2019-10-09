@@ -1,12 +1,12 @@
 ANDROID_PACKAGE=io.reconquest.carcosa
 
 # Settings for keystore which is used to sign APK.
-KEYS_DN=DC=io,CN=reconquest
-KEYS_PASS=123456
-KEYS_VALIDITY=365
-KEYS_ALGORITHM=RSA
-KEYS_SIZE=2048
-KEYS_ALIAS=carcosa
+KEYS_DN        = DC=io,CN=reconquest
+KEYS_PASS      = 123456
+KEYS_VALIDITY  = 365
+KEYS_ALGORITHM = RSA
+KEYS_SIZE      = 2048
+KEYS_ALIAS     = carcosa
 
 _MAKE=$(MAKE) \
 	  --no-print-directory \
@@ -14,9 +14,19 @@ _MAKE=$(MAKE) \
 #_ADB=adb -s QMU7N17B03000481
 _ADB=adb
 
+
+ifdef PHONE
+SO_GOARCH = arm64
+SO_TARGET = lib-arm64-v8a
+SO_CCARCH = aarch64
+else
+SO_GOARCH = amd64
+SO_TARGET = lib-x86_64
+SO_CCARCH = x86_64
+endif
+
 so:
-	#@$(_MAKE) GOARCH=arm64 CCARCH=aarch64 lib-arm64-v8a
-	@$(_MAKE) GOARCH=amd64 CCARCH=x86_64 lib-x86_64
+	@$(_MAKE) GOARCH=$(SO_GOARCH) CCARCH=$(SO_CCARCH) $(SO_TARGET)
 
 lib-%:
 	@rm -rf src/main/jniLibs/$*
