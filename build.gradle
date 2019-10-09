@@ -13,14 +13,14 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.0'
+        classpath 'com.android.tools.build:gradle:3.5.1'
         classpath 'io.reconquest:gradle-android-eclipse:1.2'
     }
 }
 
 android {
-    compileSdkVersion  28
-    buildToolsVersion  '28.0.3'
+    compileSdkVersion  29
+    buildToolsVersion  '29.0.0'
 
     lintOptions {
         abortOnError false
@@ -37,7 +37,7 @@ android {
 
     defaultConfig {
         applicationId 'io.reconquest.carcosa'
-        minSdkVersion 15
+        minSdkVersion 26
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
@@ -66,7 +66,6 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.google.android:android:4.1.1.4'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'com.google.android.material:material:1.0.0'
     implementation 'androidx.appcompat:appcompat:1.1.0'
