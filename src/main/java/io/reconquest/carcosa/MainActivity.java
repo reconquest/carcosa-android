@@ -2,10 +2,13 @@ package io.reconquest.carcosa;
 
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.concurrent.Executor;
 
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -16,15 +19,29 @@ import android.widget.BaseAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.biometric.BiometricManager;
+import androidx.biometric.BiometricPrompt;
 import io.reconquest.carcosa.lib.Carcosa;
 import io.reconquest.carcosa.lib.ListResult;
 import io.reconquest.carcosa.lib.Repo;
 import io.reconquest.carcosa.lib.Token;
 
 public class MainActivity extends AppCompatActivity {
+  private static final String TAG = MainActivity.class.getName();
   private Carcosa carcosa;
+
+  private Handler handler = new Handler();
+
+  private Executor executor =
+      new Executor() {
+        @Override
+        public void execute(Runnable command) {
+          handler.post(command);
+        }
+      };
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -50,21 +67,21 @@ public class MainActivity extends AppCompatActivity {
       ((ListView) findViewById(R.id.repo_list)).setAdapter(new RepoList(list.result.repos));
     }
 
-    // BiometricManager biometricManager = BiometricManager.from(this);
-    // switch (biometricManager.canAuthenticate()) {
-    //  case BiometricManager.BIOMETRIC_SUCCESS:
-    //    Log.d("App can authenticate using biometrics.");
-    //    break;
-    //  case BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE:
-    //    Log.e("No biometric features available on this device.");
-    //    break;
-    //  case BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE:
-    //    Log.e("Biometric features are currently unavailable.");
-    //    break;
-    //  case BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED:
-    //    Log.e("The user hasn't associated any biometric credentials " + "with their account.");
-    //    break;
-    // }
+    BiometricManager biometricManager = BiometricManager.from(this);
+    switch (biometricManager.canAuthenticate()) {
+      case BiometricManager.BIOMETRIC_SUCCESS:
+        Log.d(TAG, "App can authenticate using biometrics.");
+        break;
+      case BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE:
+        Log.d(TAG, "No biometric features available on this device.");
+        break;
+      case BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE:
+        Log.d(TAG, "Biometric features are currently unavailable.");
+        break;
+      case BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED:
+        Log.d(TAG, "The user hasn't associated any biometric credentials with their account.");
+        break;
+    }
   }
 
   @Override
