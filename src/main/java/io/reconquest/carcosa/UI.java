@@ -2,6 +2,7 @@ package io.reconquest.carcosa;
 
 import java.util.Arrays;
 
+import android.app.Activity;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
@@ -9,7 +10,6 @@ import android.view.View.OnClickListener;
 import android.view.animation.Animation;
 import android.widget.Spinner;
 import android.widget.TextView;
-import androidx.appcompat.app.AppCompatActivity;
 
 public class UI {
   public interface Searchable {
@@ -28,7 +28,7 @@ public class UI {
         });
   }
 
-  UI(final AppCompatActivity view) {
+  UI(final Activity view) {
     this(
         new Searchable() {
           public View findViewById(int id) {

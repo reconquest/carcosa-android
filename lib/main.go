@@ -10,6 +10,7 @@ package main
 // #include "c/init.c"
 // #include "c/unlock.c"
 // #include "c/connect.c"
+// #include "c/sync.c"
 // #include "c/list.c"
 // #include "c/keygen.c"
 import "C"

@@ -187,7 +187,7 @@ func (state *State) Unlock(
 	return len(secrets), nil
 }
 
-func (state *State) List() ([]Repo, error) {
+func (state *State) list() ([]Repo, error) {
 	var repos []Repo
 
 	err := filepath.Walk(
@@ -213,48 +213,94 @@ func (state *State) List() ([]Repo, error) {
 				Carcosa: state.carcosa(id, config.NS),
 			}
 
-			master, err := state.cache(id).Get(id)
-			if err != nil {
-				return err
-			}
-
-			secrets, err := repo.Carcosa.List(master)
-			if err != nil {
-				return err
-			}
-
-			filter, err := state.filter(config.Filter)
-			if err != nil {
-				return err
-			}
-
-			for _, secret := range secrets {
-				payload, err := ioutil.ReadAll(secret.StreamReader)
-				if err != nil {
-					return karma.Format(
-						err,
-						"unable to read secret payload",
-					)
-				}
-
-				token := Token{
-					Name:    string(secret.Token),
-					Payload: string(payload),
-				}
-
-				matches := filter.FindStringSubmatch(token.Name)
-
-				token.Resource = regexputil.Subexp(filter, matches, "resource")
-				token.Login = regexputil.Subexp(filter, matches, "login")
-
-				repo.Tokens = append(repo.Tokens, token)
-			}
-
 			repos = append(repos, repo)
 
 			return filepath.SkipDir
 		},
 	)
+
+	return repos, err
+}
+
+func (state *State) Sync() error {
+	repos, err := state.list()
+	if err != nil {
+		return err
+	}
+
+	for _, repo := range repos {
+		var auth auth.Auth
+
+		stats, err := repo.Carcosa.Sync("origin", auth, false)
+		if err != nil {
+			return karma.
+				Describe("repo", repo.Config.URL).
+				Format(
+					err,
+					"unable to sync repo",
+				)
+		}
+
+		repo.Config.SyncStatus = ConfigSyncStatus{
+			Date:  time.Now(),
+			Stats: *stats,
+		}
+
+		err = repo.Config.Store(state.getRepoConfigPath(repo.Config.ID))
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (state *State) List() ([]Repo, error) {
+	repos, err := state.list()
+	if err != nil {
+		return nil, err
+	}
+
+	for i, repo := range repos {
+		master, err := state.cache(repo.Config.ID).Get(repo.Config.ID)
+		if err != nil {
+			return nil, err
+		}
+
+		secrets, err := repo.Carcosa.List(master)
+		if err != nil {
+			return nil, err
+		}
+
+		filter, err := state.filter(repo.Config.Filter)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, secret := range secrets {
+			payload, err := ioutil.ReadAll(secret.StreamReader)
+			if err != nil {
+				return nil, karma.Format(
+					err,
+					"unable to read secret payload",
+				)
+			}
+
+			token := Token{
+				Name:    string(secret.Token),
+				Payload: string(payload),
+			}
+
+			matches := filter.FindStringSubmatch(token.Name)
+
+			token.Resource = regexputil.Subexp(filter, matches, "resource")
+			token.Login = regexputil.Subexp(filter, matches, "login")
+
+			repo.Tokens = append(repo.Tokens, token)
+		}
+
+		repos[i] = repo
+	}
 
 	return repos, err
 }

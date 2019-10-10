@@ -3,23 +3,26 @@ package io.reconquest.carcosa;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.RotateAnimation;
 import android.widget.BaseAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.biometric.BiometricManager;
 import io.reconquest.carcosa.lib.Carcosa;
 import io.reconquest.carcosa.lib.ListResult;
 import io.reconquest.carcosa.lib.Repo;
@@ -28,6 +31,7 @@ import io.reconquest.carcosa.lib.Token;
 public class MainActivity extends AppCompatActivity {
   private static final String TAG = MainActivity.class.getName();
   private Carcosa carcosa;
+  private RepoList repoList;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -45,18 +49,75 @@ public class MainActivity extends AppCompatActivity {
     Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_main);
     toolbar.setSubtitle("secrets");
     setSupportActionBar(toolbar);
+    list();
+  }
 
+  protected void list() {
     Maybe<ListResult> list = carcosa.list();
     if (list.error != null) {
       new FatalErrorDialog(this, list.error).show();
     } else {
-      ((ListView) findViewById(R.id.repo_list)).setAdapter(new RepoList(list.result.repos));
+      repoList = new RepoList(list.result.repos);
+      ((ListView) findViewById(R.id.repo_list)).setAdapter(repoList);
+    }
+  }
+
+  class SyncThread extends Thread implements Runnable {
+    Activity activity;
+
+    SyncThread(Activity activity) {
+      this.activity = activity;
+    }
+
+    public void run() {
+      UI ui = new UI(activity);
+
+      ui.disable(R.id.toolbar_main_action_sync);
+
+      final RotateAnimation animation =
+          new RotateAnimation(
+              0, 360, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+
+      animation.setDuration(1000);
+      animation.setFillAfter(true);
+      animation.setRepeatCount(Animation.INFINITE);
+
+      ui.animate(R.id.toolbar_main_action_sync, animation);
+
+      final Maybe<Void> sync = carcosa.sync();
+
+      ui.enable(R.id.toolbar_main_action_sync);
+      ui.ui(
+          new Runnable() {
+            public void run() {
+              animation.cancel();
+
+              if (sync.error != null) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+
+                builder.setMessage(sync.error).setTitle("Error");
+
+                builder.setNegativeButton(
+                    "OK",
+                    new DialogInterface.OnClickListener() {
+                      public void onClick(DialogInterface dialog, int id) {}
+                    });
+
+                builder.create().show();
+              } else {
+                list();
+              }
+            }
+          });
     }
   }
 
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
+      case R.id.toolbar_main_action_sync:
+        new SyncThread(this).start();
+        break;
       case R.id.toolbar_main_action_add_repo:
         Intent intent = new Intent(this, RepoActivity.class);
         intent.putExtra("Carcosa", carcosa);

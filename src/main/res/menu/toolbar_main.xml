@@ -3,6 +3,12 @@
         xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/toolbar_main_action_sync"
+        android:icon="@drawable/ic_refresh_24dp"
+        android:title="Sync"
+        app:showAsAction="ifRoom"/>
+
+    <item
         android:id="@+id/toolbar_main_action_add_repo"
         android:icon="@drawable/ic_library_24dp"
         android:title="Add Repo"
