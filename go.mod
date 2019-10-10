@@ -1,4 +1,4 @@
-module carcosa
+module github.com/reconquest/carcosa-android
 
 go 1.12
 

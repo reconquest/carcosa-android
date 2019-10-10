@@ -10,7 +10,7 @@ import (
 	"regexp"
 	"time"
 
-	"carcosa/lib/vault"
+	"github.com/reconquest/carcosa-android/lib/vault"
 
 	"github.com/reconquest/karma-go"
 	"github.com/reconquest/regexputil-go"

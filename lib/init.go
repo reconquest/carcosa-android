@@ -5,9 +5,10 @@ package main
 import "C"
 
 import (
-	lib_state "carcosa/lib/state"
 	"os"
 	"path/filepath"
+
+	lib_state "github.com/reconquest/carcosa-android/lib/state"
 )
 
 var state *lib_state.State

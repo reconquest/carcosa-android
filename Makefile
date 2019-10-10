@@ -26,7 +26,7 @@ SO_TARGET = x86_64
 endif
 
 so:
-	@$(_MAKE) $(SO_TARGET)
+	@$(_MAKE) lib-$(SO_TARGET)
 
 lib-%:
 	@rm -rf src/main/jniLibs/$*
