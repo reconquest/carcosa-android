@@ -26,6 +26,7 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -195,10 +196,14 @@ public class RepoActivity extends AppCompatActivity {
 
       if (shown) {
         ui.hide(R.id.repo_advanced_panel);
-        animation = new RotateAnimation(90, 0, 30, 30);
+        animation =
+            new RotateAnimation(
+                90, 0, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
       } else {
         ui.show(R.id.repo_advanced_panel);
-        animation = new RotateAnimation(0, 90, 30, 30);
+        animation =
+            new RotateAnimation(
+                0, 90, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
       }
 
       animation.setDuration(100);
