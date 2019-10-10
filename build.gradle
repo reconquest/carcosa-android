@@ -52,12 +52,6 @@ android {
             zipAlignEnabled true
         }
     }
-
-    //sourceSets {
-    //    main {
-    //        java.srcDirs = [ 'src' ]
-    //    }
-    //}
 }
 
 repositories {
@@ -80,4 +74,26 @@ eclipse {
     plusConfigurations += [ configurations.implementation ]
     downloadSources = true
   }
+}
+
+task pom {
+    pom {
+        project {
+            groupId 'io.reconquest.carcosa'
+            artifactId 'carcosa'
+            version 'POM'
+        }
+    }.withXml {
+        def androidHome = System.getenv("ANDROID_HOME");
+
+        def systemPath = androidHome + "/platforms/" +
+            android.compileSdkVersion +
+            "/android.jar"
+
+        def dependency = asNode().appendNode('dependencies').appendNode('dependency')
+        dependency.appendNode('groupId', 'android')
+        dependency.appendNode('artifactId', android.compileSdkVersion)
+        dependency.appendNode('version', android.compileSdkVersion)
+        dependency.appendNode('systemPath', systemPath)
+    }.writeTo("pom.xml")
 }
