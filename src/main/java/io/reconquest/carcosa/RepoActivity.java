@@ -1,9 +1,13 @@
 package io.reconquest.carcosa;
 
+import java.util.concurrent.Executor;
+
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.animation.RotateAnimation;
@@ -13,17 +17,29 @@ import android.widget.Spinner;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.biometric.BiometricManager;
 import io.reconquest.carcosa.lib.Carcosa;
 import io.reconquest.carcosa.lib.ConnectResult;
 import io.reconquest.carcosa.lib.SSHKey;
 import io.reconquest.carcosa.lib.UnlockResult;
 
 public class RepoActivity extends AppCompatActivity {
+  private static final String TAG = RepoActivity.class.getName();
+
   private UI ui;
   private Carcosa carcosa;
 
   private String repoID;
   private SSHKey repoSSHKey;
+
+  private Handler handler = new Handler();
+  private Executor executor =
+      new Executor() {
+        @Override
+        public void execute(Runnable command) {
+          handler.post(command);
+        }
+      };
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +63,26 @@ public class RepoActivity extends AppCompatActivity {
     toolbar.setSubtitle("add repository");
     setSupportActionBar(toolbar);
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+    this.initBiometrics();
+  }
+
+  private void initBiometrics() {
+    BiometricManager biometricManager = BiometricManager.from(this);
+    switch (biometricManager.canAuthenticate()) {
+      case BiometricManager.BIOMETRIC_SUCCESS:
+        Log.d(TAG, "App can authenticate using biometrics.");
+        break;
+      case BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE:
+        Log.d(TAG, "No biometric features available on this device.");
+        break;
+      case BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE:
+        Log.d(TAG, "Biometric features are currently unavailable.");
+        break;
+      case BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED:
+        Log.d(TAG, "The user hasn't associated any biometric credentials with their account.");
+        break;
+    }
   }
 
   public class AdvancedSettingsPanel implements OnClickListener {
