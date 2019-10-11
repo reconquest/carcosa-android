@@ -21,7 +21,7 @@ type logcat struct{}
 
 func (logcat) Write(p []byte) (n int, err error) {
 	C.__android_log_write(
-		C.ANDROID_LOG_ERROR,
+		C.ANDROID_LOG_DEBUG,
 		tag,
 		(*C.char)(unsafe.Pointer(&p[0])),
 	)

@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
     if (list.error != null) {
       new FatalErrorDialog(this, list.error).show();
     } else {
-      repoList = new RepoList(list.result.repos);
+      repoList = new RepoList(this, list.result.repos);
       ((ListView) findViewById(R.id.repo_list)).setAdapter(repoList);
     }
   }
@@ -138,9 +138,11 @@ public class MainActivity extends AppCompatActivity {
   }
 
   public class RepoList extends BaseAdapter {
+    Activity activity;
     ArrayList<Repo> repos;
 
-    RepoList(ArrayList<Repo> repos) {
+    RepoList(Activity activity, ArrayList<Repo> repos) {
+      this.activity = activity;
       this.repos = repos;
     }
 
@@ -187,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
       }
 
       ListView tokensView = (ListView) view.findViewById(R.id.repo_token_list);
-      ListAdapter tokensAdapter = new RepoTokenList(repo.tokens);
+      ListAdapter tokensAdapter = new RepoTokenList(activity, repo.tokens);
       ViewGroup.LayoutParams params = tokensView.getLayoutParams();
 
       params.height = (tokensView.getDividerHeight() * (tokensAdapter.getCount() - 1));
@@ -206,25 +208,25 @@ public class MainActivity extends AppCompatActivity {
   }
 
   public class RepoTokenList extends BaseAdapter {
+    ArrayList<Token> tokens;
+    Activity activity;
+
     public class CopyButton implements OnClickListener {
       String secret;
+      String token;
 
-      CopyButton(String secret) {
+      CopyButton(String token, String secret) {
+        this.token = token;
         this.secret = secret;
       }
 
       public void onClick(View v) {
-        Context context = getApplicationContext();
-        int duration = Toast.LENGTH_SHORT;
-
-        Toast toast = Toast.makeText(context, secret, duration);
-        toast.show();
+        new Clipboard(activity).clip(token, secret, "Secret copied to clipboard.");
       }
     }
 
-    ArrayList<Token> tokens;
-
-    RepoTokenList(ArrayList<Token> tokens) {
+    RepoTokenList(Activity activity, ArrayList<Token> tokens) {
+      this.activity = activity;
       this.tokens = tokens;
     }
 
@@ -266,7 +268,7 @@ public class MainActivity extends AppCompatActivity {
         ui.show(R.id.repo_token_list_item_resource_panel);
       }
 
-      ui.onClick(R.id.repo_token_list_item_copy, new CopyButton(token.payload));
+      ui.onClick(R.id.repo_token_list_item_copy, new CopyButton(token.name, token.payload));
 
       return view;
     }

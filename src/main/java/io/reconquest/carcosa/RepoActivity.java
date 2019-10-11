@@ -19,9 +19,6 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 
 import android.app.Activity;
-import android.content.ClipData;
-import android.content.ClipboardManager;
-import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -32,7 +29,6 @@ import android.view.animation.RotateAnimation;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Spinner;
-import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -83,7 +79,7 @@ public class RepoActivity extends AppCompatActivity {
     ((Spinner) findViewById(R.id.repo_protocol)).setOnItemSelectedListener(new ProtocolSelect());
 
     ui.onClick(R.id.repo_ssh_key_generate, new GenerateKeyButton());
-    ui.onClick(R.id.repo_ssh_key_copy, new CopyKeyButton());
+    ui.onClick(R.id.repo_ssh_key_copy, new CopyKeyButton(this));
     ui.onClick(R.id.repo_connect, new ConnectButton());
     ui.onClick(R.id.repo_unlock, new UnlockButton());
     ui.onClick(R.id.repo_advanced, new AdvancedSettingsPanel());
@@ -253,15 +249,18 @@ public class RepoActivity extends AppCompatActivity {
   }
 
   public class CopyKeyButton implements OnClickListener {
-    public void onClick(View v) {
-      ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-      ClipData clip = ClipData.newPlainText(repoSSHKey.fingerprint, repoSSHKey.publicKey);
-      clipboard.setPrimaryClip(clip);
+    Activity activity;
 
-      Toast toast =
-          Toast.makeText(
-              getApplicationContext(), "Public key copied to clipboard.", Toast.LENGTH_LONG);
-      toast.show();
+    CopyKeyButton(Activity activity) {
+      this.activity = activity;
+    }
+
+    public void onClick(View v) {
+      new Clipboard(activity)
+          .clip(
+              "ssh " + repoSSHKey.fingerprint,
+              repoSSHKey.publicKey,
+              "Public key copied to clipboard.");
     }
   }
 
