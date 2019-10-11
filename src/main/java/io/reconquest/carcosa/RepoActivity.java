@@ -218,7 +218,7 @@ public class RepoActivity extends AppCompatActivity {
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
       String protocol = parent.getItemAtPosition(pos).toString();
 
-      if (protocol.equals("git+ssh")) {
+      if (protocol.equals("ssh")) {
         ui.show(R.id.repo_ssh_key_panel);
       } else {
         ui.hide(R.id.repo_ssh_key_panel);
@@ -279,8 +279,13 @@ public class RepoActivity extends AppCompatActivity {
         String address = ui.text(R.id.repo_address);
         String namespace = ui.text(R.id.repo_token_namespace);
 
-        Maybe<ConnectResult> connect = carcosa.connect(protocol, address, namespace);
+        Maybe<ConnectResult> connect = carcosa.connect(protocol, address, namespace, repoSSHKey);
         if (connect.error != null) {
+          ui.enable(R.id.repo_protocol);
+          ui.enable(R.id.repo_address);
+          ui.enable(R.id.repo_token_namespace);
+          ui.enable(R.id.repo_connect);
+
           ui.hide(R.id.repo_connect_progress_panel);
           ui.text(R.id.repo_error, connect.error);
           ui.show(R.id.repo_error);

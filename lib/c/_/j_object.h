@@ -13,7 +13,12 @@ void j_object_set(JNIEnv *env, jobject j_object, const char *field,
                   const char *kind, jobject value);
 void j_object_set_string(JNIEnv *env, jobject j_object, const char *field,
                          string value);
+void j_object_set_bytes(JNIEnv *env, jobject j_object, const char *field,
+                        string value);
 void j_object_set_int(JNIEnv *env, jobject j_object, const char *field,
                       int value);
+
+string j_object_get_string(JNIEnv *env, jobject j_object, const char *field);
+string j_object_get_bytes(JNIEnv *env, jobject j_object, const char *field);
 
 #endif

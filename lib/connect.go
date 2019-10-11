@@ -1,12 +1,12 @@
 package main
 
-import (
-	"github.com/seletskiy/carcosa/pkg/carcosa/auth"
-)
-
 // #include "c/_/error.h"
 // #include "c/connect.h"
 import "C"
+
+import (
+	"github.com/reconquest/carcosa-android/lib/ssh"
+)
 
 //export Connect
 func Connect(in C.connect_in, out *C.connect_out) C.error {
@@ -16,9 +16,17 @@ func Connect(in C.connect_in, out *C.connect_out) C.error {
 		ns       = GoString(in.ns)
 	)
 
-	var auth auth.Auth
+	var key *ssh.Key
 
-	config, err := state.Connect(protocol, address, ns, auth)
+	if in.ssh_key != nil {
+		key = &ssh.Key{
+			Public:      []byte(GoString(in.ssh_key.public)),
+			Private:     []byte(GoString(in.ssh_key.private)),
+			Fingerprint: GoString(in.ssh_key.fingerprint),
+		}
+	}
+
+	config, err := state.Connect(protocol, address, ns, key)
 	if err != nil {
 		return CError(err)
 	}

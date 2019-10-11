@@ -16,7 +16,9 @@ typedef struct {
 string string_from_bytes(char *bytes);
 string string_from_bytes_n(char *bytes, int length);
 string string_from_jstring(JNIEnv *env, jstring j_string);
+string string_from_jbytes(JNIEnv *env, jbyteArray j_bytes);
 jstring string_to_jstring(JNIEnv *env, string string);
+jbyteArray string_to_jbytes(JNIEnv *env, string string);
 void string_release(JNIEnv *env, string string);
 
 #endif

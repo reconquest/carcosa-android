@@ -30,6 +30,17 @@ void j_object_set_int(JNIEnv *env, jobject j_object, const char *field,
   (*env)->DeleteLocalRef(env, j_class);
 }
 
+void j_object_set_bytes(JNIEnv *env, jobject j_object, const char *field,
+                        string value) {
+  jclass j_class = (*env)->GetObjectClass(env, j_object);
+
+  jfieldID j_field = (*env)->GetFieldID(env, j_class, field, "[B");
+
+  (*env)->SetObjectField(env, j_object, j_field, string_to_jbytes(env, value));
+
+  (*env)->DeleteLocalRef(env, j_class);
+}
+
 void j_object_set(JNIEnv *env, jobject j_object, const char *field,
                   const char *kind, jobject j_value) {
   jclass j_class = (*env)->GetObjectClass(env, j_object);
@@ -39,4 +50,28 @@ void j_object_set(JNIEnv *env, jobject j_object, const char *field,
   (*env)->SetObjectField(env, j_object, j_field, j_value);
 
   (*env)->DeleteLocalRef(env, j_class);
+}
+
+string j_object_get_string(JNIEnv *env, jobject j_object, const char *field) {
+  jclass j_class = (*env)->GetObjectClass(env, j_object);
+
+  jfieldID j_field = (*env)->GetFieldID(env, j_class, field, class_StringL);
+
+  jstring j_string = (*env)->GetObjectField(env, j_object, j_field);
+
+  (*env)->DeleteLocalRef(env, j_class);
+
+  return string_from_jstring(env, j_string);
+}
+
+string j_object_get_bytes(JNIEnv *env, jobject j_object, const char *field) {
+  jclass j_class = (*env)->GetObjectClass(env, j_object);
+
+  jfieldID j_field = (*env)->GetFieldID(env, j_class, field, "[B");
+
+  jbyteArray j_bytes = (*env)->GetObjectField(env, j_object, j_field);
+
+  (*env)->DeleteLocalRef(env, j_class);
+
+  return string_from_jbytes(env, j_bytes);
 }

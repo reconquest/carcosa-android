@@ -22,7 +22,7 @@ jobject j_connect_out(JNIEnv *env, connect_out out) {
 
 JNIEXPORT jobject JNICALL Java_io_reconquest_carcosa_lib_Carcosa_connect(
     JNIEnv *env, jobject this, jstring j_protocol, jstring j_address,
-    jstring j_ns) {
+    jstring j_ns, jobject j_ssh_key) {
 
   string protocol = string_from_jstring(env, j_protocol);
   string address = string_from_jstring(env, j_address);
@@ -32,6 +32,15 @@ JNIEXPORT jobject JNICALL Java_io_reconquest_carcosa_lib_Carcosa_connect(
       .protocol = protocol,
       .address = address,
       .ns = ns,
+      .ssh_key = NULL,
+  };
+
+  ssh_key ssh_key;
+  if (!(*env)->IsSameObject(env, j_ssh_key, NULL)) {
+    ssh_key.private = j_object_get_bytes(env, j_ssh_key, "privateBytes");
+    ssh_key.public = j_object_get_string(env, j_ssh_key, "publicKey");
+    ssh_key.fingerprint = j_object_get_string(env, j_ssh_key, "fingerprint");
+    in.ssh_key = &ssh_key;
   };
 
   connect_out out;
@@ -41,6 +50,12 @@ JNIEXPORT jobject JNICALL Java_io_reconquest_carcosa_lib_Carcosa_connect(
   string_release(env, protocol);
   string_release(env, address);
   string_release(env, ns);
+
+  if (in.ssh_key != NULL) {
+    string_release(env, in.ssh_key->private);
+    string_release(env, in.ssh_key->public);
+    string_release(env, in.ssh_key->fingerprint);
+  }
 
   if (err.is_error) {
     return j_maybe_void(env, err);

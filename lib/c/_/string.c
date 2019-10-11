@@ -1,3 +1,4 @@
+#include <android/log.h>
 #include <jni.h>
 #include <stdlib.h>
 #include <string.h>
@@ -41,6 +42,19 @@ string string_from_jstring(JNIEnv *env, jstring j_string) {
   return string;
 }
 
+string string_from_jbytes(JNIEnv *env, jbyteArray j_bytes) {
+  const jclass j_string_class = jclass_String(env);
+
+  jsize length = (*env)->GetArrayLength(env, j_bytes);
+  jbyte *bytes = (*env)->GetByteArrayElements(env, j_bytes, NULL);
+
+  string result = string_from_bytes_n((char *)bytes, length);
+
+  result._j_byte_array = j_bytes;
+
+  return result;
+}
+
 jstring string_to_jstring(JNIEnv *env, string string) {
   const jclass j_string_class = jclass_String(env);
 
@@ -60,6 +74,14 @@ jstring string_to_jstring(JNIEnv *env, string string) {
   (*env)->DeleteLocalRef(env, j_string_class);
 
   return j_string;
+}
+
+jbyteArray string_to_jbytes(JNIEnv *env, string string) {
+  jbyteArray j_byte_array = (*env)->NewByteArray(env, string.length);
+
+  (*env)->SetByteArrayRegion(env, j_byte_array, 0, string.length,
+                             (jbyte *)string.data);
+  return j_byte_array;
 }
 
 extern void string_release(JNIEnv *env, string string) {

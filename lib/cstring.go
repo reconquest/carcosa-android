@@ -4,7 +4,7 @@ package main
 import "C"
 
 func CString(str string) C.string {
-	return C.string_from_bytes(C.CString(str))
+	return C.string_from_bytes_n(C.CString(str), C.int(len(str)))
 }
 
 func GoString(str C.string) string {

@@ -10,6 +10,7 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/reconquest/carcosa-android/lib/ssh"
 	"github.com/reconquest/carcosa-android/lib/vault"
 
 	"github.com/reconquest/karma-go"
@@ -67,6 +68,10 @@ func (state *State) getRepoConfigPath(id string) string {
 	return filepath.Join(state.getRepoDir(id), "config.json")
 }
 
+func (state *State) getRepoSSHKeyPath(id string) string {
+	return filepath.Join(state.getRepoDir(id), "ssh.key")
+}
+
 func (state *State) cache(id string) *cache.Cache {
 	return cache.New(
 		vault.New(state.getRepoDir(id), state.pin),
@@ -86,6 +91,17 @@ func (state *State) filter(filter string) (*regexp.Regexp, error) {
 	return re, nil
 }
 
+func (state *State) auth(id string) (auth.Auth, error) {
+	auth := auth.New()
+
+	err := auth.Add(fmt.Sprintf("ssh:%s", state.getRepoSSHKeyPath(id)))
+	if err != nil {
+		return nil, err
+	}
+
+	return auth, nil
+}
+
 func (state *State) carcosa(id string, ns string) *carcosa.Carcosa {
 	return carcosa.NewDefault(state.getRepoGitDir(id), ns)
 }
@@ -94,7 +110,7 @@ func (state *State) Connect(
 	protocol string,
 	address string,
 	ns string,
-	auth auth.Auth,
+	key *ssh.Key,
 ) (*Config, error) {
 	var id string
 	var bytes [32]byte
@@ -108,11 +124,37 @@ func (state *State) Connect(
 
 	carcosa := state.carcosa(id, ns)
 
+	var cleanup bool
+	defer func() {
+		if cleanup {
+			os.RemoveAll(state.getRepoDir(id))
+		}
+	}()
+
 	err = carcosa.Init(
 		"origin",
 		fmt.Sprintf("%s://%s", protocol, address),
 		ns,
 	)
+	if err != nil {
+		return nil, err
+	}
+
+	cleanup = true
+
+	if key != nil {
+		path := state.getRepoSSHKeyPath(id)
+
+		err := ioutil.WriteFile(path, key.EncodePrivateKey(), 0600)
+		if err != nil {
+			return nil, karma.Describe("path", path).Format(
+				err,
+				"unable to write ssh private key file",
+			)
+		}
+	}
+
+	auth, err := state.auth(id)
 	if err != nil {
 		return nil, err
 	}
@@ -139,6 +181,8 @@ func (state *State) Connect(
 	if err != nil {
 		return nil, err
 	}
+
+	cleanup = false
 
 	return config, nil
 }
@@ -229,7 +273,10 @@ func (state *State) Sync() error {
 	}
 
 	for _, repo := range repos {
-		var auth auth.Auth
+		auth, err := state.auth(repo.Config.ID)
+		if err != nil {
+			return err
+		}
 
 		stats, err := repo.Carcosa.Sync("origin", auth, false)
 		if err != nil {

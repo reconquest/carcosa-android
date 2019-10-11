@@ -2,6 +2,6 @@
 <resources>
     <string-array name="repo_protocols_list">
         <item>git</item>
-        <item>git+ssh</item>
+        <item>ssh</item>
     </string-array>
 </resources>
