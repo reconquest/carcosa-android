@@ -4,16 +4,21 @@
 #include "_/error.h"
 #include "_/j_maybe.h"
 #include "_/string.h"
+#include "init.h"
 
-extern error Init(string root);
+extern error Init(init_in);
 
 JNIEXPORT jobject JNICALL Java_io_reconquest_carcosa_lib_Carcosa_init(
-    JNIEnv *env, jobject this, jstring j_root) {
-  string root = string_from_jstring(env, j_root);
+    JNIEnv *env, jobject this, jstring j_root, jstring j_pin) {
 
-  error err = Init(root);
+  init_in in = {
+      .root = string_from_jstring(env, j_root),
+      .pin = string_from_jstring(env, j_pin),
+  };
 
-  string_release(env, root);
+  error err = Init(in);
+
+  string_release(env, in.root);
 
   return j_maybe_void(env, err);
 }

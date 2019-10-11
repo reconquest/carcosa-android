@@ -4,7 +4,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -19,7 +18,6 @@ import android.view.animation.RotateAnimation;
 import android.widget.BaseAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -41,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
 
     carcosa = new Carcosa();
     Maybe<Void> init =
-        carcosa.init(Paths.get(getApplicationContext().getFilesDir().getPath()).toString());
+        carcosa.init(Paths.get(getApplicationContext().getFilesDir().getPath()).toString(), "1234");
     if (init.error != null) {
       new FatalErrorDialog(this, init.error).show();
     }

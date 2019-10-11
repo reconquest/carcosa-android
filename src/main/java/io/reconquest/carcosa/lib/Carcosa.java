@@ -9,7 +9,7 @@ public class Carcosa implements Serializable {
     System.loadLibrary("carcosa");
   }
 
-  public native Maybe<Void> init(String root);
+  public native Maybe<Void> init(String root, String pin);
 
   public native Maybe<Void> sync();
 
