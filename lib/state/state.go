@@ -91,12 +91,14 @@ func (state *State) filter(filter string) (*regexp.Regexp, error) {
 	return re, nil
 }
 
-func (state *State) auth(id string) (auth.Auth, error) {
+func (state *State) auth(id string, protocol string) (auth.Auth, error) {
 	auth := auth.New()
 
-	err := auth.Add(fmt.Sprintf("ssh:%s", state.getRepoSSHKeyPath(id)))
-	if err != nil {
-		return nil, err
+	if protocol == "ssh" {
+		err := auth.Add(fmt.Sprintf("ssh:%s", state.getRepoSSHKeyPath(id)))
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return auth, nil
@@ -154,7 +156,7 @@ func (state *State) Connect(
 		}
 	}
 
-	auth, err := state.auth(id)
+	auth, err := state.auth(id, protocol)
 	if err != nil {
 		return nil, err
 	}
@@ -273,7 +275,7 @@ func (state *State) Sync() error {
 	}
 
 	for _, repo := range repos {
-		auth, err := state.auth(repo.Config.ID)
+		auth, err := state.auth(repo.Config.ID, repo.Config.URL.Protocol)
 		if err != nil {
 			return err
 		}
