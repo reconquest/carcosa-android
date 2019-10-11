@@ -209,6 +209,30 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<Token> tokens;
     Activity activity;
 
+    public class ViewButton implements OnClickListener {
+      String secret;
+      String token;
+
+      ViewButton(String token, String secret) {
+        this.token = token;
+        this.secret = secret;
+      }
+
+      public void onClick(View v) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+
+        builder.setMessage(secret);
+
+        builder.setNeutralButton(
+            "Close",
+            new DialogInterface.OnClickListener() {
+              public void onClick(DialogInterface dialog, int id) {}
+            });
+
+        builder.create().show();
+      }
+    }
+
     public class CopyButton implements OnClickListener {
       String secret;
       String token;
@@ -266,6 +290,7 @@ public class MainActivity extends AppCompatActivity {
         ui.show(R.id.repo_token_list_item_resource_panel);
       }
 
+      ui.onClick(R.id.repo_token_list_item_view, new ViewButton(token.name, token.payload));
       ui.onClick(R.id.repo_token_list_item_copy, new CopyButton(token.name, token.payload));
 
       return view;

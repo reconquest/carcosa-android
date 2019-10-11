@@ -90,6 +90,7 @@
         />
 
     <ImageButton
+            android:id="@+id/repo_token_list_item_view"
             android:layout_width="36dp"
             android:layout_height="wrap_content"
             android:layout_toLeftOf="@id/repo_token_list_item_copy"
