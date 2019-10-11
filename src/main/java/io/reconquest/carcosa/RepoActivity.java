@@ -18,6 +18,7 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 
+import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -44,46 +45,15 @@ import io.reconquest.carcosa.lib.UnlockResult;
 
 public class RepoActivity extends AppCompatActivity {
   private static final String TAG = RepoActivity.class.getName();
-  private static final String BIOMETRIC_KEY_NAME = "carcosa";
+  private static final String BIOMETRIC_KEY_NAME = "carcosa_2";
   private BiometricPrompt biometricPrompt;
   private final BiometricPrompt.PromptInfo biometricPromptInfo =
       new BiometricPrompt.PromptInfo.Builder()
-          .setTitle("Title")
-          .setSubtitle("Subtitle")
-          .setDescription("Description")
-          .setNegativeButtonText("Negative Button")
+          .setTitle("Confirm your identity")
+          .setNegativeButtonText("Cancel")
           .build();
 
-  private final BiometricPrompt.AuthenticationCallback biometricCallback =
-      new BiometricPrompt.AuthenticationCallback() {
-        @Override
-        public void onAuthenticationError(int err, @NonNull CharSequence message) {
-          Log.d(TAG, "onAuthenticationError " + err + ": " + message);
-        }
-
-        @Override
-        public void onAuthenticationSucceeded(
-            @NonNull BiometricPrompt.AuthenticationResult result) {
-          final BiometricPrompt.CryptoObject cryptoObject = result.getCryptoObject();
-          Log.d(TAG, "onAuthenticationSucceeded, cryptoObject: " + cryptoObject);
-          if (cryptoObject != null) {
-            try {
-              byte[] encrypted =
-                  cryptoObject.getCipher().doFinal("payload".getBytes(Charset.defaultCharset()));
-              Log.d(TAG, "Test payload: " + "payload");
-              Log.d(TAG, "Encrypted payload: " + Arrays.toString(encrypted));
-            } catch (BadPaddingException | IllegalBlockSizeException e) {
-              Log.e(TAG, "Failed to encrypt", e);
-            }
-          }
-        }
-
-        @Override
-        public void onAuthenticationFailed() {
-          Log.d(TAG, "onAuthenticationFailed");
-          biometricPrompt.cancelAuthentication();
-        }
-      };
+  private BiometricPrompt.AuthenticationCallback biometricCallback;
 
   private UI ui;
   private Carcosa carcosa;
@@ -143,22 +113,41 @@ public class RepoActivity extends AppCompatActivity {
         break;
     }
 
-    try {
-      BiometricPromptDemoSecretKeyHelper.generateBiometricBoundKey(
-          BIOMETRIC_KEY_NAME, true /* invalidatedByBiometricEnrollment */);
-      Log.d(TAG, "Generated a key");
-    } catch (InvalidAlgorithmParameterException
-        | NoSuchAlgorithmException
-        | NoSuchProviderException e) {
-      Log.e(TAG, "Failed to generate key", e);
-    }
+    final Activity activity = this;
+    biometricCallback =
+        new BiometricPrompt.AuthenticationCallback() {
+          @Override
+          public void onAuthenticationError(int err, @NonNull CharSequence message) {
+            String msg = String.valueOf(message);
+            if (msg.length() == 0) {
+              this.onAuthenticationFailed();
+            } else {
+              new FatalErrorDialog(activity, msg).show();
+            }
+          }
 
-    Cipher cipher = null;
-    try {
-      cipher = BiometricPromptDemoSecretKeyHelper.getCipher();
-    } catch (NoSuchPaddingException | NoSuchAlgorithmException e) {
-      Log.e(TAG, "Failed to get cipher", e);
-    }
+          @Override
+          public void onAuthenticationSucceeded(
+              @NonNull BiometricPrompt.AuthenticationResult result) {
+            final BiometricPrompt.CryptoObject cryptoObject = result.getCryptoObject();
+            if (cryptoObject == null) {
+              new FatalErrorDialog(activity, "Unable to locate internal private key").show();
+            }
+
+            try {
+              byte[] encrypted =
+                  cryptoObject.getCipher().doFinal("payload".getBytes(Charset.defaultCharset()));
+              Log.d(TAG, "Encrypted payload: " + Arrays.toString(encrypted));
+            } catch (BadPaddingException | IllegalBlockSizeException e) {
+              new FatalErrorDialog(activity, "Unable to use internal private key", e).show();
+            }
+          }
+
+          @Override
+          public void onAuthenticationFailed() {
+            biometricPrompt.cancelAuthentication();
+          }
+        };
 
     SecretKey secretKey = null;
     try {
@@ -168,19 +157,54 @@ public class RepoActivity extends AppCompatActivity {
         | NoSuchAlgorithmException
         | IOException
         | UnrecoverableKeyException e) {
-      Log.e(TAG, "Failed to get secret key", e);
+      new FatalErrorDialog(activity, "Unable to retreive internal secret key", e).show();
+      return;
+    }
+
+    if (secretKey == null) {
+      try {
+        BiometricPromptDemoSecretKeyHelper.generateBiometricBoundKey(
+            BIOMETRIC_KEY_NAME, true /* invalidatedByBiometricEnrollment */);
+
+        secretKey = BiometricPromptDemoSecretKeyHelper.getSecretKey(BIOMETRIC_KEY_NAME);
+      } catch (InvalidAlgorithmParameterException
+          | CertificateException
+          | IOException
+          | KeyStoreException
+          | UnrecoverableKeyException
+          | NoSuchAlgorithmException
+          | NoSuchProviderException e) {
+        new FatalErrorDialog(activity, "Unable to generate internal secret key", e).show();
+        return;
+      }
+    }
+
+    if (secretKey == null) {
+      new FatalErrorDialog(activity, "Bug: unable to get internal secret key").show();
+      return;
+    }
+
+    Cipher cipher = null;
+    try {
+      cipher = BiometricPromptDemoSecretKeyHelper.getCipher();
+    } catch (NoSuchPaddingException | NoSuchAlgorithmException e) {
+      new FatalErrorDialog(activity, "Unable to get internal cipher", e).show();
+      return;
+    }
+
+    if (cipher == null) {
+      new FatalErrorDialog(activity, "Bug: unable to get internal cipher").show();
+      return;
     }
 
     biometricPrompt = new BiometricPrompt(this, executor, biometricCallback);
 
-    if (cipher != null && secretKey != null) {
-      try {
-        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
-        biometricPrompt.authenticate(biometricPromptInfo, new BiometricPrompt.CryptoObject(cipher));
-        Log.d(TAG, "Started authentication with a crypto object");
-      } catch (InvalidKeyException e) {
-        Log.e(TAG, "Failed to init cipher", e);
-      }
+    try {
+      cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+      biometricPrompt.authenticate(biometricPromptInfo, new BiometricPrompt.CryptoObject(cipher));
+    } catch (InvalidKeyException e) {
+      new FatalErrorDialog(activity, "Unable to init biometric prompt").show();
+      return;
     }
   }
 
