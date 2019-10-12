@@ -49,6 +49,9 @@ public class RepoActivity extends AppCompatActivity {
           .setNegativeButtonText("Cancel")
           .build();
 
+  private Cipher cipher;
+  private CryptoObject cryptoObject;
+
   private BiometricPrompt.AuthenticationCallback biometricCallback;
 
   private UI ui;
@@ -109,17 +112,23 @@ public class RepoActivity extends AppCompatActivity {
         break;
     }
 
-    final Activity activity = this;
+    final RepoActivity activity = this;
     biometricCallback =
         new BiometricPrompt.AuthenticationCallback() {
           @Override
           public void onAuthenticationError(int err, @NonNull CharSequence message) {
+            if (err == BiometricPrompt.ERROR_USER_CANCELED) {
+              this.onAuthenticationFailed();
+              return;
+            }
+
             String msg = String.valueOf(message);
             if (msg.length() == 0) {
               this.onAuthenticationFailed();
-            } else {
-              new FatalErrorDialog(activity, msg).show();
+              return;
             }
+
+            new FatalErrorDialog(activity, msg).show();
           }
 
           @Override
@@ -127,7 +136,8 @@ public class RepoActivity extends AppCompatActivity {
               @NonNull BiometricPrompt.AuthenticationResult result) {
             final BiometricPrompt.CryptoObject cryptoObject = result.getCryptoObject();
             if (cryptoObject == null) {
-              new FatalErrorDialog(activity, "Unable to locate internal private key").show();
+              new FatalErrorDialog(activity, "Biometrics: unable to locate internal private key")
+                  .show();
             }
 
             try {
@@ -135,13 +145,16 @@ public class RepoActivity extends AppCompatActivity {
                   cryptoObject.getCipher().doFinal("payload".getBytes(Charset.defaultCharset()));
               Log.d(TAG, "Encrypted payload: " + Arrays.toString(encrypted));
             } catch (BadPaddingException | IllegalBlockSizeException e) {
-              new FatalErrorDialog(activity, "Unable to use internal private key", e).show();
+              new FatalErrorDialog(activity, "Biometrics: unable to use internal private key", e)
+                  .show();
             }
           }
 
           @Override
           public void onAuthenticationFailed() {
-            biometricPrompt.cancelAuthentication();
+            biometricPrompt.authenticate(
+                biometricPromptInfo, new BiometricPrompt.CryptoObject(activity.cipher));
+            // biometricPrompt.cancelAuthentication();
           }
         };
 
@@ -153,7 +166,8 @@ public class RepoActivity extends AppCompatActivity {
         | NoSuchAlgorithmException
         | IOException
         | UnrecoverableKeyException e) {
-      new FatalErrorDialog(activity, "Unable to retreive internal secret key", e).show();
+      new FatalErrorDialog(activity, "Biometrics: unable to retreive internal secret key", e)
+          .show();
       return;
     }
 
@@ -180,7 +194,6 @@ public class RepoActivity extends AppCompatActivity {
       return;
     }
 
-    Cipher cipher = null;
     try {
       cipher = BiometricPromptDemoSecretKeyHelper.getCipher();
     } catch (NoSuchPaddingException | NoSuchAlgorithmException e) {
@@ -197,7 +210,8 @@ public class RepoActivity extends AppCompatActivity {
 
     try {
       cipher.init(Cipher.ENCRYPT_MODE, secretKey);
-      biometricPrompt.authenticate(biometricPromptInfo, new BiometricPrompt.CryptoObject(cipher));
+        cryptoObject = new BiometricPrompt.CryptoObject(cipher)
+      biometricPrompt.authenticate(biometricPromptInfo, cryptoObject);
     } catch (InvalidKeyException e) {
       new FatalErrorDialog(activity, "Unable to init biometric prompt").show();
       return;
