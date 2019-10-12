@@ -1,6 +1,7 @@
 package io.reconquest.carcosa;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -40,6 +41,15 @@ public class RepoActivity extends AppCompatActivity {
     ui.onClick(R.id.repo_connect, new ConnectButton());
     ui.onClick(R.id.repo_unlock, new UnlockButton());
     ui.onClick(R.id.repo_advanced, new AdvancedSettingsPanel());
+
+    ui.onClick(
+        R.id.repo_done,
+        new OnClickListener() {
+          public void onClick(View v) {
+            Intent intent = new Intent(getBaseContext(), MainActivity.class);
+            startActivity(intent);
+          }
+        });
 
     Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_repo);
     toolbar.setSubtitle("add repository");

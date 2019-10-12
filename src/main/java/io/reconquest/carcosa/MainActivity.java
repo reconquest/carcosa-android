@@ -33,6 +33,7 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import androidx.annotation.NonNull;
@@ -51,11 +52,12 @@ public class MainActivity extends AppCompatActivity {
   private static final String TAG = MainActivity.class.getName();
   private RepoList repoList;
 
-  private static final String BIOMETRIC_KEY_NAME = "carcosa_3";
+  private static final String BIOMETRIC_KEY_NAME = "io.reconquest.carcosa";
   private BiometricPrompt biometricPrompt;
   private final BiometricPrompt.PromptInfo biometricPromptInfo =
       new BiometricPrompt.PromptInfo.Builder()
-          .setTitle("Confirm your identity")
+          .setTitle("Carcosa")
+          .setDescription("Confirm fingerpring to continue")
           .setNegativeButtonText("Cancel")
           .build();
 
@@ -114,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
   }
 
   private void initBiometrics() {
-    setContentView(R.layout.empty);
+    setContentView(R.layout.login);
 
     BiometricManager biometricManager = BiometricManager.from(this);
     switch (biometricManager.canAuthenticate()) {
@@ -165,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
 
           @Override
           public void onAuthenticationFailed() {
-            new FatalErrorDialog(activity, "Biometrics: unable to verify identity").show();
+            biometricPrompt.cancelAuthentication();
           }
         };
 
@@ -227,6 +229,14 @@ public class MainActivity extends AppCompatActivity {
       new FatalErrorDialog(activity, "Unable to init biometric prompt").show();
       return;
     }
+
+    Button loginButton = (Button) findViewById(R.id.login);
+    loginButton.setOnClickListener(
+        new OnClickListener() {
+          public void onClick(View v) {
+            biometricPrompt.authenticate(biometricPromptInfo, cryptoObject);
+          }
+        });
   }
 
   protected void list() {
