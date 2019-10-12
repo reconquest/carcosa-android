@@ -7,6 +7,7 @@
 #include "init.h"
 
 extern error Init(init_in);
+extern int HasState();
 
 JNIEXPORT jobject JNICALL Java_io_reconquest_carcosa_lib_Carcosa_init(
     JNIEnv *env, jobject this, jstring j_root, jstring j_pin) {
@@ -21,4 +22,10 @@ JNIEXPORT jobject JNICALL Java_io_reconquest_carcosa_lib_Carcosa_init(
   string_release(env, in.root);
 
   return j_maybe_void(env, err);
+}
+
+JNIEXPORT jboolean JNICALL Java_io_reconquest_carcosa_lib_Carcosa_hasState(
+    JNIEnv *env, jobject this) {
+    int result = HasState();
+    return result != 0;
 }

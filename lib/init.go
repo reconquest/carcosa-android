@@ -32,3 +32,8 @@ func Init(in C.init_in) C.error {
 
 	return CError(nil)
 }
+
+//export HasState
+func HasState() C.bool {
+	return state != nil
+}

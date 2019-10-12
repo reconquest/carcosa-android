@@ -11,6 +11,8 @@ public class Carcosa implements Serializable {
 
   public native Maybe<Void> init(String root, String pin);
 
+  public native boolean hasState();
+
   public native Maybe<Void> sync();
 
   public native Maybe<SSHKey> keygen();
