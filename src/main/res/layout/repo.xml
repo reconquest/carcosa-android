@@ -128,7 +128,6 @@
                     style="?android:attr/progressBarStyleSmallTitle"
                     android:layout_width="24dp"
                     android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
                 />
 
             <TextView
@@ -243,7 +242,6 @@
                 style="?android:attr/progressBarStyleSmallTitle"
                 android:layout_width="24dp"
                 android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
             />
 
         <TextView

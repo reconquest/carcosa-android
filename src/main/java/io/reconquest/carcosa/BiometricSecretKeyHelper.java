@@ -83,10 +83,10 @@ final class BiometricPromptDemoSecretKeyHelper {
       // visible on API level 24+.
       // Ideally there should be a compat library for KeyGenParameterSpec.Builder but
       // it isn't available yet.
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-        // Invalidate the keys if a new biometric has been enrolled.
-        builder.setInvalidatedByBiometricEnrollment(invalidatedByBiometricEnrollment);
-      }
+      // if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+      // Invalidate the keys if a new biometric has been enrolled.
+      builder.setInvalidatedByBiometricEnrollment(invalidatedByBiometricEnrollment);
+      // }
     } else {
       // Sets the duration for which the key can be used after the last user authentication.
       // For this to work, authentication must happen either via secure lock screen or the
