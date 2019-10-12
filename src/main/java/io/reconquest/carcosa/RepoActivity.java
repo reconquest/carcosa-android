@@ -1,5 +1,7 @@
 package io.reconquest.carcosa;
 
+import com.bugsnag.android.Bugsnag;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;

@@ -2,12 +2,19 @@
 <manifest package="io.reconquest.carcosa"  xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <application android:label="carcosa" android:allowBackup="true">
+    <application android:name=".CarcosaApplication" android:label="carcosa" android:allowBackup="true">
+        <meta-data
+                android:name="com.bugsnag.android.API_KEY"
+                android:value="b56502b2d7d1aecf2365eebd194543a0"/>
+
+        <meta-data android:name="com.bugsnag.android.DETECT_NDK_CRASHES"
+                android:value="true"/>
+
         <activity android:name="io.reconquest.carcosa.MainActivity" android:theme="@style/Theme.AppCompat.NoActionBar">
-             <intent-filter>
+            <intent-filter>
                 <category android:name="android.intent.category.LAUNCHER"/>
                 <action android:name="android.intent.action.MAIN"/>
-             </intent-filter>
+            </intent-filter>
         </activity>
         <activity android:name=".RepoActivity"
                 android:parentActivityName=".MainActivity"

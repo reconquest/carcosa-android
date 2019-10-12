@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'maven'
 apply plugin: 'eclipse'
 apply plugin: 'io.reconquest.gradle-android-eclipse'
+apply plugin: 'com.bugsnag.android.gradle'
 
 buildscript {
     repositories {
@@ -15,6 +16,7 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:3.5.1'
         classpath 'io.reconquest:gradle-android-eclipse:1.2'
+        classpath 'com.bugsnag:bugsnag-android-gradle-plugin:4.+'
     }
 }
 
@@ -65,8 +67,10 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'com.google.android.material:material:1.0.0'
     implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.biometric:biometric:1.0.0-rc01'
+    implementation 'com.bugsnag:bugsnag-android:4.+'
+
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
 }
 
 configurations.implementation.setCanBeResolved(true)
