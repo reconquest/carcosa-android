@@ -1,7 +1,5 @@
 package io.reconquest.carcosa;
 
-import java.util.Arrays;
-
 import android.app.Activity;
 import android.os.Handler;
 import android.os.Looper;
@@ -13,6 +11,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import java.util.Arrays;
 
 public class UI {
   public interface Searchable {

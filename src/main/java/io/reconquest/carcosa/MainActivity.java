@@ -1,30 +1,14 @@
 package io.reconquest.carcosa;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.file.Paths;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Locale;
-import java.util.concurrent.Executor;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
 
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -34,16 +18,11 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.biometric.BiometricManager;
-import androidx.biometric.BiometricPrompt;
-import androidx.biometric.BiometricPrompt.CryptoObject;
 import io.reconquest.carcosa.lib.Carcosa;
 import io.reconquest.carcosa.lib.ListResult;
 import io.reconquest.carcosa.lib.Repo;
@@ -53,54 +32,30 @@ public class MainActivity extends AppCompatActivity {
   private static final String TAG = MainActivity.class.getName();
   private RepoList repoList;
 
-  private static final String BIOMETRIC_KEY_NAME = "io.reconquest.carcosa";
-  private BiometricPrompt biometricPrompt;
-  private final BiometricPrompt.PromptInfo biometricPromptInfo =
-      new BiometricPrompt.PromptInfo.Builder()
-          .setTitle("Carcosa")
-          .setDescription("Confirm fingerpring to continue")
-          .setNegativeButtonText("Cancel")
-          .build();
-
-  private Cipher cipher;
-  private CryptoObject cryptoObject;
-
-  private BiometricPrompt.AuthenticationCallback biometricCallback;
-
-  private Handler handler = new Handler();
-  private Executor executor =
-      new Executor() {
-        @Override
-        public void execute(Runnable command) {
-          handler.post(command);
-        }
-      };
-
   private Carcosa carcosa = new Carcosa();
 
   @Override
   protected void onCreate(Bundle state) {
     super.onCreate(state);
 
-    if (!carcosa.hasState()) {
-      this.initBiometrics();
-    } else {
-      this.initUI();
-    }
+    initCarcosa();
+  }
+
+  @Override
+  protected void onStart() {
+    super.onStart();
+
+    initUI();
   }
 
   private void initCarcosa() {
-    byte[] encrypted = null;
-    try {
-      encrypted = cryptoObject.getCipher().doFinal("carcosa".getBytes(Charset.defaultCharset()));
-    } catch (BadPaddingException | IllegalBlockSizeException e) {
-      new FatalErrorDialog(this, "Unable to encrypt using internal key", e);
+    String pin = getIntent().getStringExtra("pin");
+    if (pin == null) {
+      Log.e(TAG, "pin was not passed to intent");
     }
 
     Maybe<Void> init =
-        carcosa.init(
-            Paths.get(getApplicationContext().getFilesDir().getPath()).toString(),
-            String.valueOf(encrypted));
+        carcosa.init(Paths.get(getApplicationContext().getFilesDir().getPath()).toString(), pin);
     if (init.error != null) {
       new FatalErrorDialog(this, init.error).show();
       return;
@@ -114,133 +69,6 @@ public class MainActivity extends AppCompatActivity {
     toolbar.setSubtitle("secrets");
     setSupportActionBar(toolbar);
     list();
-  }
-
-  private void initBiometrics() {
-    setContentView(R.layout.login);
-
-    BiometricManager biometricManager = BiometricManager.from(this);
-    switch (biometricManager.canAuthenticate()) {
-      case BiometricManager.BIOMETRIC_SUCCESS:
-        // all good
-        break;
-      case BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE:
-        new FatalErrorDialog(this, "No biometric features available on this device.").show();
-        return;
-      case BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE:
-        new FatalErrorDialog(this, "Biometric features are currently unavailable.").show();
-        return;
-      case BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED:
-        new FatalErrorDialog(
-                this, "The user hasn't associated any biometric credentials with their account.")
-            .show();
-        return;
-    }
-
-    final MainActivity activity = this;
-    biometricCallback =
-        new BiometricPrompt.AuthenticationCallback() {
-          @Override
-          public void onAuthenticationError(int err, @NonNull CharSequence message) {
-            if (err == BiometricPrompt.ERROR_USER_CANCELED) {
-              this.onAuthenticationFailed();
-              return;
-            }
-
-            String msg = String.valueOf(message);
-            if (msg.length() == 0) {
-              this.onAuthenticationFailed();
-              return;
-            }
-
-            new FatalErrorDialog(activity, msg).show();
-          }
-
-          @Override
-          public void onAuthenticationSucceeded(
-              @NonNull BiometricPrompt.AuthenticationResult result) {
-            final BiometricPrompt.CryptoObject cryptoObject = result.getCryptoObject();
-            if (cryptoObject == null) {
-              new FatalErrorDialog(activity, "Biometrics: unable to locate internal private key")
-                  .show();
-            }
-
-            activity.initCarcosa();
-            activity.initUI();
-          }
-
-          @Override
-          public void onAuthenticationFailed() {
-            biometricPrompt.cancelAuthentication();
-          }
-        };
-
-    SecretKey secretKey = null;
-    try {
-      secretKey = BiometricPromptDemoSecretKeyHelper.getSecretKey(BIOMETRIC_KEY_NAME);
-    } catch (KeyStoreException
-        | CertificateException
-        | NoSuchAlgorithmException
-        | IOException
-        | UnrecoverableKeyException e) {
-      new FatalErrorDialog(activity, "Biometrics: unable to retreive internal secret key", e)
-          .show();
-      return;
-    }
-
-    if (secretKey == null) {
-      try {
-        BiometricPromptDemoSecretKeyHelper.generateBiometricBoundKey(
-            BIOMETRIC_KEY_NAME, true /* invalidatedByBiometricEnrollment */);
-
-        secretKey = BiometricPromptDemoSecretKeyHelper.getSecretKey(BIOMETRIC_KEY_NAME);
-      } catch (InvalidAlgorithmParameterException
-          | CertificateException
-          | IOException
-          | KeyStoreException
-          | UnrecoverableKeyException
-          | NoSuchAlgorithmException
-          | NoSuchProviderException e) {
-        new FatalErrorDialog(activity, "Unable to generate internal secret key", e).show();
-        return;
-      }
-    }
-
-    if (secretKey == null) {
-      new FatalErrorDialog(activity, "Bug: unable to get internal secret key").show();
-      return;
-    }
-
-    try {
-      cipher = BiometricPromptDemoSecretKeyHelper.getCipher();
-    } catch (NoSuchPaddingException | NoSuchAlgorithmException e) {
-      new FatalErrorDialog(activity, "Unable to get internal cipher", e).show();
-      return;
-    }
-
-    if (cipher == null) {
-      new FatalErrorDialog(activity, "Bug: unable to get internal cipher").show();
-      return;
-    }
-
-    biometricPrompt = new BiometricPrompt(this, executor, biometricCallback);
-
-    try {
-      cipher.init(Cipher.ENCRYPT_MODE, secretKey);
-      cryptoObject = new BiometricPrompt.CryptoObject(cipher);
-      biometricPrompt.authenticate(biometricPromptInfo, cryptoObject);
-    } catch (InvalidKeyException e) {
-      new FatalErrorDialog(activity, "Unable to init biometric prompt").show();
-      return;
-    }
-
-    Button loginButton = (Button) findViewById(R.id.login);
-    loginButton.setOnClickListener(
-        new OnClickListener() {
-          public void onClick(View v) {
-            biometricPrompt.authenticate(biometricPromptInfo, cryptoObject);
-          }
-        });
   }
 
   protected void list() {

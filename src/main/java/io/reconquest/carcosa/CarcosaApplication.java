@@ -1,8 +1,7 @@
 package io.reconquest.carcosa;
 
-import com.bugsnag.android.Bugsnag;
-
 import android.app.Application;
+import com.bugsnag.android.Bugsnag;
 
 public class CarcosaApplication extends Application {
   @Override

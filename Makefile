@@ -25,6 +25,12 @@ CCARCH    = x86_64
 SO_TARGET = x86_64
 endif
 
+ifdef FASTBUILD
+GRADLE_BUILD_FLAGS = -x lint -x lintVitalRelease
+else
+GRADLE_BUILD_FLAGS =
+endif
+
 so:
 	@$(_MAKE) lib-$(SO_TARGET)
 
@@ -33,7 +39,7 @@ lib-%:
 	@$(_MAKE) src/main/jniLibs/$*/libcarcosa.so
 
 run: install
-	$(_ADB) shell am start -n $(ANDROID_PACKAGE)/.MainActivity
+	$(_ADB) shell am start -n $(ANDROID_PACKAGE)/.LoginActivity
 
 install: build/app.apk
 	$(_ADB) install -r build/app.apk
@@ -66,7 +72,7 @@ src/main/jniLibs/%/libcarcosa.so:
 build/app.apk: .keystore src/main/jniLibs/$(SO_TARGET)/libcarcosa.so java
 
 java: .keystore
-	@TERM=xterm gradle build
+	gradle build $(GRADLE_BUILD_FLAGS)
 	mv build/outputs/apk/debug/carcosa-android-debug.apk build/app.apk
 
 clean:
@@ -74,3 +80,4 @@ clean:
 
 eclipse:
 	gradle eclipse
+	gradle pom

@@ -1,7 +1,7 @@
 package io.reconquest.carcosa.lib;
 
-import java.io.Serializable;
 import io.reconquest.carcosa.Maybe;
+import java.io.Serializable;
 
 @SuppressWarnings("serial")
 public class Carcosa implements Serializable {
