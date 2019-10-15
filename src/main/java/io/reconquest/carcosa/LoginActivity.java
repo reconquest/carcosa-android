@@ -1,12 +1,5 @@
 package io.reconquest.carcosa;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Base64;
@@ -16,6 +9,12 @@ import android.widget.Button;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import co.infinum.goldfinger.Goldfinger;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 
 public class LoginActivity extends AppCompatActivity {
   // private static final String TAG = LoginActivity.class.getName();

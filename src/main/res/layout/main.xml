@@ -18,5 +18,13 @@
             app:popupTheme="@style/ThemeOverlay.AppCompat"
         />
 
+    <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/search_query"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:hint="Search"
+            android:inputType="textWebEmailAddress"
+        />
+
     <include layout="@layout/repo_list" />
 </LinearLayout>
