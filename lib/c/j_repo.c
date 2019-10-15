@@ -2,6 +2,7 @@
 
 #include "_/j_list.h"
 #include "_/j_object.h"
+#include "_/string.h"
 
 #include "j_repo.h"
 #include "j_repo_config.h"
@@ -17,6 +18,11 @@ jobject j_token(JNIEnv *env, token token) {
   j_object_set_string(env, j_token, "resource", token.resource);
   j_object_set_string(env, j_token, "login", token.login);
   j_object_set_string(env, j_token, "payload", token.payload);
+
+  string_release(token.name);
+  string_release(token.resource);
+  string_release(token.login);
+  string_release(token.payload);
 
   return j_token;
 }
@@ -42,6 +48,9 @@ jobject j_repo(JNIEnv *env, repo repo) {
   }
 
   j_object_set(env, j_repo, "tokens", class_ArrayListL, j_repo_tokens);
+
+  string_release(env, repo.id);
+  string_release(env, repo.name);
 
   return j_repo;
 }

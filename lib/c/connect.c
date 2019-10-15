@@ -20,6 +20,8 @@ jobject j_connect_out(JNIEnv *env, connect_out out) {
   j_object_set_string(env, j_connect_out, "id", out.id);
   j_object_set_int(env, j_connect_out, "tokens", out.tokens);
 
+  string_release(env, out.id);
+
   return j_connect_out;
 }
 

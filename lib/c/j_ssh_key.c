@@ -8,8 +8,11 @@
 jobject j_ssh_key(JNIEnv *env, ssh_key ssh_key) {
   jobject j_ssh_key = j_object_new_void(env, class_CarcosaLibSSHKey);
 
+  j_object_set_bytes(env, j_ssh_key, "privateBytes", ssh_key.private);
   j_object_set_string(env, j_ssh_key, "publicKey", ssh_key.public);
   j_object_set_string(env, j_ssh_key, "fingerprint", ssh_key.fingerprint);
+
+  ssh_key_release(env, ssh_key);
 
   return j_ssh_key;
 }

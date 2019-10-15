@@ -84,8 +84,14 @@ jbyteArray string_to_jbytes(JNIEnv *env, string string) {
   return j_byte_array;
 }
 
-extern void string_release(JNIEnv *env, string string) {
-  (*env)->ReleaseByteArrayElements(env, string._j_byte_array,
-                                   (jbyte *)string.data, JNI_ABORT);
-  (*env)->DeleteLocalRef(env, string._j_byte_array);
+void string_release(JNIEnv *env, string string) {
+  if (string._j_byte_array != NULL) {
+    (*env)->ReleaseByteArrayElements(env, string._j_byte_array,
+                                     (jbyte *)string.data, JNI_ABORT);
+    (*env)->DeleteLocalRef(env, string._j_byte_array);
+  } else {
+    if (string.length > 0) {
+      free(string.data);
+    }
+  }
 }
