@@ -10,7 +10,7 @@ import (
 
 //export Keygen
 func Keygen(out *C.ssh_key) C.error {
-	key, err := ssh.Keygen()
+	key, err := ssh.GenerateKey()
 	if err != nil {
 		return CError(err)
 	}

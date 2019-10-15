@@ -107,7 +107,7 @@
                         android:layout_height="38dp"
                         android:layout_width="wrap_content"
                         android:visibility="gone"
-                        android:text="copy"
+                        android:text="copy public key"
                     />
 
             </LinearLayout>
@@ -308,6 +308,7 @@
         </LinearLayout>
 
         <LinearLayout
+                android:id="@+id/repo_connected_panel"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"

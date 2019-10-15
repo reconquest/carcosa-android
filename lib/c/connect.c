@@ -5,6 +5,9 @@
 #include "_/j_object.h"
 #include "_/string.h"
 
+#include "j_repo_config.h"
+#include "j_ssh_key.h"
+
 #include "carcosa.h"
 #include "connect.h"
 
@@ -21,25 +24,17 @@ jobject j_connect_out(JNIEnv *env, connect_out out) {
 }
 
 JNIEXPORT jobject JNICALL Java_io_reconquest_carcosa_lib_Carcosa_connect(
-    JNIEnv *env, jobject this, jstring j_protocol, jstring j_address,
-    jstring j_ns, jobject j_ssh_key) {
-
-  string protocol = string_from_jstring(env, j_protocol);
-  string address = string_from_jstring(env, j_address);
-  string ns = string_from_jstring(env, j_ns);
+    JNIEnv *env, jobject this, jobject j_repo_config, jobject j_ssh_key) {
 
   connect_in in = {
-      .protocol = protocol,
-      .address = address,
-      .ns = ns,
       .ssh_key = NULL,
   };
 
+  repo_config_j(env, j_repo_config, &in.config);
+
   ssh_key ssh_key;
   if (!(*env)->IsSameObject(env, j_ssh_key, NULL)) {
-    ssh_key.private = j_object_get_bytes(env, j_ssh_key, "privateBytes");
-    ssh_key.public = j_object_get_string(env, j_ssh_key, "publicKey");
-    ssh_key.fingerprint = j_object_get_string(env, j_ssh_key, "fingerprint");
+    ssh_key_j(env, j_ssh_key, &ssh_key);
     in.ssh_key = &ssh_key;
   };
 
@@ -47,14 +42,10 @@ JNIEXPORT jobject JNICALL Java_io_reconquest_carcosa_lib_Carcosa_connect(
 
   error err = Connect(in, &out);
 
-  string_release(env, protocol);
-  string_release(env, address);
-  string_release(env, ns);
+  repo_config_release(env, in.config);
 
   if (in.ssh_key != NULL) {
-    string_release(env, in.ssh_key->private);
-    string_release(env, in.ssh_key->public);
-    string_release(env, in.ssh_key->fingerprint);
+    ssh_key_release(env, *in.ssh_key);
   }
 
   if (err.is_error) {

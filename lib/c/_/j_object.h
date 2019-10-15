@@ -1,4 +1,5 @@
 #include <jni.h>
+#include <stdbool.h>
 
 #include "string.h"
 
@@ -17,6 +18,8 @@ void j_object_set_bytes(JNIEnv *env, jobject j_object, const char *field,
                         string value);
 void j_object_set_int(JNIEnv *env, jobject j_object, const char *field,
                       int value);
+void j_object_set_bool(JNIEnv *env, jobject j_object, const char *field,
+                       bool value);
 
 string j_object_get_string(JNIEnv *env, jobject j_object, const char *field);
 string j_object_get_bytes(JNIEnv *env, jobject j_object, const char *field);

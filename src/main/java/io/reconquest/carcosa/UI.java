@@ -5,9 +5,12 @@ import java.util.Arrays;
 import android.app.Activity;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.InputType;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.animation.Animation;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -104,6 +107,18 @@ public class UI {
         });
   }
 
+  void readonly(final int id) {
+    ui(
+        new Runnable() {
+          public void run() {
+            EditText text = (EditText) root.findViewById(id);
+            text.setInputType(InputType.TYPE_NULL);
+            text.setKeyListener(null);
+          }
+        });
+  }
+
+  @SuppressWarnings("unchecked")
   String text(final int id, final Object... params) {
     View view = root.findViewById(id);
 
@@ -131,7 +146,17 @@ public class UI {
     }
 
     if (view instanceof Spinner) {
-      Spinner spinner = (Spinner) view;
+      final Spinner spinner = (Spinner) view;
+
+      if (params.length == 1) {
+        ui(
+            new Runnable() {
+              public void run() {
+                spinner.setSelection(
+                    ((ArrayAdapter<String>) spinner.getAdapter()).getPosition((String) params[0]));
+              }
+            });
+      }
 
       return spinner.getSelectedItem().toString();
     }

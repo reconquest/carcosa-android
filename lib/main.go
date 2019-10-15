@@ -6,6 +6,9 @@ package main
 // #include "c/_/j_object.c"
 //
 // #include "c/j_sync_stat.c"
+// #include "c/j_repo.c"
+// #include "c/j_repo_config.c"
+// #include "c/j_ssh_key.c"
 //
 // #include "c/init.c"
 // #include "c/unlock.c"
@@ -13,6 +16,7 @@ package main
 // #include "c/sync.c"
 // #include "c/list.c"
 // #include "c/keygen.c"
+// #include "c/repo.c"
 import "C"
 
 func main() {}

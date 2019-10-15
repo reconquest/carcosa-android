@@ -1,7 +1,5 @@
 package io.reconquest.carcosa;
 
-import com.bugsnag.android.Bugsnag;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,15 +14,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import io.reconquest.carcosa.lib.Carcosa;
 import io.reconquest.carcosa.lib.ConnectResult;
+import io.reconquest.carcosa.lib.Repo;
+import io.reconquest.carcosa.lib.RepoConfig;
 import io.reconquest.carcosa.lib.SSHKey;
 import io.reconquest.carcosa.lib.UnlockResult;
 
 public class RepoActivity extends AppCompatActivity {
   private UI ui;
   private Carcosa carcosa;
-
-  private String repoID;
-  private SSHKey repoSSHKey;
+  private Repo repo;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +33,36 @@ public class RepoActivity extends AppCompatActivity {
     setContentView(R.layout.repo);
 
     carcosa = (Carcosa) getIntent().getSerializableExtra("Carcosa");
+    repo = (Repo) getIntent().getSerializableExtra("Repo");
+
+    if (repo != null) {
+      ui.text(R.id.repo_address, repo.config.address);
+      ui.text(R.id.repo_protocol, repo.config.protocol);
+      ui.text(R.id.repo_token_namespace, repo.config.namespace);
+      ui.text(R.id.repo_token_filter, repo.config.filter);
+
+      if (repo.config.protocol.equals("ssh")) {
+        ui.text(R.id.repo_ssh_key_fingerprint, repo.sshKey.fingerprint);
+        ui.show(R.id.repo_ssh_key_fingerprint_panel);
+      }
+
+      ui.readonly(R.id.repo_address);
+      ui.disable(R.id.repo_protocol);
+      ui.disable(R.id.repo_token_namespace);
+      ui.disable(R.id.repo_token_filter);
+
+      ui.hide(R.id.repo_ssh_key_generate);
+      ui.show(R.id.repo_ssh_key_copy);
+      ui.hide(R.id.repo_stat_panel);
+      ui.hide(R.id.repo_connected_panel);
+
+      ui.hide(R.id.repo_connect_progress_panel);
+      ui.show(R.id.repo_unlock_panel);
+      ui.focus(R.id.repo_master_password);
+      ui.hide(R.id.repo_connect);
+    } else {
+      repo = new Repo();
+    }
 
     ((Spinner) findViewById(R.id.repo_protocol)).setOnItemSelectedListener(new ProtocolSelect());
 
@@ -113,8 +141,8 @@ public class RepoActivity extends AppCompatActivity {
     public void onClick(View v) {
       new Clipboard(activity)
           .clip(
-              "ssh " + repoSSHKey.fingerprint,
-              repoSSHKey.publicKey,
+              "ssh " + repo.sshKey.fingerprint,
+              repo.sshKey.publicKey,
               "Public key copied to clipboard.");
     }
   }
@@ -144,7 +172,7 @@ public class RepoActivity extends AppCompatActivity {
           ui.enable(R.id.repo_ssh_key_generate);
           ui.text(R.id.repo_ssh_key_fingerprint, keygen.result.fingerprint);
 
-          repoSSHKey = keygen.result;
+          repo.sshKey = keygen.result;
         }
       }
     }
@@ -153,11 +181,15 @@ public class RepoActivity extends AppCompatActivity {
   public class ConnectButton implements OnClickListener {
     class ConnectThread extends Thread implements Runnable {
       public void run() {
-        String protocol = ui.text(R.id.repo_protocol);
-        String address = ui.text(R.id.repo_address);
-        String namespace = ui.text(R.id.repo_token_namespace);
 
-        Maybe<ConnectResult> connect = carcosa.connect(protocol, address, namespace, repoSSHKey);
+        RepoConfig config = new RepoConfig();
+
+        config.protocol = ui.text(R.id.repo_protocol);
+        config.address = ui.text(R.id.repo_address);
+        config.namespace = ui.text(R.id.repo_token_namespace);
+        config.filter = ui.text(R.id.repo_token_filter);
+
+        Maybe<ConnectResult> connect = carcosa.connect(config, repo.sshKey);
         if (connect.error != null) {
           ui.enable(R.id.repo_protocol);
           ui.enable(R.id.repo_address);
@@ -168,7 +200,7 @@ public class RepoActivity extends AppCompatActivity {
           ui.text(R.id.repo_error, connect.error);
           ui.show(R.id.repo_error);
         } else {
-          repoID = connect.result.id;
+          repo.id = connect.result.id;
           ui.hide(R.id.repo_connect_progress_panel);
           ui.show(R.id.repo_stat_panel);
           ui.show(R.id.repo_unlock_panel);
@@ -199,7 +231,7 @@ public class RepoActivity extends AppCompatActivity {
       String key = ui.text(R.id.repo_master_password);
       String filter = ui.text(R.id.repo_token_filter);
 
-      Maybe<UnlockResult> unlock = carcosa.unlock(repoID, key, filter, true);
+      Maybe<UnlockResult> unlock = carcosa.unlock(repo.id, key, filter, true);
       if (unlock.error != null) {
         ui.text(R.id.repo_error, unlock.error);
         ui.show(R.id.repo_error);

@@ -33,9 +33,11 @@ type Token struct {
 }
 
 type Repo struct {
-	Config  *Config
-	Carcosa *carcosa.Carcosa
-	Tokens  []Token
+	IsLocked bool
+	Config   *Config
+	SSHKey   *ssh.Key
+	Carcosa  *carcosa.Carcosa
+	Tokens   []Token
 }
 
 type State struct {
@@ -112,12 +114,18 @@ func (state *State) Connect(
 	protocol string,
 	address string,
 	ns string,
+	filter string,
 	key *ssh.Key,
 ) (*Config, error) {
 	var id string
 	var bytes [32]byte
 
 	_, err := rand.Read(bytes[:])
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = state.filter(filter)
 	if err != nil {
 		return nil, err
 	}
@@ -172,7 +180,8 @@ func (state *State) Connect(
 			Protocol: protocol,
 			Address:  address,
 		},
-		NS: ns,
+		NS:     ns,
+		Filter: filter,
 		SyncStatus: ConfigSyncStatus{
 			Date:  time.Now(),
 			Stats: *stats,
@@ -192,7 +201,6 @@ func (state *State) Connect(
 func (state *State) Unlock(
 	id string,
 	key string,
-	filter string,
 	cache bool,
 ) (int, error) {
 	config, err := LoadConfig(state.getRepoConfigPath(id))
@@ -218,13 +226,6 @@ func (state *State) Unlock(
 		)
 	}
 
-	_, err = state.filter(filter)
-	if err != nil {
-		return 0, err
-	}
-
-	config.Filter = filter
-
 	err = config.Store(state.getRepoConfigPath(id))
 	if err != nil {
 		return 0, err
@@ -233,8 +234,8 @@ func (state *State) Unlock(
 	return len(secrets), nil
 }
 
-func (state *State) list() ([]Repo, error) {
-	var repos []Repo
+func (state *State) list() ([]*Repo, error) {
+	var repos []*Repo
 
 	err := filepath.Walk(
 		state.getReposDir(),
@@ -254,9 +255,18 @@ func (state *State) list() ([]Repo, error) {
 				return err
 			}
 
-			repo := Repo{
+			repo := &Repo{
 				Config:  config,
 				Carcosa: state.carcosa(id, config.NS),
+			}
+
+			if config.URL.Protocol == "ssh" {
+				key, err := ssh.ReadKey(state.getRepoSSHKeyPath(id))
+				if err != nil {
+					return err
+				}
+
+				repo.SSHKey = key
 			}
 
 			repos = append(repos, repo)
@@ -304,16 +314,21 @@ func (state *State) Sync() error {
 	return nil
 }
 
-func (state *State) List() ([]Repo, error) {
+func (state *State) List() ([]*Repo, error) {
 	repos, err := state.list()
 	if err != nil {
 		return nil, err
 	}
 
-	for i, repo := range repos {
+	for _, repo := range repos {
 		master, err := state.cache(repo.Config.ID).Get(repo.Config.ID)
 		if err != nil {
 			return nil, err
+		}
+
+		if master == nil {
+			repo.IsLocked = true
+			continue
 		}
 
 		secrets, err := repo.Carcosa.List(master)
@@ -347,8 +362,6 @@ func (state *State) List() ([]Repo, error) {
 
 			repo.Tokens = append(repo.Tokens, token)
 		}
-
-		repos[i] = repo
 	}
 
 	return repos, err

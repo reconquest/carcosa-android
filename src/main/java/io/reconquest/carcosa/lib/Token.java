@@ -1,6 +1,9 @@
 package io.reconquest.carcosa.lib;
 
-public class Token {
+import java.io.Serializable;
+
+@SuppressWarnings("serial")
+public class Token implements Serializable {
   public String name;
   public String resource;
   public String login;

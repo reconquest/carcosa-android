@@ -1,14 +1,13 @@
 #include "_/string.h"
 
+#include "repo.h"
 #include "ssh_key.h"
 
 #ifndef _CARCOSA_CONNECT_H
 #define _CARCOSA_CONNECT_H
 
 typedef struct {
-  string protocol;
-  string address;
-  string ns;
+  repo_config config;
   ssh_key *ssh_key;
 } connect_in;
 

@@ -17,8 +17,7 @@ public class Carcosa implements Serializable {
 
   public native Maybe<SSHKey> keygen();
 
-  public native Maybe<ConnectResult> connect(
-      String protocol, String address, String ns, SSHKey ssh_key);
+  public native Maybe<ConnectResult> connect(RepoConfig repoConfig, SSHKey sshKey);
 
   public native Maybe<UnlockResult> unlock(String id, String key, String filter, Boolean cache);
 

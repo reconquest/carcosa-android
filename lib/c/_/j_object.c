@@ -30,6 +30,17 @@ void j_object_set_int(JNIEnv *env, jobject j_object, const char *field,
   (*env)->DeleteLocalRef(env, j_class);
 }
 
+void j_object_set_bool(JNIEnv *env, jobject j_object, const char *field,
+                       bool value) {
+  jclass j_class = (*env)->GetObjectClass(env, j_object);
+
+  jfieldID j_field = (*env)->GetFieldID(env, j_class, field, "Z");
+
+  (*env)->SetBooleanField(env, j_object, j_field, value ? JNI_TRUE : JNI_FALSE);
+
+  (*env)->DeleteLocalRef(env, j_class);
+}
+
 void j_object_set_bytes(JNIEnv *env, jobject j_object, const char *field,
                         string value) {
   jclass j_class = (*env)->GetObjectClass(env, j_object);

@@ -303,6 +303,13 @@ public class MainActivity extends AppCompatActivity {
     }
   }
 
+  void gotoRepoScreen(Repo repo) {
+    Intent intent = new Intent(this, RepoActivity.class);
+    intent.putExtra("Carcosa", carcosa);
+    intent.putExtra("Repo", repo);
+    startActivity(intent);
+  }
+
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
@@ -310,9 +317,7 @@ public class MainActivity extends AppCompatActivity {
         new SyncThread(this).start();
         break;
       case R.id.toolbar_main_action_add_repo:
-        Intent intent = new Intent(this, RepoActivity.class);
-        intent.putExtra("Carcosa", carcosa);
-        startActivity(intent);
+        gotoRepoScreen(null);
         break;
       default:
         break;
@@ -335,6 +340,18 @@ public class MainActivity extends AppCompatActivity {
     RepoList(Activity activity, ArrayList<Repo> repos) {
       this.activity = activity;
       this.repos = repos;
+    }
+
+    public class UnlockButton implements OnClickListener {
+      Repo repo;
+
+      UnlockButton(Repo repo) {
+        this.repo = repo;
+      }
+
+      public void onClick(View v) {
+        gotoRepoScreen(repo);
+      }
     }
 
     @Override
@@ -381,6 +398,11 @@ public class MainActivity extends AppCompatActivity {
 
       if (repo.syncStat.added + repo.syncStat.deleted == 0) {
         ui.show(R.id.repo_list_item_sync_stat_uptodate);
+      }
+
+      if (repo.isLocked) {
+        ui.show(R.id.repo_list_item_unlock);
+        ui.onClick(R.id.repo_list_item_unlock, new UnlockButton(repo));
       }
 
       ListView tokensView = (ListView) view.findViewById(R.id.repo_token_list);

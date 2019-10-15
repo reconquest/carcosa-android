@@ -1,37 +1,13 @@
-#include "_/string.h"
-#include "sync_stat.h"
 #include <stdbool.h>
+
+#include "_/string.h"
+#include "repo.h"
 
 #ifndef _CARCOSA_LIST_H
 #define _CARCOSA_LIST_H
 
 typedef struct {
-  string name;
-  string resource;
-  string login;
-  string payload;
-} token;
-
-typedef struct {
-  int length;
-  token *data;
-} token_list;
-
-typedef struct {
-  string id;
-  string name;
-  sync_stat sync_stat;
-  bool is_locked;
-  token_list tokens;
-} repo;
-
-typedef struct {
 } list_in;
-
-typedef struct {
-  int length;
-  repo *data;
-} repo_list;
 
 typedef struct {
   repo_list repos;

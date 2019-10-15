@@ -11,9 +11,10 @@ import (
 //export Connect
 func Connect(in C.connect_in, out *C.connect_out) C.error {
 	var (
-		protocol = GoString(in.protocol)
-		address  = GoString(in.address)
-		ns       = GoString(in.ns)
+		protocol = GoString(in.config.protocol)
+		address  = GoString(in.config.address)
+		filter   = GoString(in.config.filter)
+		ns       = GoString(in.config.ns)
 	)
 
 	var key *ssh.Key
@@ -26,7 +27,7 @@ func Connect(in C.connect_in, out *C.connect_out) C.error {
 		}
 	}
 
-	config, err := state.Connect(protocol, address, ns, key)
+	config, err := state.Connect(protocol, address, ns, filter, key)
 	if err != nil {
 		return CError(err)
 	}

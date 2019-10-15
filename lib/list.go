@@ -3,7 +3,11 @@ package main
 // #include "c/_/error.h"
 // #include "c/list.h"
 import "C"
-import "time"
+import (
+	"fmt"
+	"os"
+	"time"
+)
 
 //export List
 func List(in C.list_in, out *C.list_out) C.error {
@@ -14,9 +18,33 @@ func List(in C.list_in, out *C.list_out) C.error {
 
 	out.repos = C.repo_list_new(C.int(len(repos)))
 	for i, repo := range repos {
+		fmt.Fprintf(os.Stderr, "XXXXXX list.go:19 repo: %#v\n", repo)
 		sync := repo.Config.SyncStatus
+
+		c_ssh_key := C.ssh_key{}
+
+		if repo.SSHKey != nil {
+			c_ssh_key.public = CString(string(repo.SSHKey.Public))
+			c_ssh_key.fingerprint = CString(repo.SSHKey.Fingerprint)
+		}
+
 		c_repo := C.repo{
-			name: CString(repo.Config.URL.Address),
+			id: CString(repo.Config.ID),
+			name: CString(
+				fmt.Sprintf(
+					"%s://%s",
+					repo.Config.URL.Protocol,
+					repo.Config.URL.Address,
+				),
+			),
+			ssh_key:   c_ssh_key,
+			is_locked: C.bool(repo.IsLocked),
+			config: C.repo_config{
+				address:  CString(repo.Config.URL.Address),
+				protocol: CString(repo.Config.URL.Protocol),
+				ns:       CString(repo.Config.NS),
+				filter:   CString(repo.Config.Filter),
+			},
 			sync_stat: C.sync_stat{
 				date:    CString(sync.Date.Format(time.ANSIC)),
 				added:   C.int(sync.Stats.Ours.Add),
