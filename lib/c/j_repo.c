@@ -19,10 +19,10 @@ jobject j_token(JNIEnv *env, token token) {
   j_object_set_string(env, j_token, "login", token.login);
   j_object_set_string(env, j_token, "payload", token.payload);
 
-  string_release(token.name);
-  string_release(token.resource);
-  string_release(token.login);
-  string_release(token.payload);
+  string_release(env, token.name);
+  string_release(env, token.resource);
+  string_release(env, token.login);
+  string_release(env, token.payload);
 
   return j_token;
 }

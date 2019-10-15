@@ -22,7 +22,7 @@ jobject j_repo_config(JNIEnv *env, repo_config config) {
   j_object_set_string(env, j_repo_config, "namespace", config.ns);
   j_object_set_string(env, j_repo_config, "filter", config.filter);
 
-  repo_config_release(env, repo_config);
+  repo_config_release(env, config);
 
   return j_repo_config;
 }
