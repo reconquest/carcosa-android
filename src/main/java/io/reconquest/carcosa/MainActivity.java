@@ -49,6 +49,10 @@ public class MainActivity extends AppCompatActivity {
   }
 
   private void initCarcosa() {
+    if (carcosa.hasState()) {
+      return;
+    }
+
     String pin = getIntent().getStringExtra("pin");
     if (pin == null) {
       Log.e(TAG, "pin was not passed to intent");
