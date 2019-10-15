@@ -5,7 +5,6 @@ package main
 import "C"
 import (
 	"fmt"
-	"os"
 	"time"
 )
 
@@ -18,7 +17,6 @@ func List(in C.list_in, out *C.list_out) C.error {
 
 	out.repos = C.repo_list_new(C.int(len(repos)))
 	for i, repo := range repos {
-		fmt.Fprintf(os.Stderr, "XXXXXX list.go:19 repo: %#v\n", repo)
 		sync := repo.Config.SyncStatus
 
 		c_ssh_key := C.ssh_key{}

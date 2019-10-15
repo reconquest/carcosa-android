@@ -8,6 +8,8 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -18,8 +20,10 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.BaseAdapter;
-import android.widget.ListAdapter;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ListView;
+import android.widget.TextView;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -33,6 +37,9 @@ public class MainActivity extends AppCompatActivity {
   private RepoList repoList;
 
   private Carcosa carcosa = new Carcosa();
+  private boolean searchEnabled;
+
+  TextView searchField;
 
   @Override
   protected void onCreate(Bundle state) {
@@ -72,10 +79,16 @@ public class MainActivity extends AppCompatActivity {
     Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_main);
     toolbar.setSubtitle("secrets");
     setSupportActionBar(toolbar);
+
+    bindSearch();
     list();
   }
 
   protected void list() {
+    searchEnabled = false;
+
+    searchField.setText(null);
+
     Maybe<ListResult> list = carcosa.list();
     if (list.error != null) {
       new FatalErrorDialog(this, list.error).show();
@@ -83,6 +96,27 @@ public class MainActivity extends AppCompatActivity {
       repoList = new RepoList(this, list.result.repos);
       ((ListView) findViewById(R.id.repo_list)).setAdapter(repoList);
     }
+
+    searchEnabled = true;
+  }
+
+  protected void bindSearch() {
+    searchField = (TextView) findViewById(R.id.search_query);
+    searchField.addTextChangedListener(
+        new TextWatcher() {
+          public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+          public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+          public void afterTextChanged(Editable s) {
+            if (!searchEnabled) {
+              return;
+            }
+
+            final String query = searchField.getText().toString();
+            repoList.getFilter().filter(query.toLowerCase());
+          }
+        });
   }
 
   class SyncThread extends Thread implements Runnable {
@@ -165,25 +199,15 @@ public class MainActivity extends AppCompatActivity {
     return true;
   }
 
-  public class RepoList extends BaseAdapter {
+  public class RepoList extends BaseAdapter implements Filterable {
     Activity activity;
     ArrayList<Repo> repos;
+    ArrayList<RepoTokenList> tokens = new ArrayList<RepoTokenList>();
+    RepoListFilter filter = new RepoListFilter();
 
     RepoList(Activity activity, ArrayList<Repo> repos) {
       this.activity = activity;
       this.repos = repos;
-    }
-
-    public class UnlockButton implements OnClickListener {
-      Repo repo;
-
-      UnlockButton(Repo repo) {
-        this.repo = repo;
-      }
-
-      public void onClick(View v) {
-        gotoRepoScreen(repo);
-      }
     }
 
     @Override
@@ -202,10 +226,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    public Filter getFilter() {
+      return filter;
+    }
+
+    @Override
     public View getView(int position, View view, ViewGroup container) {
-      if (view == null) {
-        view = getLayoutInflater().inflate(R.layout.repo_list_item, container, false);
+      if (view != null) {
+        return view;
       }
+
+      view = getLayoutInflater().inflate(R.layout.repo_list_item, container, false);
 
       UI ui = new UI(view);
 
@@ -238,27 +269,158 @@ public class MainActivity extends AppCompatActivity {
       }
 
       ListView tokensView = (ListView) view.findViewById(R.id.repo_token_list);
-      ListAdapter tokensAdapter = new RepoTokenList(activity, repo.tokens);
+
+      RepoTokenList tokenList = new RepoTokenList(activity, repo.tokens);
+
       ViewGroup.LayoutParams params = tokensView.getLayoutParams();
 
-      params.height = (tokensView.getDividerHeight() * (tokensAdapter.getCount() - 1));
+      params.height = (tokensView.getDividerHeight() * (tokenList.getCount() - 1));
 
-      for (int i = 0; i < tokensAdapter.getCount(); i++) {
-        View listItem = tokensAdapter.getView(i, null, tokensView);
+      for (int i = 0; i < tokenList.getCount(); i++) {
+        View listItem = tokenList.getView(i, null, tokensView);
         listItem.measure(0, 0);
         params.height += listItem.getMeasuredHeight();
       }
 
       tokensView.setLayoutParams(params);
-      tokensView.setAdapter(tokensAdapter);
+      tokensView.setAdapter(tokenList);
+
+      tokens.add(tokenList);
 
       return view;
     }
+
+    private class RepoListFilter extends Filter {
+      @Override
+      protected FilterResults performFiltering(CharSequence constraint) {
+        for (int i = 0; i < tokens.size(); i++) {
+          tokens.get(i).getFilter().filter(constraint);
+        }
+        return new FilterResults();
+      }
+
+      @Override
+      protected void publishResults(CharSequence constraint, FilterResults results) {
+        notifyDataSetChanged();
+      }
+    }
+
+    public class UnlockButton implements OnClickListener {
+      Repo repo;
+
+      UnlockButton(Repo repo) {
+        this.repo = repo;
+      }
+
+      public void onClick(View v) {
+        gotoRepoScreen(repo);
+      }
+    }
   }
 
-  public class RepoTokenList extends BaseAdapter {
+  public class RepoTokenList extends BaseAdapter implements Filterable {
+    ArrayList<Token> originTokens;
     ArrayList<Token> tokens;
     Activity activity;
+    RepoTokenListFilter filter = new RepoTokenListFilter();
+
+    RepoTokenList(Activity activity, ArrayList<Token> tokens) {
+      this.activity = activity;
+      this.originTokens = tokens;
+      this.tokens = tokens;
+    }
+
+    @Override
+    public int getCount() {
+      return tokens.size();
+    }
+
+    @Override
+    public Token getItem(int i) {
+      return tokens.get(i);
+    }
+
+    @Override
+    public long getItemId(int i) {
+      return getItem(i).name.hashCode();
+    }
+
+    @Override
+    public Filter getFilter() {
+      return filter;
+    }
+
+    @Override
+    public View getView(int position, View view, ViewGroup container) {
+      TokenViewHolder holder;
+      if (view == null) {
+        view = getLayoutInflater().inflate(R.layout.repo_token_list_item, container, false);
+        holder = new TokenViewHolder(view);
+        view.setTag(holder);
+      } else {
+        holder = (TokenViewHolder) view.getTag();
+      }
+
+      holder.draw(tokens.get(position));
+
+      return view;
+    }
+
+    private class TokenViewHolder {
+      UI ui;
+
+      public TokenViewHolder(View view) {
+        ui = new UI(view);
+      }
+
+      public void draw(Token token) {
+        if (token.resource.equals("")) {
+          ui.text(R.id.repo_token_list_item_name, token.name);
+        } else {
+          ui.hide(R.id.repo_token_list_item_name_panel);
+          if (!token.login.equals("")) {
+            ui.text(R.id.repo_token_list_item_login, token.login);
+            ui.show(R.id.repo_token_list_item_login_panel);
+          }
+
+          ui.text(R.id.repo_token_list_item_resource, token.resource);
+          ui.show(R.id.repo_token_list_item_resource_panel);
+        }
+
+        ui.onClick(R.id.repo_token_list_item_view, new ViewButton(token.name, token.payload));
+        ui.onClick(R.id.repo_token_list_item_copy, new CopyButton(token.name, token.payload));
+      }
+    }
+
+    private class RepoTokenListFilter extends Filter {
+      @Override
+      protected FilterResults performFiltering(CharSequence constraint) {
+        FilterResults results = new FilterResults();
+        if (constraint.length() == 0) {
+          results.values = originTokens;
+          results.count = originTokens.size();
+          return results;
+        }
+
+        ArrayList<Token> filtered = new ArrayList<Token>();
+        for (int i = 0; i < getCount(); i++) {
+          Token token = getItem(i);
+          if (token.name.toLowerCase().contains(constraint)) {
+            filtered.add(token);
+          }
+        }
+        results.values = filtered;
+        results.count = filtered.size();
+        return results;
+      }
+
+      @SuppressWarnings("unchecked")
+      @Override
+      protected void publishResults(CharSequence constraint, FilterResults results) {
+        tokens = (ArrayList<Token>) results.values;
+        notifyDataSetChanged();
+      }
+    }
 
     public class ViewButton implements OnClickListener {
       String secret;
@@ -296,55 +458,6 @@ public class MainActivity extends AppCompatActivity {
       public void onClick(View v) {
         new Clipboard(activity).clip(token, secret, "Secret copied to clipboard.");
       }
-    }
-
-    RepoTokenList(Activity activity, ArrayList<Token> tokens) {
-      this.activity = activity;
-      this.tokens = tokens;
-    }
-
-    @Override
-    public int getCount() {
-      return tokens.size();
-    }
-
-    @Override
-    public Token getItem(int i) {
-      return tokens.get(i);
-    }
-
-    @Override
-    public long getItemId(int i) {
-      return getItem(i).name.hashCode();
-    }
-
-    @Override
-    public View getView(int position, View view, ViewGroup container) {
-      if (view == null) {
-        view = getLayoutInflater().inflate(R.layout.repo_token_list_item, container, false);
-      }
-
-      UI ui = new UI(view);
-
-      Token token = getItem(position);
-
-      if (token.resource.equals("")) {
-        ui.text(R.id.repo_token_list_item_name, token.name);
-      } else {
-        ui.hide(R.id.repo_token_list_item_name_panel);
-        if (!token.login.equals("")) {
-          ui.text(R.id.repo_token_list_item_login, token.login);
-          ui.show(R.id.repo_token_list_item_login_panel);
-        }
-
-        ui.text(R.id.repo_token_list_item_resource, token.resource);
-        ui.show(R.id.repo_token_list_item_resource_panel);
-      }
-
-      ui.onClick(R.id.repo_token_list_item_view, new ViewButton(token.name, token.payload));
-      ui.onClick(R.id.repo_token_list_item_copy, new CopyButton(token.name, token.payload));
-
-      return view;
     }
   }
 }
