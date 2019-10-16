@@ -8,8 +8,9 @@ import android.view.View.OnClickListener;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.Spinner;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.RadioGroup.OnCheckedChangeListener;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import io.reconquest.carcosa.lib.Carcosa;
@@ -37,21 +38,21 @@ public class RepoActivity extends AppCompatActivity {
 
     if (repo != null) {
       ui.text(R.id.repo_address, repo.config.address);
-      ui.text(R.id.repo_protocol, repo.config.protocol);
+      // ui.text(R.id.repo_protocol, repo.config.protocol);
       ui.text(R.id.repo_token_namespace, repo.config.namespace);
       ui.text(R.id.repo_token_filter, repo.config.filter);
 
-      if (repo.config.protocol.equals("ssh")) {
-        ui.text(R.id.repo_ssh_key_fingerprint, repo.sshKey.fingerprint);
-        ui.show(R.id.repo_ssh_key_fingerprint_panel);
-      }
+      // if (repo.config.protocol.equals("ssh")) {
+      //  ui.text(R.id.repo_ssh_key_fingerprint, repo.sshKey.fingerprint);
+      //  ui.show(R.id.repo_ssh_key_fingerprint_panel);
+      // }
 
       ui.readonly(R.id.repo_address);
-      ui.disable(R.id.repo_protocol);
+      // ui.disable(R.id.repo_protocol);
       ui.disable(R.id.repo_token_namespace);
       ui.disable(R.id.repo_token_filter);
 
-      ui.hide(R.id.repo_ssh_key_generate);
+      // ui.hide(R.id.repo_ssh_key_generate);
       ui.show(R.id.repo_ssh_key_copy);
       ui.hide(R.id.repo_stat_panel);
       ui.hide(R.id.repo_connected_panel);
@@ -64,9 +65,12 @@ public class RepoActivity extends AppCompatActivity {
       repo = new Repo();
     }
 
-    ((Spinner) findViewById(R.id.repo_protocol)).setOnItemSelectedListener(new ProtocolSelect());
+    // ((Spinner) findViewById(R.id.repo_protocol)).setOnItemSelectedListener(new ProtocolSelect());
 
-    ui.onClick(R.id.repo_ssh_key_generate, new GenerateKeyButton());
+    ((RadioGroup) findViewById(R.id.repo_protocol))
+        .setOnCheckedChangeListener(new ProtocolSelect());
+
+    // ui.onClick(R.id.repo_ssh_key_generate, new GenerateKeyButton());
     ui.onClick(R.id.repo_ssh_key_copy, new CopyKeyButton(this));
     ui.onClick(R.id.repo_connect, new ConnectButton());
     ui.onClick(R.id.repo_unlock, new UnlockButton());
@@ -117,12 +121,13 @@ public class RepoActivity extends AppCompatActivity {
     }
   }
 
-  public class ProtocolSelect implements OnItemSelectedListener {
-    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-      String protocol = parent.getItemAtPosition(pos).toString();
+  public class ProtocolSelect implements OnCheckedChangeListener {
+    public void onCheckedChanged(RadioGroup group, int checkedId) {
+      RadioButton button = (RadioButton) findViewById(checkedId);
 
-      if (protocol.equals("ssh")) {
+      if (button.getText().equals("ssh")) {
         ui.show(R.id.repo_ssh_key_panel);
+        new KeygenThread().start();
       } else {
         ui.hide(R.id.repo_ssh_key_panel);
       }
@@ -147,33 +152,29 @@ public class RepoActivity extends AppCompatActivity {
     }
   }
 
-  public class GenerateKeyButton implements OnClickListener {
-    public void onClick(View v) {
-      ui.show(R.id.repo_ssh_key_generate_progress_panel);
+  class KeygenThread extends Thread implements Runnable {
+    public void run() {
+      ui.disable(R.id.repo_ssh_key_copy);
       ui.hide(R.id.repo_ssh_key_fingerprint_panel);
-      ui.hide(R.id.repo_ssh_key_copy);
-      ui.disable(R.id.repo_ssh_key_generate);
+      ui.show(R.id.repo_ssh_key_generate_progress_panel);
 
-      new KeygenThread().start();
-    }
+      Maybe<SSHKey> keygen = carcosa.keygen();
 
-    class KeygenThread extends Thread implements Runnable {
-      public void run() {
-        Maybe<SSHKey> keygen = carcosa.keygen();
+      ui.hide(R.id.repo_ssh_key_generate_progress_panel);
 
-        if (keygen.error != null) {
-          ui.hide(R.id.repo_ssh_key_generate_progress_panel);
-          ui.text(R.id.repo_error, keygen.error);
-          ui.show(R.id.repo_error);
-        } else {
-          ui.hide(R.id.repo_ssh_key_generate_progress_panel);
-          ui.show(R.id.repo_ssh_key_fingerprint_panel);
-          ui.show(R.id.repo_ssh_key_copy);
-          ui.enable(R.id.repo_ssh_key_generate);
-          ui.text(R.id.repo_ssh_key_fingerprint, keygen.result.fingerprint);
+      if (keygen.error != null) {
+        ui.text(R.id.repo_error, keygen.error);
+        ui.show(R.id.repo_error);
+      } else {
+        ui.enable(R.id.repo_ssh_key_copy);
+        ui.show(R.id.repo_ssh_key_fingerprint_panel);
+        ui.show(R.id.repo_ssh_key_copy);
+        ui.text(R.id.repo_ssh_key_fingerprint_left, keygen.result.fingerprint.substring(0, 5));
+        ui.text(
+            R.id.repo_ssh_key_fingerprint_right,
+            keygen.result.fingerprint.substring(keygen.result.fingerprint.length() - 5));
 
-          repo.sshKey = keygen.result;
-        }
+        repo.sshKey = keygen.result;
       }
     }
   }
@@ -181,7 +182,6 @@ public class RepoActivity extends AppCompatActivity {
   public class ConnectButton implements OnClickListener {
     class ConnectThread extends Thread implements Runnable {
       public void run() {
-
         RepoConfig config = new RepoConfig();
 
         config.protocol = ui.text(R.id.repo_protocol);
@@ -191,7 +191,7 @@ public class RepoActivity extends AppCompatActivity {
 
         Maybe<ConnectResult> connect = carcosa.connect(config, repo.sshKey);
         if (connect.error != null) {
-          ui.enable(R.id.repo_protocol);
+          // ui.enable(R.id.repo_protocol);
           ui.enable(R.id.repo_address);
           ui.enable(R.id.repo_token_namespace);
           ui.enable(R.id.repo_connect);
@@ -214,7 +214,7 @@ public class RepoActivity extends AppCompatActivity {
     public void onClick(View v) {
       ui.hide(R.id.repo_error);
       ui.show(R.id.repo_connect_progress_panel);
-      ui.disable(R.id.repo_protocol);
+      // ui.disable(R.id.repo_protocol);
       ui.disable(R.id.repo_address);
       ui.disable(R.id.repo_token_namespace);
       ui.disable(R.id.repo_connect);

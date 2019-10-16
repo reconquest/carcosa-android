@@ -7,6 +7,6 @@ public class CarcosaApplication extends Application {
   @Override
   public void onCreate() {
     super.onCreate();
-    Bugsnag.init(this);
+    // Bugsnag.init(this);
   }
 }

@@ -5,32 +5,42 @@
     <application android:name=".CarcosaApplication" android:label="carcosa" android:allowBackup="true">
         <meta-data
                 android:name="com.bugsnag.android.API_KEY"
-                android:value="b56502b2d7d1aecf2365eebd194543a0"/>
+                android:value="b56502b2d7d1aecf2365eebd194543a0"
+            />
 
-        <meta-data android:name="com.bugsnag.android.DETECT_NDK_CRASHES"
-                android:value="true"/>
+        <meta-data
+                android:name="com.bugsnag.android.DETECT_NDK_CRASHES"
+                android:value="true"
+            />
 
-        <activity android:name="io.reconquest.carcosa.LoginActivity"
-                android:theme="@style/Theme.AppCompat.NoActionBar">
+        <activity
+                android:name=".LoginActivity"
+                android:theme="@style/Carcosa"
+                >
             <intent-filter>
-                <category android:name="android.intent.category.LAUNCHER"/>
-                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
 
-        <activity android:name="io.reconquest.carcosa.MainActivity"
-                android:theme="@style/Theme.AppCompat.NoActionBar">
+        <activity
+                android:name=".MainActivity"
+                android:theme="@style/Carcosa"
+                >
             <meta-data
                     android:name="android.support.PARENT_ACTIVITY"
                     android:value=".LoginActivity" />
         </activity>
 
-        <activity android:name=".RepoActivity"
+        <activity
+                android:name=".RepoActivity"
                 android:parentActivityName=".MainActivity"
-                android:theme="@style/Theme.AppCompat.NoActionBar">
+                android:theme="@style/Carcosa"
+                >
             <meta-data
                     android:name="android.support.PARENT_ACTIVITY"
-                    android:value=".MainActivity" />
+                    android:value=".MainActivity"
+                />
         </activity>
     </application>
 </manifest>

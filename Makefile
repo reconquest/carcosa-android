@@ -40,6 +40,7 @@ lib-%:
 
 run: install
 	$(_ADB) shell am start -n $(ANDROID_PACKAGE)/.LoginActivity
+	#$(_ADB) shell am start -n $(ANDROID_PACKAGE)/.RepoActivity
 
 install: build/app.apk
 	$(_ADB) install -r build/app.apk

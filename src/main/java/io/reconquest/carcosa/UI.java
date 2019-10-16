@@ -1,5 +1,7 @@
 package io.reconquest.carcosa;
 
+import java.util.Arrays;
+
 import android.app.Activity;
 import android.os.Handler;
 import android.os.Looper;
@@ -9,9 +11,10 @@ import android.view.View.OnClickListener;
 import android.view.animation.Animation;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
-import java.util.Arrays;
 
 public class UI {
   public interface Searchable {
@@ -142,6 +145,13 @@ public class UI {
       }
 
       return text.getText().toString();
+    }
+
+    if (view instanceof RadioGroup) {
+      return ((RadioButton)
+              root.findViewById(((RadioGroup) root.findViewById(id)).getCheckedRadioButtonId()))
+          .getText()
+          .toString();
     }
 
     if (view instanceof Spinner) {
