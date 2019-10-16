@@ -72,7 +72,7 @@ src/main/jniLibs/%/libcarcosa.so:
 build/app.apk: .keystore src/main/jniLibs/$(SO_TARGET)/libcarcosa.so java
 
 java: .keystore
-	gradle build $(GRADLE_BUILD_FLAGS)
+	gradle assembleDebug $(GRADLE_BUILD_FLAGS)
 	mv build/outputs/apk/debug/carcosa-android-debug.apk build/app.apk
 
 clean:
