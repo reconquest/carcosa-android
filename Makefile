@@ -82,3 +82,6 @@ clean:
 eclipse:
 	gradle eclipse
 	gradle pom
+
+eclipse-clean:
+	rm -rf .classpath .project .settings/
