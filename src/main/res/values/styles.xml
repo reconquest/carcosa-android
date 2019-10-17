@@ -1,15 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <style name="Green">
+        <item name="android:textColor">#32CD32</item>
+    </style>
     <style name="SSH">
         <item name="android:fontFamily">monospace</item>
     </style>
-    <style name="SSH.Fingerprint">
+    <style name="SSH.Fingerprint" parent="SSH">
         <item name="android:textColor">#32CD32</item>
     </style>
     <style name="SSH.Fingerprint.Ellipsis">
         <item name="android:textColor">#808080</item>
         <item name="android:paddingLeft">4dp</item>
         <item name="android:paddingRight">4dp</item>
+    </style>
+    <style name="Icon">
+        <item name="android:layout_width">18dp</item>
+        <item name="android:layout_height">18dp</item>
+        <item name="android:adjustViewBounds">true</item>
+    </style>
+    <style name="Icon.Green" parent="Icon">
+        <item name="android:tint">#32CD32</item>
+    </style>
+    <style name="Divider">
+        <item name="android:layout_height">1dp</item>
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_marginLeft">8dp</item>
+        <item name="android:layout_marginRight">8dp</item>
+        <item name="android:layout_marginBottom">16dp</item>
+        <item name="android:background">#696969</item>
+    </style>
+    <style name="HelperText" parent="TextAppearance.Design.HelperText">
+        <item name="android:textColor">@color/mtrl_indicator_text_color</item>
+    </style>
+    <style name="Readonly" parent="Base.Widget.MaterialComponents.TextInputEditText">
+        <item name="android:textColor">#6c6c6c</item>
     </style>
     <!--<style name="Spinner" parent="Widget.AppCompat.Light.DropDownItem.Spinner">-->
     <!--    <item name="android:paddingLeft">2dp</item>-->

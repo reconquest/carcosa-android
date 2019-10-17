@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="help_address"><![CDATA[
+        Specify repository address without protocol prefix in simple form:
+        domain followed by path (e.g. github.com/reconquest/secrets).
+    ]]></string>
+
+    <string name="help_ssh_key"><![CDATA[
+        Copy generated SSH public key and paste it in the repository\'s hosting
+        platform settings (e.g. add it as read-only deploy key).
+    ]]></string>
+
+    <string name="help_tokens_filter"><![CDATA[
+        Each token will be matched against specified regexp to extract resource
+        (e.g. site domain) and login to display them in the secrets list.
+        Two named groups are used for this purpose: (?P<resource>) and (?P<login>).
+        If no match can be found, then full token name will be used.
+    ]]></string>
+
+    <string name="help_master_password_cache"><![CDATA[
+        Master password will be securely stored on the device in encrypted
+        form which is accessible only by using your fingerprint data.
+    ]]></string>
+</resources>

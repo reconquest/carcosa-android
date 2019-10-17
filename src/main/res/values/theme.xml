@@ -3,5 +3,11 @@
     <style name="Carcosa" parent="Theme.MaterialComponents">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <item name="colorPrimary">#5c6bc0</item>
+        <item name="colorPrimaryVariant">#26418f</item>
+        <item name="colorOnPrimary">#000000</item>
+        <item name="colorSecondary">#9fa8da</item>
+        <item name="colorSecondaryVariant">#d1d9ff</item>
+        <item name="colorOnSecondary">#000000</item>
     </style>
 </resources>

@@ -2,12 +2,18 @@ package io.reconquest.carcosa;
 
 import java.util.Arrays;
 
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
+
 import android.app.Activity;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.Editable;
 import android.text.InputType;
+import android.text.TextWatcher;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -19,6 +25,10 @@ import android.widget.TextView;
 public class UI {
   public interface Searchable {
     public View findViewById(int id);
+  }
+
+  public interface OnTextChangedListener {
+    void onTextChanged(CharSequence chars, int start, int count, int after);
   }
 
   Searchable root;
@@ -48,11 +58,32 @@ public class UI {
   }
 
   void ui(Runnable runnable) {
-    handler.post(runnable);
+    if (Looper.myLooper() == Looper.getMainLooper()) {
+      runnable.run();
+    } else {
+      handler.post(runnable);
+    }
   }
 
   void onClick(final int id, OnClickListener listener) {
     root.findViewById(id).setOnClickListener(listener);
+  }
+
+  void onEdit(final int id, final OnTextChangedListener listener) {
+    ((EditText) root.findViewById(id))
+        .addTextChangedListener(
+            new TextWatcher() {
+              @Override
+              public void onTextChanged(CharSequence chars, int start, int count, int after) {
+                listener.onTextChanged(chars, start, count, after);
+              }
+
+              @Override
+              public void beforeTextChanged(CharSequence chars, int start, int count, int after) {}
+
+              @Override
+              public void afterTextChanged(Editable editable) {}
+            });
   }
 
   void hide(final int id) {
@@ -116,6 +147,23 @@ public class UI {
             EditText text = (EditText) root.findViewById(id);
             text.setInputType(InputType.TYPE_NULL);
             text.setKeyListener(null);
+            text.setTextAppearance(R.style.Readonly);
+          }
+        });
+  }
+
+  void disableHelp(final int id) {
+    ui(
+        new Runnable() {
+          public void run() {
+            TextInputLayout layout = (TextInputLayout) root.findViewById(id);
+            layout.setHelperTextEnabled(false);
+
+            View view = layout.getChildAt(0);
+            ViewGroup.MarginLayoutParams params =
+                (ViewGroup.MarginLayoutParams) view.getLayoutParams();
+            params.setMargins(params.leftMargin, params.topMargin, params.rightMargin, 0);
+            view.setLayoutParams(params);
           }
         });
   }

@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<ScrollView
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".RepoActivity"
+        >
+
+<androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         >
@@ -13,15 +20,16 @@
             android:elevation="4dp"
             app:layout_constraintTop_toTopOf="parent"
         />
-            <!--android:background="?attr/colorPrimary"-->
 
     <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/repo_address_panel"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
             app:layout_constraintTop_toBottomOf="@id/toolbar_repo"
+            app:helperText="@string/help_address"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             >
 
@@ -29,6 +37,7 @@
                 android:id="@+id/repo_address"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
                 android:hint="Address"
                 android:inputType="textWebEmailAddress"
             />
@@ -39,6 +48,7 @@
             android:id="@+id/repo_protocol_label"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
+            android:layout_marginLeft="12dp"
             android:text="Protocol:"
             app:layout_constraintTop_toTopOf="@id/repo_protocol"
             app:layout_constraintBottom_toBottomOf="@id/repo_protocol"
@@ -56,107 +66,133 @@
             >
         <RadioButton
                 android:id="@+id/repo_protocol_git"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
                 android:text="git"
             />
         <RadioButton
                 android:id="@+id/repo_protocol_ssh"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
                 android:text="ssh"
             />
     </RadioGroup>
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/repo_ssh_key_panel"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
+            android:paddingLeft="28dp"
             android:paddingBottom="12dp"
             android:visibility="gone"
-            app:layout_constraintLeft_toLeftOf="@id/repo_address_panel"
+            app:layout_constraintLeft_toLeftOf="@id/repo_protocol"
             app:layout_constraintTop_toBottomOf="@id/repo_protocol"
             >
 
-        <Button
-                android:id="@+id/repo_ssh_key_copy"
-                style="@style/Widget.AppCompat.Button.Small"
-                android:layout_height="38dp"
+        <LinearLayout
+                android:id="@+id/repo_ssh_key"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                >
+
+            <TextView
+                    android:id="@+id/repo_ssh_key_label"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:text="SSH Key:"
+                />
+
+            <LinearLayout
+                    android:id="@+id/repo_ssh_key_generate_progress_panel"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:visibility="gone"
+                    >
+
+                <ProgressBar
+                        android:id="@+id/repo_ssh_key_generate_progress"
+                        style="?android:attr/progressBarStyleSmallTitle"
+                        android:layout_width="24dp"
+                        android:layout_height="wrap_content"
+                    />
+
+                <TextView
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
+                        android:text="Generating keypair…"
+                    />
+
+            </LinearLayout>
+
+            <LinearLayout
+                    android:id="@+id/repo_ssh_key_fingerprint_panel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingLeft="8dp"
+                    android:visibility="gone"
+                    >
+
+                <TextView
+                        android:id="@+id/repo_ssh_key_fingerprint_left"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
+                        android:text="00:00"
+                        style="@style/SSH.Fingerprint"
+                    />
+
+                <TextView
+                        android:id="@+id/repo_ssh_key_fingerprint_ellipsis"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
+                        android:text="⋯"
+                        style="@style/SSH.Fingerprint.Ellipsis"
+                    />
+
+                <TextView
+                        android:id="@+id/repo_ssh_key_fingerprint_right"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
+                        android:text="00:00"
+                        style="@style/SSH.Fingerprint"
+                    />
+
+            </LinearLayout>
+
+            <com.google.android.material.button.MaterialButton
+                    android:id="@+id/repo_ssh_key_copy"
+                    android:paddingTop="0dp"
+                    android:paddingBottom="0dp"
+                    android:layout_height="34dp"
+                    android:layout_width="64dp"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginTop="-4dp"
+                    android:layout_marginBottom="-4dp"
+                    android:text="copy"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                />
+
+        </LinearLayout>
+
+        <TextView
+                android:id="@+id/repo_ssh_key_help"
+                android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
-                android:layout_marginTop="-4dp"
-                android:layout_marginBottom="-4dp"
-                android:text="copy public key"
+                android:paddingRight="24dp"
+                android:text="@string/help_ssh_key"
+                android:visibility="gone"
+                app:layout_constraintTop_toBottomOf="@id/repo_ssh_key"
+                style="@style/HelperText"
             />
 
-        <LinearLayout
-                android:id="@+id/repo_ssh_key_generate_progress_panel"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:visibility="gone"
-                >
-
-            <ProgressBar
-                    android:id="@+id/repo_ssh_key_generate_progress"
-                    style="?android:attr/progressBarStyleSmallTitle"
-                    android:layout_width="24dp"
-                    android:layout_height="wrap_content"
-                />
-
-            <TextView
-                    android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"
-                    android:text="Generating…"
-                />
-
-        </LinearLayout>
-
-        <LinearLayout
-                android:id="@+id/repo_ssh_key_fingerprint_panel"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingLeft="8dp"
-                android:visibility="gone"
-                >
-
-            <TextView
-                    android:id="@+id/repo_ssh_key_fingerprint_left"
-                    android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"
-                    android:text="00:00"
-                    style="@style/SSH.Fingerprint"
-                />
-
-            <TextView
-                    android:id="@+id/repo_ssh_key_fingerprint_ellipsis"
-                    android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"
-                    android:text="⋯"
-                    style="@style/SSH.Fingerprint.Ellipsis"
-                />
-
-            <TextView
-                    android:id="@+id/repo_ssh_key_fingerprint_right"
-                    android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"
-                    android:text="00:00"
-                    style="@style/SSH.Fingerprint"
-                />
-
-        </LinearLayout>
-
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <LinearLayout
             android:id="@+id/repo_advanced"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="8dp"
+            android:layout_marginLeft="4dp"
             android:layout_marginRight="16dp"
             android:orientation="horizontal"
             app:layout_constraintTop_toBottomOf="@id/repo_ssh_key_panel"
@@ -172,7 +208,8 @@
         <TextView
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="1.5dp"
+                android:layout_marginLeft="0dp"
+                android:layout_marginTop="2dp"
                 android:text="Advanced settings"
             />
     </LinearLayout>
@@ -200,6 +237,7 @@
                     android:id="@+id/repo_token_namespace"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
                     android:text="refs/tokens/"
                     android:inputType="textFilter"
                 />
@@ -207,11 +245,13 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/repo_token_filter_panel"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="8dp"
+                app:helperText="@string/help_tokens_filter"
                 android:hint="Tokens filter"
                 >
 
@@ -219,6 +259,7 @@
                     android:id="@+id/repo_token_filter"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
                     android:text="@string/filter_regexp"
                     android:inputType="textFilter"
                 />
@@ -231,11 +272,14 @@
             android:id="@+id/repo_connect_progress_panel"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="8dp"
             android:gravity="center_vertical"
-            android:visibility="gone"
             android:orientation="horizontal"
+            android:visibility="gone"
+            app:layout_constraintLeft_toLeftOf="@id/repo_advanced_panel"
+            app:layout_constraintTop_toBottomOf="@id/repo_advanced_panel"
             >
 
         <ProgressBar
@@ -256,28 +300,28 @@
     <TextView
             android:id="@+id/repo_error"
             android:layout_marginTop="20dp"
-            android:paddingRight="10dp"
-            android:paddingLeft="10dp"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
+            android:paddingRight="16dp"
+            android:paddingLeft="16dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
             android:layout_height="wrap_content"
             android:layout_width="fill_parent"
-            android:background="#B00020"
+            android:background="#8B0000"
             android:visibility="gone"
             style="@style/TextAppearance.AppCompat.Small"
-            app:layout_constraintTop_toBottomOf="@id/repo_advanced_panel"
+            app:layout_constraintTop_toBottomOf="@id/repo_connect_progress_panel"
         />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
             android:id="@+id/repo_connect"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
+            android:layout_marginTop="16dp"
             android:layout_gravity="center_horizontal"
             android:text="Connect"
-            android:layout_marginTop="16dp"
-            style="@style/Widget.AppCompat.Button.Colored"
+            android:enabled="false"
             app:layout_constraintTop_toBottomOf="@id/repo_error"
         />
 
@@ -285,106 +329,97 @@
             android:id="@+id/repo_unlock_panel"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:visibility="gone"
+            android:layout_marginTop="16dp"
             android:orientation="vertical"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/repo_connect"
+            app:layout_constraintLeft_toLeftOf="@id/repo_connect"
             >
 
-        <LinearLayout
-                android:id="@+id/repo_stat_panel"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                >
-
-            <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_locked_24dp"
-                />
-
-            <TextView
-                    android:id="@+id/repo_stat"
-                    android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"
-                />
-
-        </LinearLayout>
+        <View style="@style/Divider" />
 
         <LinearLayout
                 android:id="@+id/repo_connected_panel"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
                 >
 
             <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="wrap_content"
-                    android:tint="#aee571"
+                    android:layout_marginRight="2dp"
                     android:src="@drawable/ic_done_24dp"
+                    style="@style/Icon.Green"
                 />
 
             <TextView
+                    android:id="@+id/repo_connected_text"
                     android:layout_height="wrap_content"
-                    android:textColor="#aee571"
                     android:layout_width="wrap_content"
                     android:text="Repository successfully connected!"
+                    style="@style/Green"
                 />
         </LinearLayout>
 
-        <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/repo_master_password"
+        <TextView
+                android:id="@+id/repo_stat"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:layout_marginLeft="28dp"
+            />
+
+        <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/repo_master_password_panel"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:paddingLeft="5dp"
-                android:inputType="textPassword"
-                android:checked="true"
-                android:hint="password"
-            />
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                >
+
+            <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/repo_master_password"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPassword"
+                    android:hint="Master password"
+                />
+
+        </com.google.android.material.textfield.TextInputLayout>
 
         <CheckBox android:id="@+id/repo_master_password_cache"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="-4dp"
+                android:layout_marginLeft="20dp"
                 android:text="Cache master password"
                 android:enabled="false"
                 android:checked="true"
             />
 
-        <LinearLayout
-                android:id="@+id/repo_unlock_wrong_master_password"
-                android:layout_width="fill_parent"
+        <TextView
+                android:id="@+id/repo_ssh_key_help"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:visibility="gone"
-                >
-
-            <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="wrap_content"
-                    android:tint="#ff0000"
-                    android:src="@drawable/ic_error_24dp"
-                />
-
-            <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="#ff0000"
-                    android:text="Master password is incorrect!"
-                />
-
-        </LinearLayout>
+                android:layout_width="wrap_content"
+                android:paddingRight="22dp"
+                android:paddingLeft="26dp"
+                android:text="@string/help_master_password_cache"
+                app:layout_constraintTop_toBottomOf="@id/repo_master_password_cache"
+                style="@style/HelperText"
+            />
 
         <Button
                 android:id="@+id/repo_unlock"
-                style="@style/Widget.AppCompat.Button.Colored"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginTop="16dp"
+                android:enabled="false"
                 android:text="Unlock"
             />
     </LinearLayout>
@@ -393,43 +428,49 @@
             android:id="@+id/repo_unlock_done_panel"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
             android:gravity="center_vertical"
-            android:layout_marginBottom="12dp"
             android:orientation="vertical"
             android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/repo_unlock_panel"
             >
+
+        <View style="@style/Divider" />
 
         <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
+                android:layout_marginLeft="8dp"
                 >
 
             <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:tint="#aee571"
                     android:src="@drawable/ic_done_24dp"
+                    android:layout_marginRight="2dp"
+                    style="@style/Icon.Green"
                 />
 
             <TextView
                     android:id="@+id/repo_unlock_done_stat"
                     android:layout_height="wrap_content"
                     android:layout_width="wrap_content"
-                    android:textColor="#aee571"
-                    android:text=""
+                    style="@style/Green"
                 />
         </LinearLayout>
 
         <Button
                 android:id="@+id/repo_done"
-                style="@style/Widget.AppCompat.Button.Colored"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginTop="16dp"
                 android:text="Done"
             />
 
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+
+</ScrollView>
