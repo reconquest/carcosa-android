@@ -36,18 +36,4 @@
     <style name="Readonly" parent="Base.Widget.MaterialComponents.TextInputEditText">
         <item name="android:textColor">#6c6c6c</item>
     </style>
-    <!--<style name="Spinner" parent="Widget.AppCompat.Light.DropDownItem.Spinner">-->
-    <!--    <item name="android:paddingLeft">2dp</item>-->
-    <!--    <item name="android:paddingTop">3dp</item>-->
-    <!--    <item name="android:paddingStart">0dp</item>-->
-    <!--    <item name="android:paddingEnd">0dp</item>-->
-    <!--    <item name="android:textSize">18sp</item>-->
-    <!--</style>-->
-    <!--<style name="TextView.InputLabel" parent="TextAppearance.AppCompat.Caption">-->
-    <!--    <item name="android:textColor">?android:textColorHint</item>-->
-    <!--    <item name="android:layout_marginTop">-2dp</item>-->
-    <!--    <item name="android:paddingTop">0dp</item>-->
-    <!--    <item name="android:paddingLeft">4dp</item>-->
-    <!--    <item name="android:paddingRight">4dp</item>-->
-    <!--</style>-->
 </resources>

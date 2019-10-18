@@ -63,7 +63,8 @@ public class MainActivity extends AppCompatActivity implements Lister {
     setContentView(R.layout.main);
 
     Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_main);
-    toolbar.setSubtitle("secrets");
+    toolbar.setTitle("Secrets");
+    // toolbar.setSubtitle("secrets");
     setSupportActionBar(toolbar);
 
     bindSearch();

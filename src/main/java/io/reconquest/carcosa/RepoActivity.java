@@ -84,8 +84,6 @@ public class RepoActivity extends AppCompatActivity {
       repo = new Repo();
     }
 
-    // ((Spinner) findViewById(R.id.repo_protocol)).setOnItemSelectedListener(new ProtocolSelect());
-
     ((RadioGroup) findViewById(R.id.repo_protocol))
         .setOnCheckedChangeListener(new ProtocolSelect());
 
@@ -129,7 +127,7 @@ public class RepoActivity extends AppCompatActivity {
         });
 
     Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_repo);
-    toolbar.setSubtitle("add repository");
+    toolbar.setTitle("Add Repository");
     setSupportActionBar(toolbar);
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
   }

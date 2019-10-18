@@ -13,10 +13,8 @@
             android:id="@+id/toolbar_main"
             android:layout_width="fill_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
+            app:theme="@style/ToolBar"
             android:elevation="4dp"
-            android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
-            app:popupTheme="@style/ThemeOverlay.AppCompat"
         />
 
     <com.google.android.material.textfield.TextInputEditText

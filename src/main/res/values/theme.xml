@@ -3,11 +3,17 @@
     <style name="Carcosa" parent="Theme.MaterialComponents">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-        <item name="colorPrimary">#5c6bc0</item>
-        <item name="colorPrimaryVariant">#26418f</item>
+        <item name="colorPrimary">#ffeb3b</item>
+        <item name="colorPrimaryVariant">#ffff72</item>
         <item name="colorOnPrimary">#000000</item>
-        <item name="colorSecondary">#9fa8da</item>
-        <item name="colorSecondaryVariant">#d1d9ff</item>
+        <item name="colorSecondary">#f57f17</item>
+        <item name="colorSecondaryVariant">#bc5100</item>
         <item name="colorOnSecondary">#000000</item>
+    </style>
+
+    <style name="ToolBar" parent="Theme.MaterialComponents">
+      <item name="android:textColorPrimary">#000000</item>
+      <item name="android:background">#ffeb3b</item>
+      <item name="iconTint">#000000</item>
     </style>
 </resources>
