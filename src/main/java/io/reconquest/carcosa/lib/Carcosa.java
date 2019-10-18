@@ -13,6 +13,8 @@ public class Carcosa implements Serializable {
 
   public native boolean hasState();
 
+  public native void destroy();
+
   public native Maybe<Void> sync();
 
   public native Maybe<SSHKey> keygen();

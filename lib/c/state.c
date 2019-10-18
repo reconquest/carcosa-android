@@ -4,10 +4,11 @@
 #include "_/error.h"
 #include "_/j_maybe.h"
 #include "_/string.h"
-#include "init.h"
+#include "state.h"
 
 extern error Init(init_in);
 extern int HasState();
+extern void Destroy();
 
 JNIEXPORT jobject JNICALL Java_io_reconquest_carcosa_lib_Carcosa_init(
     JNIEnv *env, jobject this, jstring j_root, jstring j_pin) {
@@ -28,4 +29,9 @@ JNIEXPORT jboolean JNICALL Java_io_reconquest_carcosa_lib_Carcosa_hasState(
     JNIEnv *env, jobject this) {
     int result = HasState();
     return result != 0;
+}
+
+JNIEXPORT void JNICALL Java_io_reconquest_carcosa_lib_Carcosa_destroy(
+    JNIEnv *env, jobject this) {
+    Destroy();
 }

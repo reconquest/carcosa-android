@@ -10,7 +10,7 @@ package main
 // #include "c/j_repo_config.c"
 // #include "c/j_ssh_key.c"
 //
-// #include "c/init.c"
+// #include "c/state.c"
 // #include "c/unlock.c"
 // #include "c/connect.c"
 // #include "c/sync.c"

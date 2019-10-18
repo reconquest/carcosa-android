@@ -1,6 +1,8 @@
 package io.reconquest.carcosa;
 
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Date;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -26,19 +28,56 @@ public class MainActivity extends AppCompatActivity implements Lister {
   private boolean searchEnabled;
 
   TextView searchField;
+  ListView repoListView;
+
+  private boolean paused = false;
+  private Date pauseDate = null;
 
   @Override
   protected void onCreate(Bundle state) {
     super.onCreate(state);
 
+    setContentView(R.layout.main);
     initCarcosa();
+    initUI();
   }
 
   @Override
-  protected void onStart() {
-    super.onStart();
+  protected void onResume() {
+    super.onResume();
 
-    initUI();
+    // onResume() is also called after onCreate()
+    if (!paused) {
+      return;
+    }
+
+    final long ONE_SECOND = 1000;
+    // TODO: move to sharedPreferences
+    final long seconds = 3;
+
+    Date expireDate = new Date(pauseDate.getTime() + (seconds * ONE_SECOND));
+    Date now = new Date();
+
+    if (now.after(expireDate)) {
+      carcosa.destroy();
+      resetRepoList();
+
+      Intent intent = new Intent(this, LoginActivity.class);
+      startActivity(intent);
+    }
+  }
+
+  private void resetRepoList() {
+    repoList = new RepoList(this, new ArrayList<Repo>());
+    repoListView.setAdapter(repoList);
+  }
+
+  @Override
+  protected void onPause() {
+    super.onPause();
+
+    paused = true;
+    pauseDate = new Date();
   }
 
   private void initCarcosa() {
@@ -60,13 +99,12 @@ public class MainActivity extends AppCompatActivity implements Lister {
   }
 
   private void initUI() {
-    setContentView(R.layout.main);
-
     Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_main);
     toolbar.setTitle("Secrets");
     // toolbar.setSubtitle("secrets");
     setSupportActionBar(toolbar);
 
+    bindViews();
     bindSearch();
     list();
   }
@@ -81,14 +119,18 @@ public class MainActivity extends AppCompatActivity implements Lister {
       new FatalErrorDialog(this, list.error).show();
     } else {
       repoList = new RepoList(this, list.result.repos);
-      ((ListView) findViewById(R.id.repo_list)).setAdapter(repoList);
+      repoListView.setAdapter(repoList);
     }
 
     searchEnabled = true;
   }
 
-  protected void bindSearch() {
+  protected void bindViews() {
     searchField = (TextView) findViewById(R.id.search_query);
+    repoListView = ((ListView) findViewById(R.id.repo_list));
+  }
+
+  protected void bindSearch() {
     searchField.addTextChangedListener(
         new TextWatcher() {
           public void beforeTextChanged(CharSequence s, int start, int count, int after) {}

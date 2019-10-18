@@ -78,6 +78,7 @@ java: .keystore
 
 clean:
 	rm -rf build
+	go clean -cache
 
 eclipse:
 	gradle eclipse

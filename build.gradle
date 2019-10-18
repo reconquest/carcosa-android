@@ -14,7 +14,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.1'
+        classpath 'com.android.tools.build:gradle:3.5.+'
         classpath 'io.reconquest:gradle-android-eclipse:1.2'
         classpath 'com.bugsnag:bugsnag-android-gradle-plugin:4.+'
     }

@@ -2,7 +2,7 @@ package main
 
 // #include "c/_/string.h"
 // #include "c/_/error.h"
-// #include "c/init.h"
+// #include "c/state.h"
 import "C"
 
 import (
@@ -36,4 +36,11 @@ func Init(in C.init_in) C.error {
 //export HasState
 func HasState() C.bool {
 	return state != nil
+}
+
+//export Destroy
+func Destroy() {
+	if state != nil {
+		state = nil
+	}
 }
