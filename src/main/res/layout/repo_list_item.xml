@@ -20,15 +20,15 @@
                 >
 
             <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
                     android:src="@drawable/ic_bank_24dp"
+                    style="@style/Icon"
                 />
 
             <TextView
                     android:id="@+id/repo_list_item_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:fontWeight="800"
                 />
 
         </LinearLayout>

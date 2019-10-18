@@ -22,10 +22,10 @@ import io.reconquest.carcosa.lib.Repo;
 
 public class MainActivity extends AppCompatActivity implements Lister {
   private static final String TAG = MainActivity.class.getName();
+  private UI ui;
   private RepoList repoList;
 
   private Carcosa carcosa = new Carcosa();
-  private boolean searchEnabled;
 
   TextView searchField;
   ListView repoListView;
@@ -99,9 +99,12 @@ public class MainActivity extends AppCompatActivity implements Lister {
   }
 
   private void initUI() {
+    ui = new UI(this);
+
+    setContentView(R.layout.main);
+
     Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_main);
     toolbar.setTitle("Secrets");
-    // toolbar.setSubtitle("secrets");
     setSupportActionBar(toolbar);
 
     bindViews();
@@ -110,19 +113,16 @@ public class MainActivity extends AppCompatActivity implements Lister {
   }
 
   public void list() {
-    searchEnabled = false;
-
-    searchField.setText(null);
-
     Maybe<ListResult> list = carcosa.list();
     if (list.error != null) {
       new FatalErrorDialog(this, list.error).show();
     } else {
-      repoList = new RepoList(this, list.result.repos);
-      repoListView.setAdapter(repoList);
+      if (list.result.repos.size() > 0) {
+        ui.show(R.id.search_query_panel);
+        repoList = new RepoList(this, list.result.repos);
+        repoListView.setAdapter(repoList);
+      }
     }
-
-    searchEnabled = true;
   }
 
   protected void bindViews() {
@@ -131,19 +131,11 @@ public class MainActivity extends AppCompatActivity implements Lister {
   }
 
   protected void bindSearch() {
-    searchField.addTextChangedListener(
-        new TextWatcher() {
-          public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-          public void onTextChanged(CharSequence s, int start, int before, int count) {}
-
-          public void afterTextChanged(Editable s) {
-            if (!searchEnabled) {
-              return;
-            }
-
-            final String query = searchField.getText().toString();
-            repoList.getFilter().filter(query.toLowerCase());
+    ui.onEdit(
+        R.id.search_query,
+        new UI.OnTextChangedListener() {
+          public void onTextChanged(CharSequence chars, int start, int count, int after) {
+            repoList.getFilter().filter(ui.text(R.id.search_query).toLowerCase());
           }
         });
   }

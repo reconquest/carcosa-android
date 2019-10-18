@@ -4,7 +4,6 @@ package main
 // #include "c/list.h"
 import "C"
 import (
-	"fmt"
 	"time"
 )
 
@@ -27,14 +26,8 @@ func List(in C.list_in, out *C.list_out) C.error {
 		}
 
 		c_repo := C.repo{
-			id: CString(repo.Config.ID),
-			name: CString(
-				fmt.Sprintf(
-					"%s://%s",
-					repo.Config.URL.Protocol,
-					repo.Config.URL.Address,
-				),
-			),
+			id:        CString(repo.Config.ID),
+			name:      CString(repo.Config.URL.Address),
 			ssh_key:   c_ssh_key,
 			is_locked: C.bool(repo.IsLocked),
 			config: C.repo_config{
