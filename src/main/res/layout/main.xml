@@ -22,9 +22,10 @@
             android:id="@+id/repo_list"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="16dp"
             android:layout_above="@id/search_query_panel"
             android:layout_below="@id/toolbar_main"
+            android:dividerHeight="0px"
+            android:divider="@null"
         />
 
     <com.google.android.material.textfield.TextInputLayout

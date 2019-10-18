@@ -4,6 +4,7 @@ package main
 // #include "c/list.h"
 import "C"
 import (
+	"fmt"
 	"time"
 )
 
@@ -12,6 +13,27 @@ func List(in C.list_in, out *C.list_out) C.error {
 	repos, err := state.List()
 	if err != nil {
 		return CError(err)
+	}
+
+	date := func(date time.Time) string {
+		diff := time.Now().Sub(date)
+
+		switch {
+		case diff <= 5*time.Second:
+			return "just now"
+		case diff < 2*time.Minute:
+			return "minute ago"
+		case diff < time.Hour:
+			return fmt.Sprintf("%d minutes ago", int(diff.Minutes()))
+		case diff < time.Hour*24:
+			return fmt.Sprintf("%d hours ago", int(diff.Hours()))
+		case diff < time.Hour*24*2:
+			return "day ago"
+		case diff < time.Hour*24*30:
+			return fmt.Sprintf("%d days ago", int(diff.Hours()/24))
+		default:
+			return date.Format("2006-01-02 15:04")
+		}
 	}
 
 	out.repos = C.repo_list_new(C.int(len(repos)))
@@ -37,7 +59,7 @@ func List(in C.list_in, out *C.list_out) C.error {
 				filter:   CString(repo.Config.Filter),
 			},
 			sync_stat: C.sync_stat{
-				date:    CString(sync.Date.Format(time.ANSIC)),
+				date:    CString(date(sync.Date)),
 				added:   C.int(sync.Stats.Ours.Add),
 				deleted: C.int(sync.Stats.Ours.Del),
 			},

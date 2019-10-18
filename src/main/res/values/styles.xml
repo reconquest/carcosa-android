@@ -3,6 +3,9 @@
     <style name="Green">
         <item name="android:textColor">#32CD32</item>
     </style>
+    <style name="Gray">
+        <item name="android:textColor">#808080</item>
+    </style>
     <style name="SSH">
         <item name="android:fontFamily">monospace</item>
     </style>

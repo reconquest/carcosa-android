@@ -4,26 +4,32 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:paddingRight="8dp"
+        android:paddingTop="4dp"
         >
 
     <LinearLayout
             android:id="@+id/repo_token_list_item_name_panel"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:paddingLeft="46dp"
             android:orientation="horizontal"
             android:layout_alignParentLeft="true"
+            android:layout_centerInParent="true"
+            android:layout_gravity="center_vertical"
             >
 
         <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
                 android:src="@drawable/ic_label_24dp"
+                style="@style/Icon"
+                android:paddingTop="2dp"
             />
 
         <TextView
                 android:id="@+id/repo_token_list_item_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:paddingLeft="4dp"
+                android:textIsSelectable="true"
             />
 
     </LinearLayout>
@@ -33,9 +39,12 @@
             android:id="@+id/repo_token_list_item_resource_panel"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:paddingLeft="46dp"
             android:visibility="gone"
             android:orientation="vertical"
             android:layout_alignParentLeft="true"
+            android:layout_centerInParent="true"
+            android:layout_gravity="center_vertical"
             >
 
         <LinearLayout
@@ -45,15 +54,17 @@
                 >
 
             <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
                     android:src="@drawable/ic_page_24dp"
+                    style="@style/Icon"
+                    android:paddingTop="2dp"
                 />
 
             <TextView
                     android:id="@+id/repo_token_list_item_resource"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:paddingLeft="4dp"
+                    android:textIsSelectable="true"
                 />
 
         </LinearLayout>
@@ -67,15 +78,17 @@
                 >
 
             <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
                     android:src="@drawable/ic_identity_24dp"
+                    style="@style/Icon"
+                    android:paddingTop="2dp"
                 />
 
             <TextView
                     android:id="@+id/repo_token_list_item_login"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:paddingLeft="4dp"
+                    android:textIsSelectable="true"
                 />
 
         </LinearLayout>
