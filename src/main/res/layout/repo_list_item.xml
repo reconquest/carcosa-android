@@ -109,7 +109,6 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_above="@id/search_query_panel"
-            android:layout_below="@id/toolbar_main"
             android:dividerHeight="0px"
             android:divider="@null"
         />
