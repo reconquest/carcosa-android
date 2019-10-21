@@ -24,6 +24,11 @@ android {
     compileSdkVersion  29
     buildToolsVersion  '29.0.0'
 
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
     lintOptions {
         abortOnError false
         disable 'RtlHardcoded', 'HardcodedText', 'ContentDescription', 'GoogleAppIndexingWarning'
@@ -85,9 +90,9 @@ eclipse {
 }
 
 eclipse.jdt.file.withProperties { props ->
-    props.put('org.eclipse.jdt.core.compiler.codegen.targetPlatform', '1.7')
-    props.put('org.eclipse.jdt.core.compiler.source', '1.7')
-    props.put('org.eclipse.jdt.core.compiler.compliance', '1.7')
+    props.put('org.eclipse.jdt.core.compiler.codegen.targetPlatform', '1.8')
+    props.put('org.eclipse.jdt.core.compiler.source', '1.8')
+    props.put('org.eclipse.jdt.core.compiler.compliance', '1.8')
 }
 
 task pom {

@@ -4,18 +4,20 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
 
+import com.google.android.material.navigation.NavigationView;
+
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import io.reconquest.carcosa.lib.Carcosa;
 import io.reconquest.carcosa.lib.ListResult;
 import io.reconquest.carcosa.lib.Repo;
@@ -30,6 +32,11 @@ public class MainActivity extends AppCompatActivity implements Lister {
   TextView searchField;
   ListView repoListView;
 
+  private DrawerLayout drawerLayout;
+  private Toolbar toolbar;
+  private NavigationView navigationView;
+  private ActionBarDrawerToggle drawerToggle;
+
   private boolean paused = false;
   private Date pauseDate = null;
 
@@ -40,6 +47,14 @@ public class MainActivity extends AppCompatActivity implements Lister {
     setContentView(R.layout.main);
     initCarcosa();
     initUI();
+  }
+
+  @Override
+  protected void onPause() {
+    super.onPause();
+
+    paused = true;
+    pauseDate = new Date();
   }
 
   @Override
@@ -72,14 +87,6 @@ public class MainActivity extends AppCompatActivity implements Lister {
     repoListView.setAdapter(repoList);
   }
 
-  @Override
-  protected void onPause() {
-    super.onPause();
-
-    paused = true;
-    pauseDate = new Date();
-  }
-
   private void initCarcosa() {
     if (carcosa.hasState()) {
       return;
@@ -103,13 +110,43 @@ public class MainActivity extends AppCompatActivity implements Lister {
 
     setContentView(R.layout.main);
 
-    Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_main);
+    toolbar = (Toolbar) findViewById(R.id.toolbar);
     toolbar.setTitle("Secrets");
     setSupportActionBar(toolbar);
+
+    drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+    drawerToggle = setupDrawerToggle();
+    drawerLayout.addDrawerListener(drawerToggle);
 
     bindViews();
     bindSearch();
     list();
+  }
+
+  private ActionBarDrawerToggle setupDrawerToggle() {
+    // NOTE: Make sure you pass in a valid toolbar reference.  ActionBarDrawToggle() does not
+    // require it
+    // and will not render the hamburger icon without it.
+    ActionBarDrawerToggle toggle =
+        new ActionBarDrawerToggle(
+            this, drawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close);
+
+    toggle.setDrawerIndicatorEnabled(true);
+    toggle.syncState();
+
+    return toggle;
+  }
+
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    // The action bar home/up action should open or close the drawer.
+    switch (item.getItemId()) {
+      case android.R.id.home:
+        drawerLayout.openDrawer(GravityCompat.START);
+        return true;
+    }
+
+    return super.onOptionsItemSelected(item);
   }
 
   public void list() {
@@ -128,6 +165,18 @@ public class MainActivity extends AppCompatActivity implements Lister {
   protected void bindViews() {
     searchField = (TextView) findViewById(R.id.search_query);
     repoListView = ((ListView) findViewById(R.id.repo_list));
+
+    ui.onClick(
+        R.id.toolbar_main_action_sync,
+        (View v) -> {
+          new SyncThread(this, carcosa).start();
+        });
+
+    ui.onClick(
+        R.id.toolbar_main_action_add_repo,
+        (View v) -> {
+          gotoRepoScreen(null);
+        });
   }
 
   protected void bindSearch() {
@@ -145,28 +194,5 @@ public class MainActivity extends AppCompatActivity implements Lister {
     intent.putExtra("Carcosa", carcosa);
     intent.putExtra("Repo", repo);
     startActivity(intent);
-  }
-
-  @Override
-  public boolean onOptionsItemSelected(MenuItem item) {
-    switch (item.getItemId()) {
-      case R.id.toolbar_main_action_sync:
-        new SyncThread(this, carcosa).start();
-        break;
-      case R.id.toolbar_main_action_add_repo:
-        gotoRepoScreen(null);
-        break;
-      default:
-        break;
-    }
-
-    return true;
-  }
-
-  @Override
-  public boolean onCreateOptionsMenu(Menu menu) {
-    MenuInflater inflater = getMenuInflater();
-    inflater.inflate(R.menu.toolbar_main, menu);
-    return true;
   }
 }
