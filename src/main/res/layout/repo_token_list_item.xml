@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:paddingRight="8dp"
@@ -94,22 +95,18 @@
         </LinearLayout>
     </LinearLayout>
 
-    <ImageButton
+    <com.google.android.material.button.MaterialButton
             android:id="@+id/repo_token_list_item_copy"
-            android:layout_width="36dp"
-            android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:src="@drawable/ic_copy_24dp"
-            style="@style/Widget.AppCompat.Button.Borderless"
+            app:icon="@drawable/ic_copy_24dp"
+            style="@style/IconButton"
         />
 
-    <ImageButton
+    <com.google.android.material.button.MaterialButton
             android:id="@+id/repo_token_list_item_view"
-            android:layout_width="36dp"
-            android:layout_height="wrap_content"
             android:layout_toLeftOf="@id/repo_token_list_item_copy"
-            android:src="@drawable/ic_eye_24dp"
-            style="@style/Widget.AppCompat.Button.Borderless"
+            app:icon="@drawable/ic_eye_24dp"
+            style="@style/IconButton"
         />
 
 

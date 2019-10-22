@@ -112,6 +112,7 @@ public class MainActivity extends AppCompatActivity implements Lister {
 
     toolbar = (Toolbar) findViewById(R.id.toolbar);
     toolbar.setTitle("Secrets");
+    toolbar.setTitleTextColor(0xFF000000);
     setSupportActionBar(toolbar);
 
     drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -131,6 +132,7 @@ public class MainActivity extends AppCompatActivity implements Lister {
         new ActionBarDrawerToggle(
             this, drawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close);
 
+    toggle.getDrawerArrowDrawable().setColor(0xFF000000);
     toggle.setDrawerIndicatorEnabled(true);
     toggle.syncState();
 

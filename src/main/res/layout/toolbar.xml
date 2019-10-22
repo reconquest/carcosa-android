@@ -4,28 +4,23 @@
     android:id="@+id/toolbar"
     android:layout_height="wrap_content"
     android:layout_width="match_parent"
+    android:paddingRight="8dp"
     android:fitsSystemWindows="true"
     android:minHeight="?attr/actionBarSize"
-    app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
     android:background="?attr/colorPrimary">
 
     <!-- TODO: add a Layout here -->
-    <ImageButton
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/toolbar_main_action_add_repo"
-        android:src="@drawable/ic_library_24dp"
-        android:title="Add Repo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:layout_gravity="right"
-        app:showAsAction="ifRoom"/>
+        style="@style/IconButton.Black"
+        app:icon="@drawable/ic_library_24dp"
+    />
 
-    <ImageButton
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/toolbar_main_action_sync"
-        android:src="@drawable/ic_refresh_24dp"
-        android:tint="#000000"
-        android:title="Sync"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:layout_gravity="right"
-        app:showAsAction="ifRoom"/>
+        style="@style/IconButton.Black"
+        app:icon="@drawable/ic_refresh_24dp"
+    />
 </androidx.appcompat.widget.Toolbar>
