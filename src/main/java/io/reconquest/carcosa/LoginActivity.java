@@ -19,7 +19,9 @@ import co.infinum.goldfinger.Goldfinger;
 
 public class LoginActivity extends AppCompatActivity {
   // private static final String TAG = LoginActivity.class.getName();
+  private UI ui;
   private Goldfinger goldfinger;
+  private boolean prompt;
 
   private String KEY_NAME = "io.reconquest.carcosa.key.pin";
 
@@ -31,8 +33,19 @@ public class LoginActivity extends AppCompatActivity {
 
     goldfinger = new Goldfinger.Builder(this).logEnabled(BuildConfig.DEBUG).build();
 
+    ui = new UI(this);
+
+    prompt = false;
+
     bindView();
     authenticate();
+  }
+
+  protected void onResume() {
+    super.onResume();
+    if (!prompt) {
+      ui.show(R.id.login);
+    }
   }
 
   private void authenticate() {
@@ -40,6 +53,10 @@ public class LoginActivity extends AppCompatActivity {
       new FatalErrorDialog(this, "The device does not support biometric authentication").show();
       return;
     }
+
+    prompt = true;
+    ui.hide(R.id.login);
+    ui.show(R.id.login_progress);
 
     if (getPinFile().exists()) {
       this.decryptPin();
@@ -91,8 +108,15 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onResult(@NonNull Goldfinger.Result result) {
               if (result.type() != Goldfinger.Type.SUCCESS) {
+                if (result.type() == Goldfinger.Type.ERROR) {
+                  ui.show(R.id.login);
+                  ui.hide(R.id.login_progress);
+                }
+
                 return;
               }
+
+              prompt = false;
 
               String pin = result.value();
               switchActivity(pin);
@@ -121,8 +145,14 @@ public class LoginActivity extends AppCompatActivity {
             public void onResult(@NonNull Goldfinger.Result result) {
               // onGoldfingerResult(result);
               if (result.type() != Goldfinger.Type.SUCCESS) {
+                if (result.type() == Goldfinger.Type.ERROR) {
+                  ui.show(R.id.login);
+                  ui.hide(R.id.login_progress);
+                }
                 return;
               }
+
+              prompt = false;
 
               try {
                 writeEncryptedPin(result.value());
