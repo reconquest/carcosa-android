@@ -121,7 +121,12 @@ public class MainActivity extends AppCompatActivity implements Lister {
 
     bindViews();
     bindSearch();
-    list();
+
+    new Thread(
+            () -> {
+              list();
+            })
+        .start();
   }
 
   private ActionBarDrawerToggle setupDrawerToggle() {
@@ -158,8 +163,12 @@ public class MainActivity extends AppCompatActivity implements Lister {
     } else {
       if (list.result.repos.size() > 0) {
         ui.show(R.id.search_query_panel);
-        repoList = new RepoList(this, list.result.repos);
-        repoListView.setAdapter(repoList);
+        ui.ui(
+            () -> {
+              ui.hide(R.id.list_progress);
+              repoList = new RepoList(this, list.result.repos);
+              repoListView.setAdapter(repoList);
+            });
       }
     }
   }
