@@ -45,62 +45,79 @@ public class RepoList extends BaseAdapter implements Filterable {
 
   @Override
   public View getView(int position, View view, ViewGroup container) {
-    if (view != null) {
-      return view;
-    }
-
-    view = activity.getLayoutInflater().inflate(R.layout.repo_list_item, container, false);
-
-    UI ui = new UI(view);
+    RepoListViewHolder holder;
 
     Repo repo = getItem(position);
+    if (view == null) {
+      view = activity.getLayoutInflater().inflate(R.layout.repo_list_item, container, false);
 
-    ui.text(R.id.repo_list_item_name, repo.name);
-    ui.text(R.id.repo_list_item_sync_stat_date, repo.syncStat.date);
+      RepoTokenList tokenList = new RepoTokenList(activity, repo.tokens);
+      tokens.add(tokenList);
 
-    if (repo.syncStat.added > 0) {
-      ui.text(
-          R.id.repo_list_item_sync_stat_added,
-          String.format(Locale.getDefault(), "+%d", repo.syncStat.added));
-      ui.show(R.id.repo_list_item_sync_stat_added);
+      ((ListView) view.findViewById(R.id.repo_token_list)).setAdapter(tokenList);
+
+      holder = new RepoListViewHolder(view);
+
+      view.setTag(holder);
+    } else {
+      holder = (RepoListViewHolder) view.getTag();
     }
 
-    if (repo.syncStat.deleted > 0) {
-      ui.text(
-          R.id.repo_list_item_sync_stat_deleted,
-          String.format(Locale.getDefault(), "−%d", repo.syncStat.deleted));
-      ui.show(R.id.repo_list_item_sync_stat_deleted);
-    }
-
-    if (repo.syncStat.added + repo.syncStat.deleted == 0) {
-      ui.show(R.id.repo_list_item_sync_stat_uptodate);
-    }
-
-    if (repo.isLocked) {
-      ui.show(R.id.repo_list_item_unlock);
-      ui.onClick(R.id.repo_list_item_unlock, new UnlockButton(repo));
-    }
-
-    ListView tokensView = (ListView) view.findViewById(R.id.repo_token_list);
-
-    RepoTokenList tokenList = new RepoTokenList(activity, repo.tokens);
-
-    ViewGroup.LayoutParams params = tokensView.getLayoutParams();
-
-    params.height = (tokensView.getDividerHeight() * (tokenList.getCount() - 1));
-
-    for (int i = 0; i < tokenList.getCount(); i++) {
-      View listItem = tokenList.getView(i, null, tokensView);
-      listItem.measure(0, 0);
-      params.height += listItem.getMeasuredHeight();
-    }
-
-    tokensView.setLayoutParams(params);
-    tokensView.setAdapter(tokenList);
-
-    tokens.add(tokenList);
+    holder.draw(tokens.get(position), this.getItem(position));
 
     return view;
+  }
+
+  private class RepoListViewHolder {
+    UI ui;
+    View view;
+
+    public RepoListViewHolder(View view) {
+      this.ui = new UI(view);
+      this.view = view;
+    }
+
+    public void draw(RepoTokenList tokenList, Repo repo) {
+      ListView tokensView = (ListView) view.findViewById(R.id.repo_token_list);
+
+      ui.text(R.id.repo_list_item_name, repo.name);
+      ui.text(R.id.repo_list_item_sync_stat_date, repo.syncStat.date);
+
+      if (repo.syncStat.added > 0) {
+        ui.text(
+            R.id.repo_list_item_sync_stat_added,
+            String.format(Locale.getDefault(), "+%d", repo.syncStat.added));
+        ui.show(R.id.repo_list_item_sync_stat_added);
+      }
+
+      if (repo.syncStat.deleted > 0) {
+        ui.text(
+            R.id.repo_list_item_sync_stat_deleted,
+            String.format(Locale.getDefault(), "−%d", repo.syncStat.deleted));
+        ui.show(R.id.repo_list_item_sync_stat_deleted);
+      }
+
+      if (repo.syncStat.added + repo.syncStat.deleted == 0) {
+        ui.show(R.id.repo_list_item_sync_stat_uptodate);
+      }
+
+      if (repo.isLocked) {
+        ui.show(R.id.repo_list_item_unlock);
+        ui.onClick(R.id.repo_list_item_unlock, new UnlockButton(repo));
+      }
+
+      ViewGroup.LayoutParams params = tokensView.getLayoutParams();
+
+      params.height = (tokensView.getDividerHeight() * (tokenList.getCount() - 1));
+
+      for (int i = 0; i < tokenList.getCount(); i++) {
+        View listItem = tokenList.getView(i, null, tokensView);
+        listItem.measure(0, 0);
+        params.height += listItem.getMeasuredHeight();
+      }
+
+      tokensView.setLayoutParams(params);
+    }
   }
 
   private class RepoListFilter extends Filter {
