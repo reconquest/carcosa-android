@@ -2,7 +2,7 @@
 <manifest package="io.reconquest.carcosa"  xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <application android:name=".CarcosaApplication" android:label="carcosa" android:allowBackup="true">
+    <application android:name=".CarcosaApplication" android:label="carcosa" android:allowBackup="true" android:icon="@drawable/ic_launcher">
         <meta-data
                 android:name="com.bugsnag.android.API_KEY"
                 android:value="b56502b2d7d1aecf2365eebd194543a0"
