@@ -110,10 +110,10 @@ public class RepoList extends BaseAdapter implements Filterable {
 
       params.height = (tokensView.getDividerHeight() * (tokenList.getCount() - 1));
 
-      for (int i = 0; i < tokenList.getCount(); i++) {
-        View listItem = tokenList.getView(i, null, tokensView);
+      if (tokenList.getCount() > 0) {
+        View listItem = tokenList.getView(0, null, tokensView);
         listItem.measure(0, 0);
-        params.height += listItem.getMeasuredHeight();
+        params.height += listItem.getMeasuredHeight() * tokenList.getCount();
       }
 
       tokensView.setLayoutParams(params);
