@@ -161,11 +161,11 @@ public class MainActivity extends AppCompatActivity implements Lister {
     if (list.error != null) {
       new FatalErrorDialog(this, list.error).show();
     } else {
+      ui.hide(R.id.list_progress);
       if (list.result.repos.size() > 0) {
         ui.show(R.id.search_query_panel);
         ui.ui(
             () -> {
-              ui.hide(R.id.list_progress);
               repoList = new RepoList(this, list.result.repos);
               repoListView.setAdapter(repoList);
             });
