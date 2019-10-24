@@ -21,6 +21,11 @@ public class RepoList extends BaseAdapter implements Filterable {
   RepoList(MainActivity activity, ArrayList<Repo> repos) {
     this.activity = activity;
     this.repos = repos;
+
+    for (int i = 0; i < repos.size(); i++) {
+      RepoTokenList tokenList = new RepoTokenList(activity, repos.get(i).tokens);
+      tokens.add(tokenList);
+    }
   }
 
   @Override
@@ -51,9 +56,7 @@ public class RepoList extends BaseAdapter implements Filterable {
     if (view == null) {
       view = activity.getLayoutInflater().inflate(R.layout.repo_list_item, container, false);
 
-      RepoTokenList tokenList = new RepoTokenList(activity, repo.tokens);
-      tokens.add(tokenList);
-
+      RepoTokenList tokenList = tokens.get(position);
       ((ListView) view.findViewById(R.id.repo_token_list)).setAdapter(tokenList);
 
       holder = new RepoListViewHolder(view);
@@ -63,7 +66,7 @@ public class RepoList extends BaseAdapter implements Filterable {
       holder = (RepoListViewHolder) view.getTag();
     }
 
-    holder.draw(tokens.get(position), this.getItem(position));
+    holder.draw(tokens.get(position), repo);
 
     return view;
   }
@@ -71,6 +74,8 @@ public class RepoList extends BaseAdapter implements Filterable {
   private class RepoListViewHolder {
     UI ui;
     View view;
+
+    int tokenItemHeight;
 
     public RepoListViewHolder(View view) {
       this.ui = new UI(view);
@@ -110,11 +115,15 @@ public class RepoList extends BaseAdapter implements Filterable {
 
       params.height = (tokensView.getDividerHeight() * (tokenList.getCount() - 1));
 
-      if (tokenList.getCount() > 0) {
-        View listItem = tokenList.getView(0, null, tokensView);
-        listItem.measure(0, 0);
-        params.height += listItem.getMeasuredHeight() * tokenList.getCount();
+      if (tokenItemHeight == 0) {
+        if (tokenList.getCount() > 0) {
+          View listItem = tokenList.getView(0, null, tokensView);
+          listItem.measure(0, 0);
+          tokenItemHeight = listItem.getMeasuredHeight();
+        }
       }
+
+      params.height += tokenItemHeight * tokenList.getCount();
 
       tokensView.setLayoutParams(params);
     }
