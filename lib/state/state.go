@@ -218,12 +218,14 @@ func (state *State) Unlock(
 		)
 	}
 
-	err = state.cache(id).Set(id, []byte(key))
-	if err != nil {
-		return 0, karma.Format(
-			err,
-			"unable to set master cache",
-		)
+	if len(secrets) > 0 {
+		err = state.cache(id).Set(id, []byte(key))
+		if err != nil {
+			return 0, karma.Format(
+				err,
+				"unable to set master cache",
+			)
+		}
 	}
 
 	err = config.Store(state.getRepoConfigPath(id))
