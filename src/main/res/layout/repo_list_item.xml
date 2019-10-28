@@ -104,13 +104,13 @@
 
     </RelativeLayout>
 
-    <ListView
-            android:id="@+id/repo_token_list"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_above="@id/search_query_panel"
-            android:dividerHeight="0px"
-            android:divider="@null"
-        />
+    <!--<ListView-->
+    <!--        android:id="@+id/repo_token_list"-->
+    <!--        android:layout_width="fill_parent"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:layout_above="@id/search_query_panel"-->
+    <!--        android:dividerHeight="0px"-->
+    <!--        android:divider="@null"-->
+    <!--    />-->
 
 </LinearLayout>

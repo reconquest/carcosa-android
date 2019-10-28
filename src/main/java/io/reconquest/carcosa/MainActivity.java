@@ -24,12 +24,12 @@ import io.reconquest.carcosa.lib.Repo;
 public class MainActivity extends AppCompatActivity implements Lister {
   private static final String TAG = MainActivity.class.getName();
   private UI ui;
-  private RepoList repoList;
+  private SecretsList secrets;
 
   private Carcosa carcosa = new Carcosa();
 
   TextView searchField;
-  ListView repoListView;
+  ListView secretsList;
 
   private DrawerLayout drawerLayout;
   private Toolbar toolbar;
@@ -74,16 +74,16 @@ public class MainActivity extends AppCompatActivity implements Lister {
 
     if (now.after(expireDate)) {
       carcosa.destroy();
-      resetRepoList();
+      reset();
 
       Intent intent = new Intent(this, LoginActivity.class);
       startActivity(intent);
     }
   }
 
-  private void resetRepoList() {
-    repoList = new RepoList(this, new ArrayList<Repo>(), frame);
-    repoListView.setAdapter(repoList);
+  private void reset() {
+    secrets = new SecretsList(this, new ArrayList<Repo>());
+    secretsList.setAdapter(secrets);
   }
 
   private void initCarcosa() {
@@ -165,8 +165,8 @@ public class MainActivity extends AppCompatActivity implements Lister {
         ui.show(R.id.search_query_panel);
         ui.ui(
             () -> {
-              repoList = new RepoList(this, list.result.repos, frame);
-              repoListView.setAdapter(repoList);
+              secrets = new SecretsList(this, list.result.repos);
+              secretsList.setAdapter(secrets);
             });
       }
     }
@@ -174,7 +174,7 @@ public class MainActivity extends AppCompatActivity implements Lister {
 
   protected void bindViews() {
     searchField = (TextView) findViewById(R.id.search_query);
-    repoListView = (ListView) findViewById(R.id.repo_list);
+    secretsList = (ListView) findViewById(R.id.secrets_list);
 
     frame = (FrameLayout) findViewById(R.id.fragment_layout_content);
 
@@ -196,8 +196,7 @@ public class MainActivity extends AppCompatActivity implements Lister {
         R.id.search_query,
         new UI.OnTextChangedListener() {
           public void onTextChanged(CharSequence chars, int start, int count, int after) {
-            String query = ui.text(R.id.search_query).toLowerCase();
-            repoList.getFilter().filter(query);
+            secrets.filter(ui.text(R.id.search_query).toLowerCase());
           }
         });
   }

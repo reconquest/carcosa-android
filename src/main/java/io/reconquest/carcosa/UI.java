@@ -2,7 +2,6 @@ package io.reconquest.carcosa;
 
 import java.util.Arrays;
 
-import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
 import android.app.Activity;
@@ -35,12 +34,7 @@ public class UI {
   Handler handler;
 
   UI(final View view) {
-    this(
-        new Searchable() {
-          public View findViewById(int id) {
-            return view.findViewById(id);
-          }
-        });
+    this(new SearchableCached(view));
   }
 
   UI(final Activity view) {
