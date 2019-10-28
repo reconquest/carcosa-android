@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 import android.view.View;
+import android.view.View.MeasureSpec;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -82,7 +83,7 @@ public class RepoList extends BaseAdapter implements Filterable {
       this.view = view;
     }
 
-    public void draw(RepoTokenList tokenList, Repo repo) {
+    public void draw(RepoTokenList adapter, Repo repo) {
       ListView tokensView = (ListView) view.findViewById(R.id.repo_token_list);
 
       ui.text(R.id.repo_list_item_name, repo.name);
@@ -113,17 +114,14 @@ public class RepoList extends BaseAdapter implements Filterable {
 
       ViewGroup.LayoutParams params = tokensView.getLayoutParams();
 
-      params.height = (tokensView.getDividerHeight() * (tokenList.getCount() - 1));
+      tokensView.measure(
+          MeasureSpec.makeMeasureSpec(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED),
+          MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
 
-      if (tokenItemHeight == 0) {
-        if (tokenList.getCount() > 0) {
-          View listItem = tokenList.getView(0, null, tokensView);
-          listItem.measure(0, 0);
-          tokenItemHeight = listItem.getMeasuredHeight();
-        }
-      }
+      int tokenItemHeight = tokensView.getMeasuredHeight();
 
-      params.height += tokenItemHeight * tokenList.getCount();
+      params.height = tokenItemHeight * adapter.getCount();
+      params.height += (tokensView.getDividerHeight() * (adapter.getCount()));
 
       tokensView.setLayoutParams(params);
     }
