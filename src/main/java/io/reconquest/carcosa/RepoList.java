@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Filter;
 import android.widget.Filterable;
+import android.widget.FrameLayout;
 import android.widget.ListView;
 import io.reconquest.carcosa.lib.Repo;
 
@@ -19,9 +20,12 @@ public class RepoList extends BaseAdapter implements Filterable {
   ArrayList<RepoTokenList> tokens = new ArrayList<RepoTokenList>();
   RepoListFilter filter = new RepoListFilter();
 
-  RepoList(MainActivity activity, ArrayList<Repo> repos) {
+  FrameLayout frame;
+
+  RepoList(MainActivity activity, ArrayList<Repo> repos, FrameLayout frame) {
     this.activity = activity;
     this.repos = repos;
+    this.frame = frame;
 
     for (int i = 0; i < repos.size(); i++) {
       RepoTokenList tokenList = new RepoTokenList(activity, repos.get(i).tokens);
@@ -123,7 +127,13 @@ public class RepoList extends BaseAdapter implements Filterable {
       params.height = tokenItemHeight * adapter.getCount();
       params.height += (tokensView.getDividerHeight() * (adapter.getCount()));
 
+      // let it be here for a while
+      System.err.printf("XXXXXXX RepoList.java:129 tokenItemHeight %s \n", tokenItemHeight);
+      System.err.printf("XXXXXXX RepoList.java:130 params.height %s \n", params.height);
+
       tokensView.setLayoutParams(params);
+
+      frame.scrollTo(0, 0);
     }
   }
 

@@ -4,13 +4,12 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
 
-import com.google.android.material.navigation.NavigationView;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -34,8 +33,8 @@ public class MainActivity extends AppCompatActivity implements Lister {
 
   private DrawerLayout drawerLayout;
   private Toolbar toolbar;
-  private NavigationView navigationView;
   private ActionBarDrawerToggle drawerToggle;
+  private FrameLayout frame;
 
   private boolean paused = false;
   private Date pauseDate = null;
@@ -83,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements Lister {
   }
 
   private void resetRepoList() {
-    repoList = new RepoList(this, new ArrayList<Repo>());
+    repoList = new RepoList(this, new ArrayList<Repo>(), frame);
     repoListView.setAdapter(repoList);
   }
 
@@ -166,7 +165,7 @@ public class MainActivity extends AppCompatActivity implements Lister {
         ui.show(R.id.search_query_panel);
         ui.ui(
             () -> {
-              repoList = new RepoList(this, list.result.repos);
+              repoList = new RepoList(this, list.result.repos, frame);
               repoListView.setAdapter(repoList);
             });
       }
@@ -175,7 +174,9 @@ public class MainActivity extends AppCompatActivity implements Lister {
 
   protected void bindViews() {
     searchField = (TextView) findViewById(R.id.search_query);
-    repoListView = ((ListView) findViewById(R.id.repo_list));
+    repoListView = (ListView) findViewById(R.id.repo_list);
+
+    frame = (FrameLayout) findViewById(R.id.fragment_layout_content);
 
     ui.onClick(
         R.id.toolbar_main_action_sync,
@@ -195,7 +196,8 @@ public class MainActivity extends AppCompatActivity implements Lister {
         R.id.search_query,
         new UI.OnTextChangedListener() {
           public void onTextChanged(CharSequence chars, int start, int count, int after) {
-            repoList.getFilter().filter(ui.text(R.id.search_query).toLowerCase());
+            String query = ui.text(R.id.search_query).toLowerCase();
+            repoList.getFilter().filter(query);
           }
         });
   }

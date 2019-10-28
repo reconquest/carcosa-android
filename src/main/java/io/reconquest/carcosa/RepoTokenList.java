@@ -98,8 +98,8 @@ public class RepoTokenList extends BaseAdapter implements Filterable {
       }
 
       ArrayList<Token> filtered = new ArrayList<Token>();
-      for (int i = 0; i < getCount(); i++) {
-        Token token = getItem(i);
+      for (int i = 0; i < originTokens.size(); i++) {
+        Token token = originTokens.get(i);
         if (token.name.toLowerCase().contains(constraint)) {
           filtered.add(token);
         }
