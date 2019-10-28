@@ -15,32 +15,28 @@ _MAKE=$(MAKE) \
 _ADB=adb -s $(shell adb devices -l | tail -n+2 | cut -f1 -d' ' | head -n1)
 
 
-ifdef PHONE
-GOARCH    = arm64
-CCARCH    = aarch64
-SO_TARGET = arm64-v8a
-else
-GOARCH    = amd64
-CCARCH    = x86_64
-SO_TARGET = x86_64
-endif
-
 ifdef FASTBUILD
 GRADLE_BUILD_FLAGS = -x lint -x lintVitalRelease
 else
 GRADLE_BUILD_FLAGS =
 endif
 
+ifdef PHONE
 so:
-	@$(_MAKE) lib-$(SO_TARGET)
+	@rm -rf src/main/jniLibs/$*
+	@$(_MAKE) GOARCH=arm64 CCARCH=aarch64 lib-arm64-v8a
+	# add other archs there
+else
+so:
+	@rm -rf src/main/jniLibs/$*
+	@$(_MAKE) GOARCH=amd64 CCARCH=x86_64 lib-x86_64
+endif
 
 lib-%:
-	@rm -rf src/main/jniLibs/$*
 	@$(_MAKE) src/main/jniLibs/$*/libcarcosa.so
 
 run: install
 	$(_ADB) shell am start -n $(ANDROID_PACKAGE)/.LoginActivity
-	#$(_ADB) shell am start -n $(ANDROID_PACKAGE)/.RepoActivity
 
 install: build/app.apk
 	$(_ADB) install -r build/app.apk
@@ -59,7 +55,7 @@ install: build/app.apk
 		-deststoretype pkcs12
 
 src/main/jniLibs/%/libcarcosa.so:
-	@echo :: compiling carcosa shared lib CCARCH=$(CCARCH) GOARCH=$(GOARCH) TARGET=$(SO_TARGET)
+	@echo :: compiling carcosa shared lib CCARCH=$(CCARCH) GOARCH=$(GOARCH)
 	@CGO_ENABLED=1 GO111MODULE=on \
 		GOOS=android \
 		CC=$(CCARCH)-linux-android21-clang \
@@ -70,7 +66,7 @@ src/main/jniLibs/%/libcarcosa.so:
 		 	-o=$@ \
 			-buildmode=c-shared ./lib
 
-build/app.apk: .keystore src/main/jniLibs/$(SO_TARGET)/libcarcosa.so java
+build/app.apk: .keystore java
 
 java: .keystore
 	gradle assembleDebug $(GRADLE_BUILD_FLAGS)
