@@ -16,6 +16,7 @@ RELEASE_VERSION=$(shell printf "%s.%s" \
 	$$(git rev-list --count HEAD) \
 	$$(git rev-parse --short HEAD) \
 )
+RELEASE_NOTE=$(shell git show -s --format=%s)
 
 ifdef EMULATOR
 so:
@@ -84,5 +85,8 @@ build/release.apk:
 	mv build/outputs/apk/release/carcosa-android-release.apk build/release.apk
 
 release: build/release.apk
-	$(ifneq ($(shell git status -s),,$(error Please commit changes to collect release notes)))
-	firebase appdistribution:distribute --release-notes "$(RELEASE_VERSION): $$(git show -s --format=%s)"
+	$(warning Make sure changes commited to collect release notes)
+	export $$(cat src/release/vars) && firebase \
+		appdistribution:distribute build/release.apk \
+		--release-notes "$(RELEASE_VERSION): $(RELEASE_NOTE)" \
+		--app $$APP_ID

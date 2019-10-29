@@ -12,3 +12,4 @@
 /gradle
 project.properties
 /pom.xml
+/firebase-debug.log
