@@ -1,4 +1,5 @@
 DEBUG_ANDROID_PACKAGE=io.reconquest.carcosa.debug
+ANDROID_PACKAGE=io.reconquest.carcosa
 
 _MAKE=$(MAKE) \
 	  --no-print-directory \
@@ -32,11 +33,17 @@ endif
 lib-%:
 	@$(_MAKE) src/main/jniLibs/$*/libcarcosa.so
 
-run: install
-	$(_ADB) shell am start -n $(DEBUG_ANDROID_PACKAGE)/.LoginActivity
+debug@run: debug@install
+	$(_ADB) shell am start -n $(DEBUG_ANDROID_PACKAGE)/$(ANDROID_PACKAGE).LoginActivity
 
-install: build/debug.apk
+debug@install: debug@apk
 	$(_ADB) install -r build/debug.apk
+
+release@run: release@install
+	$(_ADB) shell am start -n $(ANDROID_PACKAGE)/.LoginActivity
+
+release@install: release@apk
+	$(_ADB) install -r build/release.apk
 
 %/keystore:
 	@echo :: initializing $*/keystore using $*/vars
@@ -63,11 +70,23 @@ src/main/jniLibs/%/libcarcosa.so:
 		 	-o=$@ \
 			-buildmode=c-shared ./lib
 
-build/debug.apk: src/debug/keystore java
-
-java: src/debug/keystore
+debug@apk: so src/debug/keystore
 	gradle assembleDebug $(GRADLE_BUILD_FLAGS)
 	@mv build/outputs/apk/debug/carcosa-android-debug.apk build/debug.apk
+
+debug: debug@run
+
+release@apk: so src/release/keystore
+	gradle assembleRelease
+	@mv build/outputs/apk/release/carcosa-android-release.apk build/release.apk
+
+release: release@apk
+	$(warning Make sure changes commited to collect release notes)
+	export $$(cat src/release/vars) && firebase \
+		appdistribution:distribute build/release.apk \
+		--release-notes "$(RELEASE_VERSION): $(RELEASE_NOTE)" \
+		--app $$APP_ID \
+		--groups beta
 
 clean:
 	rm -rf build
@@ -79,15 +98,3 @@ eclipse:
 
 eclipse-clean:
 	rm -rf .classpath .project .settings/
-
-build/release.apk:
-	gradle assembleRelease
-	mv build/outputs/apk/release/carcosa-android-release.apk build/release.apk
-
-release: build/release.apk
-	$(warning Make sure changes commited to collect release notes)
-	export $$(cat src/release/vars) && firebase \
-		appdistribution:distribute build/release.apk \
-		--release-notes "$(RELEASE_VERSION): $(RELEASE_NOTE)" \
-		--app $$APP_ID \
-		--groups beta
