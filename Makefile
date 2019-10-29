@@ -23,9 +23,9 @@ so:
 	@$(_MAKE) GOARCH=amd64 CCARCH=x86_64 lib-x86_64
 else
 so:
+	# add other archs there
 	@rm -rf src/main/jniLibs/$*
 	@$(_MAKE) GOARCH=arm64 CCARCH=aarch64 lib-arm64-v8a
-	# add other archs there
 endif
 
 lib-%:
