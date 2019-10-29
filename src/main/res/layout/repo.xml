@@ -401,7 +401,7 @@
             />
 
         <TextView
-                android:id="@+id/repo_ssh_key_help"
+                android:id="@+id/repo_master_password_cache_help"
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
                 android:paddingRight="22dp"

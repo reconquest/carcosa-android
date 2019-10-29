@@ -300,6 +300,7 @@ public class RepoActivity extends AppCompatActivity {
               .setError("Master password is invalid!");
           // ui.show(R.id.repo_unlock_wrong_master_password);
         } else {
+          ui.hide(R.id.repo_master_password_cache_help);
           ui.hide(R.id.repo_unlock_panel);
           ui.show(R.id.repo_unlock_done_panel);
           ui.text(R.id.repo_unlock_done_stat, "%d tokens unlocked!", unlock.result.tokens);
