@@ -1,0 +1,3 @@
+[submodule "src/release"]
+	path = src/release
+	url = git@gitlab.com:reconquest/carcosa-android-release

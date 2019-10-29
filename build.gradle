@@ -20,6 +20,33 @@ buildscript {
     }
 }
 
+
+file('src/debug/vars').readLines().each() {
+    if (!it.isEmpty() && !it.startsWith("#")) {
+        def pos = it.indexOf("=")
+        def key = it.substring(0, pos)
+        def value = it.substring(pos + 1)
+
+        if (System.getenv(key) == null) {
+            System.setProperty("env.DEBUG_$key", value)
+        }
+    }
+}
+
+try {
+    file('src/release/vars').readLines().each() {
+        if (!it.isEmpty() && !it.startsWith("#")) {
+            def pos = it.indexOf("=")
+            def key = it.substring(0, pos)
+            def value = it.substring(pos + 1)
+
+            if (System.getenv(key) == null) {
+                System.setProperty("env.RELEASE_$key", value)
+            }
+        }
+    }
+} catch (Exception e) { println e.getMessage() }
+
 android {
     compileSdkVersion  29
     buildToolsVersion  '29.0.0'
@@ -36,10 +63,17 @@ android {
 
     signingConfigs {
         debug {
-            storeFile file(".keystore")
-            storePassword '123456'
-            keyAlias 'carcosa'
-            keyPassword '123456'
+            storeFile file('src/debug/keystore')
+            storePassword System.getProperty('env.DEBUG_KEYSTORE_PASSWORD')
+            keyAlias System.getProperty('env.DEBUG_KEYSTORE_ALIAS')
+            keyPassword System.getProperty('env.DEBUG_KEYSTORE_PASSWORD')
+        }
+
+        release {
+            storeFile file('src/release/keystore')
+            storePassword System.getProperty('env.RELEASE_KEYSTORE_PASSWORD')
+            keyAlias System.getProperty('env.RELEASE_KEYSTORE_ALIAS')
+            keyPassword System.getProperty('env.RELEASE_KEYSTORE_PASSWORD')
         }
     }
 
@@ -53,10 +87,17 @@ android {
 
     buildTypes {
         debug {
-            applicationIdSuffix ""
+            applicationIdSuffix "debug"
             debuggable true
             minifyEnabled false
             signingConfig signingConfigs.debug
+            zipAlignEnabled true
+        }
+        release {
+            applicationIdSuffix ""
+            debuggable false
+            minifyEnabled false
+            signingConfig signingConfigs.release
             zipAlignEnabled true
         }
     }
