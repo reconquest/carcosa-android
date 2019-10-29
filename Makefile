@@ -89,4 +89,5 @@ release: build/release.apk
 	export $$(cat src/release/vars) && firebase \
 		appdistribution:distribute build/release.apk \
 		--release-notes "$(RELEASE_VERSION): $(RELEASE_NOTE)" \
-		--app $$APP_ID
+		--app $$APP_ID \
+		--groups beta
