@@ -84,5 +84,5 @@ build/release.apk:
 	mv build/outputs/apk/release/carcosa-android-release.apk build/release.apk
 
 release: build/release.apk
-	$(if $(shell git diff --quiet),,$(error Please commit changes to collect release notes))
+	$(ifneq ($(shell git status -s),,$(error Please commit changes to collect release notes)))
 	firebase appdistribution:distribute --release-notes "$(RELEASE_VERSION): $$(git show -s --format=%s)"
