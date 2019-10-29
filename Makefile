@@ -1,4 +1,4 @@
-ANDROID_PACKAGE=io.reconquest.carcosa
+DEBUG_ANDROID_PACKAGE=io.reconquest.carcosa.debug
 
 _MAKE=$(MAKE) \
 	  --no-print-directory \
@@ -33,7 +33,7 @@ lib-%:
 	@$(_MAKE) src/main/jniLibs/$*/libcarcosa.so
 
 run: install
-	$(_ADB) shell am start -n $(ANDROID_PACKAGE)/.LoginActivity
+	$(_ADB) shell am start -n $(DEBUG_ANDROID_PACKAGE)/.LoginActivity
 
 install: build/debug.apk
 	$(_ADB) install -r build/debug.apk
