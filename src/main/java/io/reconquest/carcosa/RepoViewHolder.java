@@ -51,7 +51,7 @@ public class RepoViewHolder {
     }
 
     public void onClick(View v) {
-      activity.gotoRepoScreen(repo);
+      activity.gotoRepoActivity(repo);
     }
   }
 }
