@@ -6,6 +6,7 @@ _MAKE=$(MAKE) \
 	  -s
 
 _ADB=adb -s $(shell adb devices -l | tail -n+2 | cut -f1 -d' ' | head -n1)
+_LIB_SRC=$(shell find lib -type f)
 
 ifdef FASTBUILD
 GRADLE_BUILD_FLAGS = -x lint -x lintVitalRelease
@@ -19,19 +20,24 @@ RELEASE_VERSION=$(shell printf "%s.%s" \
 )
 RELEASE_NOTE=$(shell git show -s --format=%s)
 
-ifdef EMULATOR
 so:
-	@rm -rf src/main/jniLibs/$*
 	@$(_MAKE) GOARCH=amd64 CCARCH=x86_64 lib-x86_64
-else
-so:
-	# add other archs there
-	@rm -rf src/main/jniLibs/$*
 	@$(_MAKE) GOARCH=arm64 CCARCH=aarch64 lib-arm64-v8a
-endif
 
 lib-%:
 	@$(_MAKE) src/main/jniLibs/$*/libcarcosa.so
+
+src/main/jniLibs/%/libcarcosa.so: $(_LIB_SRC)
+	@echo :: compiling carcosa shared lib CCARCH=$(CCARCH) GOARCH=$(GOARCH)
+	@CGO_ENABLED=1 GO111MODULE=on \
+		GOOS=android \
+		CC=$(CCARCH)-linux-android21-clang \
+		CXX=$(CCARCH)-linux-android21-clang++ \
+		CCARCH=$(CCARCH) \
+		GOARCH=$(GOARCH) \
+		 go build \
+		 	-o=$@ \
+			-buildmode=c-shared ./lib
 
 debug@run: debug@install
 	$(_ADB) shell am start -n $(DEBUG_ANDROID_PACKAGE)/$(ANDROID_PACKAGE).LoginActivity
@@ -57,18 +63,6 @@ release@install: release@apk
 		-keypass $$KEYSTORE_PASSWORD \
 		-dname $$KEYSTORE_DN \
 		-deststoretype pkcs12
-
-src/main/jniLibs/%/libcarcosa.so:
-	@echo :: compiling carcosa shared lib CCARCH=$(CCARCH) GOARCH=$(GOARCH)
-	@CGO_ENABLED=1 GO111MODULE=on \
-		GOOS=android \
-		CC=$(CCARCH)-linux-android21-clang \
-		CXX=$(CCARCH)-linux-android21-clang++ \
-		CCARCH=$(CCARCH) \
-		GOARCH=$(GOARCH) \
-		 go build \
-		 	-o=$@ \
-			-buildmode=c-shared ./lib
 
 debug@apk: so src/debug/keystore
 	gradle assembleDebug $(GRADLE_BUILD_FLAGS)
