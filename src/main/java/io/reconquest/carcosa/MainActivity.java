@@ -4,6 +4,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
 
+import com.google.android.material.navigation.NavigationView;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -12,6 +14,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -200,10 +203,19 @@ public class MainActivity extends AppCompatActivity implements Lister {
           }
         });
 
-    ui.onClick(
-        R.id.nav_settings,
-        (View v) -> {
-          gotoSettingsActivity();
+    NavigationView navbar = (NavigationView) findViewById(R.id.navbar);
+    navbar.setNavigationItemSelectedListener(
+        new NavigationView.OnNavigationItemSelectedListener() {
+          public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+            switch (item.getItemId()) {
+              case R.id.nav_settings:
+                gotoSettingsActivity();
+                break;
+            }
+
+            drawerLayout.closeDrawer(GravityCompat.START);
+            return true;
+          }
         });
   }
 

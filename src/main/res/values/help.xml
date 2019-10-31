@@ -21,4 +21,8 @@
         Master password will be securely stored on the device in encrypted
         form which is accessible only by using your fingerprint data.
     ]]></string>
+
+    <string name="help_session_ttl"><![CDATA[
+        When app goes to background your biometric session will expire after specified amount of seconds.
+    ]]></string>
 </resources>

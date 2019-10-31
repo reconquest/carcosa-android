@@ -96,5 +96,5 @@ eclipse:
 	gradle eclipse
 	gradle pom
 
-eclipse-clean:
+eclipse@clean: clean
 	rm -rf .classpath .project .settings/
