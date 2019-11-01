@@ -42,7 +42,7 @@ public class RepoActivity extends AppCompatActivity {
     carcosa = (Carcosa) getIntent().getSerializableExtra("carcosa");
     repo = (Repo) getIntent().getSerializableExtra("repo");
 
-    session = new Session(getBaseContext(), carcosa, null);
+    session = new Session(this, carcosa, null);
 
     if (repo != null) {
       ui.text(R.id.repo_address, repo.config.address);

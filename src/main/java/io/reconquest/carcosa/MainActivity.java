@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity implements Lister {
 
     setContentView(R.layout.main);
 
-    session = new Session(getBaseContext(), carcosa, () -> {
+    session = new Session(this, carcosa, () -> {
       secrets = new SecretsList(this, new ArrayList<Repo>());
       secretsList.setAdapter(secrets);
     });

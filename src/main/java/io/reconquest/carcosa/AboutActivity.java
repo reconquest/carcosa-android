@@ -14,8 +14,7 @@ public class AboutActivity extends AppCompatActivity {
 
     setContentView(R.layout.about);
 
-    session =
-        new Session(getBaseContext(), (Carcosa) getIntent().getSerializableExtra("carcosa"), null);
+    session = new Session(this, (Carcosa) getIntent().getSerializableExtra("carcosa"), null);
 
     Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_about);
     toolbar.setTitle("About");

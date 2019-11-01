@@ -22,8 +22,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     ui = new UI(this);
 
-    session =
-        new Session(getBaseContext(), (Carcosa) getIntent().getSerializableExtra("carcosa"), null);
+    session = new Session(this, (Carcosa) getIntent().getSerializableExtra("carcosa"), null);
 
     loadPreferences();
 
