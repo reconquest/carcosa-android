@@ -37,14 +37,10 @@
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="10dp"
-                    android:hint="Address"
+                    android:hint="Session timeout"
                     android:digits="0123456789"
                     android:inputType="numberDecimal"
                 />
-
-
-
-
 
             <Button
                     android:id="@+id/save"

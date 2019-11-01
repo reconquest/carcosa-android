@@ -211,6 +211,10 @@ public class MainActivity extends AppCompatActivity implements Lister {
               case R.id.nav_settings:
                 gotoSettingsActivity();
                 break;
+
+              case R.id.nav_about:
+                gotoAboutActivity();
+                break;
             }
 
             drawerLayout.closeDrawer(GravityCompat.START);
@@ -228,6 +232,11 @@ public class MainActivity extends AppCompatActivity implements Lister {
 
   void gotoSettingsActivity() {
     Intent intent = new Intent(this, SettingsActivity.class);
+    startActivity(intent);
+  }
+
+  void gotoAboutActivity() {
+    Intent intent = new Intent(this, AboutActivity.class);
     startActivity(intent);
   }
 }

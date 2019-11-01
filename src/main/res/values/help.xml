@@ -25,4 +25,8 @@
     <string name="help_session_ttl"><![CDATA[
         When app goes to background your biometric session will expire after specified amount of seconds.
     ]]></string>
+
+    <string name="about"><![CDATA[
+        Issue tracker: https://github.com/reconquest/carcosa-android/issues
+    ]]></string>
 </resources>

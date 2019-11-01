@@ -19,7 +19,9 @@ public class SettingsActivity extends AppCompatActivity {
     setContentView(R.layout.settings);
 
     ui = new UI(this);
+
     loadPreferences();
+
     ui.hide(R.id.settings_saved);
     ui.onClick(
         R.id.save,
