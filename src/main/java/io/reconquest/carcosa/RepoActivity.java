@@ -52,9 +52,8 @@ public class RepoActivity extends AppCompatActivity {
       if (repo.config.protocol.equals("ssh")) {
         ((RadioButton) findViewById(R.id.repo_protocol_ssh)).setChecked(true);
         ui.text(R.id.repo_ssh_key_fingerprint_left, repo.sshKey.fingerprint.substring(0, 5));
-        ui.text(
-            R.id.repo_ssh_key_fingerprint_right,
-            repo.sshKey.fingerprint.substring(repo.sshKey.fingerprint.length() - 5));
+        ui.text(R.id.repo_ssh_key_fingerprint_right, repo.sshKey.fingerprint.substring(
+            repo.sshKey.fingerprint.length() - 5));
         ui.enable(R.id.repo_ssh_key_copy);
         ui.show(R.id.repo_ssh_key_fingerprint_panel);
         ui.show(R.id.repo_ssh_key_copy);
@@ -90,29 +89,25 @@ public class RepoActivity extends AppCompatActivity {
     ((RadioGroup) findViewById(R.id.repo_protocol))
         .setOnCheckedChangeListener(new ProtocolSelect());
 
-    ui.onEdit(
-        R.id.repo_address,
-        new UI.OnTextChangedListener() {
-          public void onTextChanged(CharSequence chars, int start, int count, int after) {
-            if (chars.toString().length() == 0) {
-              ui.disable(R.id.repo_connect);
-            } else {
-              ui.enable(R.id.repo_connect);
-            }
-          }
-        });
+    ui.onEdit(R.id.repo_address, new UI.OnTextChangedListener() {
+      public void onTextChanged(CharSequence chars, int start, int count, int after) {
+        if (chars.toString().length() == 0) {
+          ui.disable(R.id.repo_connect);
+        } else {
+          ui.enable(R.id.repo_connect);
+        }
+      }
+    });
 
-    ui.onEdit(
-        R.id.repo_master_password,
-        new UI.OnTextChangedListener() {
-          public void onTextChanged(CharSequence chars, int start, int count, int after) {
-            if (chars.toString().length() == 0) {
-              ui.disable(R.id.repo_unlock);
-            } else {
-              ui.enable(R.id.repo_unlock);
-            }
-          }
-        });
+    ui.onEdit(R.id.repo_master_password, new UI.OnTextChangedListener() {
+      public void onTextChanged(CharSequence chars, int start, int count, int after) {
+        if (chars.toString().length() == 0) {
+          ui.disable(R.id.repo_unlock);
+        } else {
+          ui.enable(R.id.repo_unlock);
+        }
+      }
+    });
 
     // ui.onClick(R.id.repo_ssh_key_generate, new GenerateKeyButton());
     ui.onClick(R.id.repo_ssh_key_copy, new CopyKeyButton(this));
@@ -120,14 +115,12 @@ public class RepoActivity extends AppCompatActivity {
     ui.onClick(R.id.repo_unlock, new UnlockButton());
     ui.onClick(R.id.repo_advanced, new AdvancedSettingsPanel());
 
-    ui.onClick(
-        R.id.repo_done,
-        new OnClickListener() {
-          public void onClick(View v) {
-            Intent intent = new Intent(getBaseContext(), MainActivity.class);
-            startActivity(intent);
-          }
-        });
+    ui.onClick(R.id.repo_done, new OnClickListener() {
+      public void onClick(View v) {
+        Intent intent = new Intent(getBaseContext(), MainActivity.class);
+        startActivity(intent);
+      }
+    });
 
     Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_repo);
     toolbar.setTitle("Add Repository");
@@ -159,14 +152,12 @@ public class RepoActivity extends AppCompatActivity {
 
       if (shown) {
         ui.hide(R.id.repo_advanced_panel);
-        animation =
-            new RotateAnimation(
-                90, 0, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        animation = new RotateAnimation(
+            90, 0, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
       } else {
         ui.show(R.id.repo_advanced_panel);
-        animation =
-            new RotateAnimation(
-                0, 90, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        animation = new RotateAnimation(
+            0, 90, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
       }
 
       animation.setDuration(100);
@@ -225,9 +216,8 @@ public class RepoActivity extends AppCompatActivity {
         ui.show(R.id.repo_error);
       } else {
         ui.text(R.id.repo_ssh_key_fingerprint_left, keygen.result.fingerprint.substring(0, 5));
-        ui.text(
-            R.id.repo_ssh_key_fingerprint_right,
-            keygen.result.fingerprint.substring(keygen.result.fingerprint.length() - 5));
+        ui.text(R.id.repo_ssh_key_fingerprint_right, keygen.result.fingerprint.substring(
+            keygen.result.fingerprint.length() - 5));
         ui.enable(R.id.repo_ssh_key_copy);
         ui.show(R.id.repo_ssh_key_fingerprint_panel);
         ui.show(R.id.repo_ssh_key_copy);

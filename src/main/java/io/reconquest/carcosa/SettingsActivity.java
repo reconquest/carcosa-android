@@ -28,11 +28,9 @@ public class SettingsActivity extends AppCompatActivity {
     loadPreferences();
 
     ui.hide(R.id.settings_saved);
-    ui.onClick(
-        R.id.save,
-        (View v) -> {
-          updatePreferences();
-        });
+    ui.onClick(R.id.save, (View v) -> {
+      updatePreferences();
+    });
 
     Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_settings);
     toolbar.setTitle("Settings");
@@ -53,15 +51,11 @@ public class SettingsActivity extends AppCompatActivity {
   }
 
   private void loadPreferences() {
-    preferences =
-        getBaseContext()
-            .getSharedPreferences(getBaseContext().getPackageName(), Context.MODE_PRIVATE);
+    preferences = getBaseContext()
+        .getSharedPreferences(getBaseContext().getPackageName(), Context.MODE_PRIVATE);
 
-    ui.text(
-        R.id.session_ttl,
-        Long.toString(
-            preferences.getLong(
-                CarcosaApplication.SESSION_TTL_KEY, CarcosaApplication.SESSION_TTL_VALUE_DEFAULT)));
+    ui.text(R.id.session_ttl, Long.toString(preferences.getLong(
+        CarcosaApplication.SESSION_TTL_KEY, CarcosaApplication.SESSION_TTL_VALUE_DEFAULT)));
   }
 
   private void updatePreferences() {

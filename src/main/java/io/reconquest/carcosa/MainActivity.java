@@ -41,14 +41,10 @@ public class MainActivity extends AppCompatActivity implements Lister {
 
     setContentView(R.layout.main);
 
-    session =
-        new Session(
-            getBaseContext(),
-            carcosa,
-            () -> {
-              secrets = new SecretsList(this, new ArrayList<Repo>());
-              secretsList.setAdapter(secrets);
-            });
+    session = new Session(getBaseContext(), carcosa, () -> {
+      secrets = new SecretsList(this, new ArrayList<Repo>());
+      secretsList.setAdapter(secrets);
+    });
 
     initCarcosa();
     initUI();
@@ -94,10 +90,9 @@ public class MainActivity extends AppCompatActivity implements Lister {
 
     bindViews();
 
-    new Thread(
-            () -> {
-              list();
-            })
+    new Thread(() -> {
+          list();
+        })
         .start();
   }
 
@@ -105,9 +100,8 @@ public class MainActivity extends AppCompatActivity implements Lister {
     // NOTE: Make sure you pass in a valid toolbar reference.  ActionBarDrawToggle() does not
     // require it
     // and will not render the hamburger icon without it.
-    ActionBarDrawerToggle toggle =
-        new ActionBarDrawerToggle(
-            this, drawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close);
+    ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+        this, drawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close);
 
     toggle.getDrawerArrowDrawable().setColor(0xFF000000);
     toggle.setDrawerIndicatorEnabled(true);
@@ -136,11 +130,10 @@ public class MainActivity extends AppCompatActivity implements Lister {
       ui.hide(R.id.list_progress);
       if (list.result.repos.size() > 0) {
         ui.show(R.id.search_query_panel);
-        ui.ui(
-            () -> {
-              secrets = new SecretsList(this, list.result.repos);
-              secretsList.setAdapter(secrets);
-            });
+        ui.ui(() -> {
+          secrets = new SecretsList(this, list.result.repos);
+          secretsList.setAdapter(secrets);
+        });
       }
     }
   }
@@ -157,44 +150,37 @@ public class MainActivity extends AppCompatActivity implements Lister {
 
     secretsList = (ListView) findViewById(R.id.secrets_list);
 
-    ui.onClick(
-        R.id.toolbar_main_action_sync,
-        (View v) -> {
-          new SyncThread(this, carcosa).start();
-        });
+    ui.onClick(R.id.toolbar_main_action_sync, (View v) -> {
+      new SyncThread(this, carcosa).start();
+    });
 
-    ui.onClick(
-        R.id.toolbar_main_action_add_repo,
-        (View v) -> {
-          gotoRepoActivity(null);
-        });
+    ui.onClick(R.id.toolbar_main_action_add_repo, (View v) -> {
+      gotoRepoActivity(null);
+    });
 
-    ui.onEdit(
-        R.id.search_query,
-        new UI.OnTextChangedListener() {
-          public void onTextChanged(CharSequence chars, int start, int count, int after) {
-            secrets.filter(ui.text(R.id.search_query).toLowerCase());
-          }
-        });
+    ui.onEdit(R.id.search_query, new UI.OnTextChangedListener() {
+      public void onTextChanged(CharSequence chars, int start, int count, int after) {
+        secrets.filter(ui.text(R.id.search_query).toLowerCase());
+      }
+    });
 
     NavigationView navbar = (NavigationView) findViewById(R.id.navbar);
-    navbar.setNavigationItemSelectedListener(
-        new NavigationView.OnNavigationItemSelectedListener() {
-          public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            switch (item.getItemId()) {
-              case R.id.nav_settings:
-                gotoSettingsActivity();
-                break;
+    navbar.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+      public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+          case R.id.nav_settings:
+            gotoSettingsActivity();
+            break;
 
-              case R.id.nav_about:
-                gotoAboutActivity();
-                break;
-            }
+          case R.id.nav_about:
+            gotoAboutActivity();
+            break;
+        }
 
-            drawerLayout.closeDrawer(GravityCompat.START);
-            return true;
-          }
-        });
+        drawerLayout.closeDrawer(GravityCompat.START);
+        return true;
+      }
+    });
   }
 
   void gotoRepoActivity(Repo repo) {

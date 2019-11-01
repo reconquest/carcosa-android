@@ -34,9 +34,8 @@ public class Session {
       return;
     }
 
-    final long seconds =
-        preferences.getLong(
-            CarcosaApplication.SESSION_TTL_KEY, CarcosaApplication.SESSION_TTL_VALUE_DEFAULT);
+    final long seconds = preferences.getLong(
+        CarcosaApplication.SESSION_TTL_KEY, CarcosaApplication.SESSION_TTL_VALUE_DEFAULT);
 
     Date expireDate = new Date(pauseDate.getTime() + (seconds * 1000));
     Date now = new Date();

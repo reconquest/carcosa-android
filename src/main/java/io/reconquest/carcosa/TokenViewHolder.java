@@ -51,11 +51,9 @@ public class TokenViewHolder {
       builder.setTitle(token);
       builder.setMessage(secret);
 
-      builder.setNeutralButton(
-          "Close",
-          new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {}
-          });
+      builder.setNeutralButton("Close", new DialogInterface.OnClickListener() {
+        public void onClick(DialogInterface dialog, int id) {}
+      });
 
       builder.create().show();
     }

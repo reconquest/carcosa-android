@@ -30,16 +30,14 @@ public class FatalErrorDialog {
 
     builder.setMessage(error).setTitle("Fatal Error");
 
-    builder.setNeutralButton(
-        "Exit App",
-        new DialogInterface.OnClickListener() {
-          public void onClick(DialogInterface dialog, int id) {
-            Intent intent = new Intent(Intent.ACTION_MAIN);
-            intent.addCategory(Intent.CATEGORY_HOME);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            activity.startActivity(intent);
-          }
-        });
+    builder.setNeutralButton("Exit App", new DialogInterface.OnClickListener() {
+      public void onClick(DialogInterface dialog, int id) {
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_HOME);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        activity.startActivity(intent);
+      }
+    });
 
     this.dialog = builder.create();
   }

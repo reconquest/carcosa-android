@@ -67,12 +67,11 @@ public class LoginActivity extends AppCompatActivity {
 
   private void bindView() {
     Button loginButton = (Button) findViewById(R.id.login);
-    loginButton.setOnClickListener(
-        new OnClickListener() {
-          public void onClick(View v) {
-            authenticate();
-          }
-        });
+    loginButton.setOnClickListener(new OnClickListener() {
+      public void onClick(View v) {
+        authenticate();
+      }
+    });
   }
 
   private void switchActivity(String pin) {
@@ -96,10 +95,7 @@ public class LoginActivity extends AppCompatActivity {
   private void decryptPin() {
     try {
       goldfinger.decrypt(
-          buildPromptParams(),
-          KEY_NAME,
-          this.readEncryptedPin(),
-          new Goldfinger.Callback() {
+          buildPromptParams(), KEY_NAME, this.readEncryptedPin(), new Goldfinger.Callback() {
             @Override
             public void onError(@NonNull Exception e) {
               onFatalError(e);
@@ -131,38 +127,34 @@ public class LoginActivity extends AppCompatActivity {
     try {
       final String pin = this.generateRandomPin();
 
-      goldfinger.encrypt(
-          buildPromptParams(),
-          KEY_NAME,
-          pin,
-          new Goldfinger.Callback() {
-            @Override
-            public void onError(@NonNull Exception e) {
-              onFatalError(e);
+      goldfinger.encrypt(buildPromptParams(), KEY_NAME, pin, new Goldfinger.Callback() {
+        @Override
+        public void onError(@NonNull Exception e) {
+          onFatalError(e);
+        }
+
+        @Override
+        public void onResult(@NonNull Goldfinger.Result result) {
+          // onGoldfingerResult(result);
+          if (result.type() != Goldfinger.Type.SUCCESS) {
+            if (result.type() == Goldfinger.Type.ERROR) {
+              ui.show(R.id.login);
+              ui.hide(R.id.login_progress);
             }
+            return;
+          }
 
-            @Override
-            public void onResult(@NonNull Goldfinger.Result result) {
-              // onGoldfingerResult(result);
-              if (result.type() != Goldfinger.Type.SUCCESS) {
-                if (result.type() == Goldfinger.Type.ERROR) {
-                  ui.show(R.id.login);
-                  ui.hide(R.id.login_progress);
-                }
-                return;
-              }
+          prompt = false;
 
-              prompt = false;
+          try {
+            writeEncryptedPin(result.value());
+          } catch (IOException e) {
+            onFatalError(e);
+          }
 
-              try {
-                writeEncryptedPin(result.value());
-              } catch (IOException e) {
-                onFatalError(e);
-              }
-
-              switchActivity(pin);
-            }
-          });
+          switchActivity(pin);
+        }
+      });
     } catch (Exception e) {
       onFatalError(e);
     }
