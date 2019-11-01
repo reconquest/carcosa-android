@@ -38,8 +38,8 @@ public class RepoActivity extends AppCompatActivity {
 
     setContentView(R.layout.repo);
 
-    carcosa = (Carcosa) getIntent().getSerializableExtra("Carcosa");
-    repo = (Repo) getIntent().getSerializableExtra("Repo");
+    carcosa = (Carcosa) getIntent().getSerializableExtra("carcosa");
+    repo = (Repo) getIntent().getSerializableExtra("repo");
 
     if (repo != null) {
       ui.text(R.id.repo_address, repo.config.address);

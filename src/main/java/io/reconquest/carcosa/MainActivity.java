@@ -4,14 +4,17 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
 
+import com.google.android.material.navigation.NavigationView;
+
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.ListView;
-import android.widget.TextView;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -28,13 +31,13 @@ public class MainActivity extends AppCompatActivity implements Lister {
 
   private Carcosa carcosa = new Carcosa();
 
-  TextView searchField;
   ListView secretsList;
 
   private DrawerLayout drawerLayout;
   private Toolbar toolbar;
   private ActionBarDrawerToggle drawerToggle;
-  private FrameLayout frame;
+
+  private SharedPreferences preferences;
 
   private boolean paused = false;
   private Date pauseDate = null;
@@ -44,7 +47,13 @@ public class MainActivity extends AppCompatActivity implements Lister {
     super.onCreate(state);
 
     setContentView(R.layout.main);
+
     initCarcosa();
+
+    preferences =
+        getBaseContext()
+            .getSharedPreferences(getBaseContext().getPackageName(), Context.MODE_PRIVATE);
+
     initUI();
   }
 
@@ -65,11 +74,11 @@ public class MainActivity extends AppCompatActivity implements Lister {
       return;
     }
 
-    final long ONE_SECOND = 1000;
-    // TODO: move to sharedPreferences
-    final long seconds = 3;
+    final long seconds =
+        preferences.getLong(
+            CarcosaApplication.SESSION_TTL_KEY, CarcosaApplication.SESSION_TTL_VALUE_DEFAULT);
 
-    Date expireDate = new Date(pauseDate.getTime() + (seconds * ONE_SECOND));
+    Date expireDate = new Date(pauseDate.getTime() + (seconds * 1000));
     Date now = new Date();
 
     if (now.after(expireDate)) {
@@ -109,17 +118,7 @@ public class MainActivity extends AppCompatActivity implements Lister {
 
     setContentView(R.layout.main);
 
-    toolbar = (Toolbar) findViewById(R.id.toolbar);
-    toolbar.setTitle("Secrets");
-    toolbar.setTitleTextColor(0xFF000000);
-    setSupportActionBar(toolbar);
-
-    drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-    drawerToggle = setupDrawerToggle();
-    drawerLayout.addDrawerListener(drawerToggle);
-
     bindViews();
-    bindSearch();
 
     new Thread(
             () -> {
@@ -173,10 +172,16 @@ public class MainActivity extends AppCompatActivity implements Lister {
   }
 
   protected void bindViews() {
-    searchField = (TextView) findViewById(R.id.search_query);
-    secretsList = (ListView) findViewById(R.id.secrets_list);
+    toolbar = (Toolbar) findViewById(R.id.toolbar);
+    toolbar.setTitle("Secrets");
+    toolbar.setTitleTextColor(0xFF000000);
+    setSupportActionBar(toolbar);
 
-    frame = (FrameLayout) findViewById(R.id.fragment_layout_content);
+    drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+    drawerToggle = setupDrawerToggle();
+    drawerLayout.addDrawerListener(drawerToggle);
+
+    secretsList = (ListView) findViewById(R.id.secrets_list);
 
     ui.onClick(
         R.id.toolbar_main_action_sync,
@@ -187,11 +192,9 @@ public class MainActivity extends AppCompatActivity implements Lister {
     ui.onClick(
         R.id.toolbar_main_action_add_repo,
         (View v) -> {
-          gotoRepoScreen(null);
+          gotoRepoActivity(null);
         });
-  }
 
-  protected void bindSearch() {
     ui.onEdit(
         R.id.search_query,
         new UI.OnTextChangedListener() {
@@ -199,12 +202,41 @@ public class MainActivity extends AppCompatActivity implements Lister {
             secrets.filter(ui.text(R.id.search_query).toLowerCase());
           }
         });
+
+    NavigationView navbar = (NavigationView) findViewById(R.id.navbar);
+    navbar.setNavigationItemSelectedListener(
+        new NavigationView.OnNavigationItemSelectedListener() {
+          public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+            switch (item.getItemId()) {
+              case R.id.nav_settings:
+                gotoSettingsActivity();
+                break;
+
+              case R.id.nav_about:
+                gotoAboutActivity();
+                break;
+            }
+
+            drawerLayout.closeDrawer(GravityCompat.START);
+            return true;
+          }
+        });
   }
 
-  void gotoRepoScreen(Repo repo) {
+  void gotoRepoActivity(Repo repo) {
     Intent intent = new Intent(this, RepoActivity.class);
-    intent.putExtra("Carcosa", carcosa);
-    intent.putExtra("Repo", repo);
+    intent.putExtra("carcosa", carcosa);
+    intent.putExtra("repo", repo);
+    startActivity(intent);
+  }
+
+  void gotoSettingsActivity() {
+    Intent intent = new Intent(this, SettingsActivity.class);
+    startActivity(intent);
+  }
+
+  void gotoAboutActivity() {
+    Intent intent = new Intent(this, AboutActivity.class);
     startActivity(intent);
   }
 }
