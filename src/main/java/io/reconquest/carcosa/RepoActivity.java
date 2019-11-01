@@ -29,6 +29,7 @@ public class RepoActivity extends AppCompatActivity {
   private UI ui;
   private Carcosa carcosa;
   private Repo repo;
+  private Session session;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +41,8 @@ public class RepoActivity extends AppCompatActivity {
 
     carcosa = (Carcosa) getIntent().getSerializableExtra("carcosa");
     repo = (Repo) getIntent().getSerializableExtra("repo");
+
+    session = new Session(getBaseContext(), carcosa, null);
 
     if (repo != null) {
       ui.text(R.id.repo_address, repo.config.address);
@@ -130,6 +133,18 @@ public class RepoActivity extends AppCompatActivity {
     toolbar.setTitle("Add Repository");
     setSupportActionBar(toolbar);
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+  }
+
+  @Override
+  protected void onPause() {
+    super.onPause();
+    session.onPause();
+  }
+
+  @Override
+  protected void onResume() {
+    super.onResume();
+    session.onResume();
   }
 
   public class AdvancedSettingsPanel implements OnClickListener {

@@ -41,12 +41,14 @@ public class MainActivity extends AppCompatActivity implements Lister {
 
     setContentView(R.layout.main);
 
-    session = new Session(getBaseContext(), carcosa);
-    session.reset(
-        () -> {
-          secrets = new SecretsList(this, new ArrayList<Repo>());
-          secretsList.setAdapter(secrets);
-        });
+    session =
+        new Session(
+            getBaseContext(),
+            carcosa,
+            () -> {
+              secrets = new SecretsList(this, new ArrayList<Repo>());
+              secretsList.setAdapter(secrets);
+            });
 
     initCarcosa();
     initUI();
@@ -72,6 +74,9 @@ public class MainActivity extends AppCompatActivity implements Lister {
     String pin = getIntent().getStringExtra("pin");
     if (pin == null) {
       Log.e(TAG, "pin was not passed to intent");
+      Intent intent = new Intent(this, LoginActivity.class);
+      startActivity(intent);
+      return;
     }
 
     Maybe<Void> init =
@@ -201,11 +206,13 @@ public class MainActivity extends AppCompatActivity implements Lister {
 
   void gotoSettingsActivity() {
     Intent intent = new Intent(this, SettingsActivity.class);
+    intent.putExtra("carcosa", carcosa);
     startActivity(intent);
   }
 
   void gotoAboutActivity() {
     Intent intent = new Intent(this, AboutActivity.class);
+    intent.putExtra("carcosa", carcosa);
     startActivity(intent);
   }
 }

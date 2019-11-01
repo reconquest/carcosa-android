@@ -7,10 +7,12 @@ import android.os.Bundle;
 import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import io.reconquest.carcosa.lib.Carcosa;
 
 public class SettingsActivity extends AppCompatActivity {
   private SharedPreferences preferences;
   private UI ui;
+  private Session session;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -19,6 +21,9 @@ public class SettingsActivity extends AppCompatActivity {
     setContentView(R.layout.settings);
 
     ui = new UI(this);
+
+    session =
+        new Session(getBaseContext(), (Carcosa) getIntent().getSerializableExtra("carcosa"), null);
 
     loadPreferences();
 
@@ -33,6 +38,18 @@ public class SettingsActivity extends AppCompatActivity {
     toolbar.setTitle("Settings");
     setSupportActionBar(toolbar);
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+  }
+
+  @Override
+  protected void onPause() {
+    super.onPause();
+    session.onPause();
+  }
+
+  @Override
+  protected void onResume() {
+    super.onResume();
+    session.onResume();
   }
 
   private void loadPreferences() {

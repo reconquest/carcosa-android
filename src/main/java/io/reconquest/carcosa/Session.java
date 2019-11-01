@@ -15,22 +15,20 @@ public class Session {
   private Carcosa carcosa;
   private SessionResetter resetter;
 
-  Session(Context context, Carcosa carcosa) {
+  Session(Context context, Carcosa carcosa, SessionResetter resetter) {
     this.context = context;
     this.preferences = context.getSharedPreferences(context.getPackageName(), Context.MODE_PRIVATE);
-  }
-
-  public Session reset(SessionResetter resetter) {
     this.resetter = resetter;
-    return this;
   }
 
   public void onPause() {
+    System.err.printf("XXXXXXX Session.java:24 onPause called \n");
     paused = true;
     pauseDate = new Date();
   }
 
   public void onResume() {
+    System.err.printf("XXXXXXX Session.java:29 onResume called \n");
     // onResume() is also called after onCreate()
     if (!paused) {
       return;
@@ -44,13 +42,14 @@ public class Session {
     Date now = new Date();
 
     if (now.after(expireDate)) {
-      if (carcosa != null) {
-        carcosa.destroy();
+      carcosa.destroy();
+
+      if (this.resetter != null) {
+        this.resetter.reset();
       }
 
-      this.resetter.reset();
-
       Intent intent = new Intent(context, LoginActivity.class);
+      intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
       context.startActivity(intent);
     }
   }
