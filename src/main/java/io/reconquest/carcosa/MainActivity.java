@@ -160,6 +160,9 @@ public class MainActivity extends AppCompatActivity implements Lister {
 
     ui.onEdit(R.id.search_query, new UI.OnTextChangedListener() {
       public void onTextChanged(CharSequence chars, int start, int count, int after) {
+        if (secrets == null) {
+          return;
+        }
         secrets.filter(ui.text(R.id.search_query).toLowerCase());
       }
     });
