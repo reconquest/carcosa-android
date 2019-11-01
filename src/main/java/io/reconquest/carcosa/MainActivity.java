@@ -2,13 +2,10 @@ package io.reconquest.carcosa;
 
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Date;
 
 import com.google.android.material.navigation.NavigationView;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -30,6 +27,7 @@ public class MainActivity extends AppCompatActivity implements Lister {
   private SecretsList secrets;
 
   private Carcosa carcosa = new Carcosa();
+  private Session session;
 
   ListView secretsList;
 
@@ -37,62 +35,33 @@ public class MainActivity extends AppCompatActivity implements Lister {
   private Toolbar toolbar;
   private ActionBarDrawerToggle drawerToggle;
 
-  private SharedPreferences preferences;
-
-  private boolean paused = false;
-  private Date pauseDate = null;
-
   @Override
   protected void onCreate(Bundle state) {
     super.onCreate(state);
 
     setContentView(R.layout.main);
 
+    session = new Session(getBaseContext(), carcosa);
+    session.reset(
+        () -> {
+          secrets = new SecretsList(this, new ArrayList<Repo>());
+          secretsList.setAdapter(secrets);
+        });
+
     initCarcosa();
-
-    preferences =
-        getBaseContext()
-            .getSharedPreferences(getBaseContext().getPackageName(), Context.MODE_PRIVATE);
-
     initUI();
   }
 
   @Override
   protected void onPause() {
     super.onPause();
-
-    paused = true;
-    pauseDate = new Date();
+    session.onPause();
   }
 
   @Override
   protected void onResume() {
     super.onResume();
-
-    // onResume() is also called after onCreate()
-    if (!paused) {
-      return;
-    }
-
-    final long seconds =
-        preferences.getLong(
-            CarcosaApplication.SESSION_TTL_KEY, CarcosaApplication.SESSION_TTL_VALUE_DEFAULT);
-
-    Date expireDate = new Date(pauseDate.getTime() + (seconds * 1000));
-    Date now = new Date();
-
-    if (now.after(expireDate)) {
-      carcosa.destroy();
-      reset();
-
-      Intent intent = new Intent(this, LoginActivity.class);
-      startActivity(intent);
-    }
-  }
-
-  private void reset() {
-    secrets = new SecretsList(this, new ArrayList<Repo>());
-    secretsList.setAdapter(secrets);
+    session.onResume();
   }
 
   private void initCarcosa() {
