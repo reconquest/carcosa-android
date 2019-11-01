@@ -20,16 +20,14 @@ public class RepoViewHolder {
     ui.text(R.id.repo_list_item_sync_stat_date, repo.syncStat.date);
 
     if (repo.syncStat.added > 0) {
-      ui.text(
-          R.id.repo_list_item_sync_stat_added,
-          String.format(Locale.getDefault(), "+%d", repo.syncStat.added));
+      ui.text(R.id.repo_list_item_sync_stat_added, String.format(
+          Locale.getDefault(), "+%d", repo.syncStat.added));
       ui.show(R.id.repo_list_item_sync_stat_added);
     }
 
     if (repo.syncStat.deleted > 0) {
-      ui.text(
-          R.id.repo_list_item_sync_stat_deleted,
-          String.format(Locale.getDefault(), "−%d", repo.syncStat.deleted));
+      ui.text(R.id.repo_list_item_sync_stat_deleted, String.format(
+          Locale.getDefault(), "−%d", repo.syncStat.deleted));
       ui.show(R.id.repo_list_item_sync_stat_deleted);
     }
 

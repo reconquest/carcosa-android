@@ -24,9 +24,8 @@ class SyncThread extends Thread implements Runnable {
 
     ui.disable(R.id.toolbar_main_action_sync);
 
-    final RotateAnimation animation =
-        new RotateAnimation(
-            0, 360, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+    final RotateAnimation animation = new RotateAnimation(
+        0, 360, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
 
     animation.setDuration(1000);
     animation.setFillAfter(true);
@@ -37,27 +36,24 @@ class SyncThread extends Thread implements Runnable {
     final Maybe<Void> sync = carcosa.sync();
 
     ui.enable(R.id.toolbar_main_action_sync);
-    ui.ui(
-        new Runnable() {
-          public void run() {
-            animation.cancel();
+    ui.ui(new Runnable() {
+      public void run() {
+        animation.cancel();
 
-            if (sync.error != null) {
-              AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        if (sync.error != null) {
+          AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 
-              builder.setMessage(sync.error).setTitle("Error");
+          builder.setMessage(sync.error).setTitle("Error");
 
-              builder.setNegativeButton(
-                  "OK",
-                  new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {}
-                  });
+          builder.setNegativeButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {}
+          });
 
-              builder.create().show();
-            } else {
-              activity.list();
-            }
-          }
-        });
+          builder.create().show();
+        } else {
+          activity.list();
+        }
+      }
+    });
   }
 }

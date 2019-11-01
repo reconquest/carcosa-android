@@ -7,10 +7,12 @@ import android.os.Bundle;
 import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import io.reconquest.carcosa.lib.Carcosa;
 
 public class SettingsActivity extends AppCompatActivity {
   private SharedPreferences preferences;
   private UI ui;
+  private Session session;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -20,14 +22,14 @@ public class SettingsActivity extends AppCompatActivity {
 
     ui = new UI(this);
 
+    session = new Session(this, (Carcosa) getIntent().getSerializableExtra("carcosa"), null);
+
     loadPreferences();
 
     ui.hide(R.id.settings_saved);
-    ui.onClick(
-        R.id.save,
-        (View v) -> {
-          updatePreferences();
-        });
+    ui.onClick(R.id.save, (View v) -> {
+      updatePreferences();
+    });
 
     Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_settings);
     toolbar.setTitle("Settings");
@@ -35,16 +37,24 @@ public class SettingsActivity extends AppCompatActivity {
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
   }
 
-  private void loadPreferences() {
-    preferences =
-        getBaseContext()
-            .getSharedPreferences(getBaseContext().getPackageName(), Context.MODE_PRIVATE);
+  @Override
+  protected void onPause() {
+    super.onPause();
+    session.onPause();
+  }
 
-    ui.text(
-        R.id.session_ttl,
-        Long.toString(
-            preferences.getLong(
-                CarcosaApplication.SESSION_TTL_KEY, CarcosaApplication.SESSION_TTL_VALUE_DEFAULT)));
+  @Override
+  protected void onResume() {
+    super.onResume();
+    session.onResume();
+  }
+
+  private void loadPreferences() {
+    preferences = getBaseContext()
+        .getSharedPreferences(getBaseContext().getPackageName(), Context.MODE_PRIVATE);
+
+    ui.text(R.id.session_ttl, Long.toString(preferences.getLong(
+        CarcosaApplication.SESSION_TTL_KEY, CarcosaApplication.SESSION_TTL_VALUE_DEFAULT)));
   }
 
   private void updatePreferences() {
