@@ -69,7 +69,7 @@ public class TokenViewHolder {
     }
 
     public void onClick(View v) {
-      new Clipboard(activity).clip(token, secret, "Secret copied to clipboard.");
+      new Clipboard(activity).clip(token, secret.trim(), "Secret copied to clipboard.");
     }
   }
 }
