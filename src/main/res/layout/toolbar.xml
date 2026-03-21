@@ -1,26 +1,31 @@
-<androidx.appcompat.widget.Toolbar
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/toolbar"
-    android:layout_height="wrap_content"
+    android:id="@+id/toolbar_wrapper"
     android:layout_width="match_parent"
-    android:paddingRight="8dp"
-    android:fitsSystemWindows="true"
-    android:minHeight="?attr/actionBarSize"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
     android:background="?attr/colorPrimary">
 
-    <!-- TODO: add a Layout here -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/toolbar_main_action_add_repo"
-        android:layout_gravity="right"
-        style="@style/IconButton.Black"
-        app:icon="@drawable/ic_library_24dp"
-    />
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_height="?attr/actionBarSize"
+        android:layout_width="match_parent"
+        android:paddingRight="8dp"
+        android:background="?attr/colorPrimary"
+        app:titleTextColor="#000000">
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/toolbar_main_action_sync"
-        android:layout_gravity="right"
-        style="@style/IconButton.Black"
-        app:icon="@drawable/ic_refresh_24dp"
-    />
-</androidx.appcompat.widget.Toolbar>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/toolbar_main_action_add_repo"
+            android:layout_gravity="end"
+            style="@style/IconButton.Black"
+            app:icon="@drawable/ic_library_24dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/toolbar_main_action_sync"
+            android:layout_gravity="end"
+            style="@style/IconButton.Black"
+            app:icon="@drawable/ic_refresh_24dp" />
+
+    </androidx.appcompat.widget.Toolbar>
+</LinearLayout>

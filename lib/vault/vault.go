@@ -2,17 +2,11 @@ package vault
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
 	"github.com/reconquest/karma-go"
-	"github.com/seletskiy/carcosa/pkg/carcosa"
-	"github.com/seletskiy/carcosa/pkg/carcosa/cache"
-)
-
-var (
-	log = carcosa.Logger()
+	"github.com/seletskiy/carcosa/pkg/carcosa/vault"
 )
 
 type Vault struct {
@@ -20,7 +14,7 @@ type Vault struct {
 	pin  string
 }
 
-var _ cache.Vault = (*Vault)(nil)
+var _ vault.Vault = (*Vault)(nil)
 
 func New(root string, pin string) *Vault {
 	return &Vault{
@@ -41,7 +35,7 @@ func (vault *Vault) file(token string) string {
 }
 
 func (vault *Vault) Get(token string) ([]byte, error) {
-	body, err := ioutil.ReadFile(vault.file(token))
+	body, err := os.ReadFile(vault.file(token))
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil, nil
@@ -57,7 +51,7 @@ func (vault *Vault) Get(token string) ([]byte, error) {
 }
 
 func (vault *Vault) Set(token string, body []byte) error {
-	err := ioutil.WriteFile(vault.file(token), body, 0600)
+	err := os.WriteFile(vault.file(token), body, 0600)
 	if err != nil {
 		return karma.Format(
 			err,

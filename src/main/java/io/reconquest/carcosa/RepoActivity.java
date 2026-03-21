@@ -38,6 +38,7 @@ public class RepoActivity extends AppCompatActivity {
     ui = new UI(this);
 
     setContentView(R.layout.repo);
+    EdgeToEdge.apply(findViewById(R.id.toolbar_wrapper));
 
     carcosa = (Carcosa) getIntent().getSerializableExtra("carcosa");
     repo = (Repo) getIntent().getSerializableExtra("repo");
@@ -123,7 +124,7 @@ public class RepoActivity extends AppCompatActivity {
     });
 
     Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_repo);
-    toolbar.setTitle("Add Repository");
+    toolbar.setTitle(repo.id == null ? "Add Repository" : "Unlock Repository");
     setSupportActionBar(toolbar);
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
   }
@@ -229,14 +230,13 @@ public class RepoActivity extends AppCompatActivity {
 
   public class ConnectButton implements OnClickListener {
     class ConnectThread extends Thread implements Runnable {
+      private RepoConfig config;
+
+      ConnectThread(RepoConfig config) {
+        this.config = config;
+      }
+
       public void run() {
-        RepoConfig config = new RepoConfig();
-
-        config.protocol = ui.text(R.id.repo_protocol);
-        config.address = ui.text(R.id.repo_address);
-        config.namespace = ui.text(R.id.repo_token_namespace);
-        config.filter = ui.text(R.id.repo_token_filter);
-
         Maybe<ConnectResult> connect = carcosa.connect(config, repo.sshKey);
         if (connect.error != null) {
           ui.enable(R.id.repo_protocol_label);
@@ -280,7 +280,13 @@ public class RepoActivity extends AppCompatActivity {
       ui.disable(R.id.repo_token_filter);
       ui.disable(R.id.repo_connect);
 
-      new ConnectThread().start();
+      RepoConfig config = new RepoConfig();
+      config.protocol = ui.text(R.id.repo_protocol);
+      config.address = ui.text(R.id.repo_address);
+      config.namespace = ui.text(R.id.repo_token_namespace);
+      config.filter = ui.text(R.id.repo_token_filter);
+
+      new ConnectThread(config).start();
     }
   }
 
@@ -288,29 +294,33 @@ public class RepoActivity extends AppCompatActivity {
     public void onClick(View v) {
       ui.disable(R.id.repo_master_password);
       ui.disable(R.id.repo_unlock);
+      ui.hide(R.id.repo_error);
+      ((TextInputLayout) findViewById(R.id.repo_master_password_panel)).setError(null);
 
       String key = ui.text(R.id.repo_master_password);
       String filter = ui.text(R.id.repo_token_filter);
 
-      Maybe<UnlockResult> unlock = carcosa.unlock(repo.id, key, filter, true);
-      if (unlock.error != null) {
-        ui.text(R.id.repo_error, unlock.error);
-        ui.show(R.id.repo_error);
-      } else {
-        if (unlock.result.tokens == 0) {
+      new Thread(() -> {
+        Maybe<UnlockResult> unlock = carcosa.unlock(repo.id, key, filter, true);
+        if (unlock.error != null) {
+          ui.text(R.id.repo_error, unlock.error);
+          ui.show(R.id.repo_error);
           ui.enable(R.id.repo_master_password);
           ui.enable(R.id.repo_unlock);
-
-          ((TextInputLayout) findViewById(R.id.repo_master_password_panel))
-              .setError("Master password is invalid!");
-          // ui.show(R.id.repo_unlock_wrong_master_password);
         } else {
-          ui.hide(R.id.repo_master_password_cache_help);
-          ui.hide(R.id.repo_unlock_panel);
-          ui.show(R.id.repo_unlock_done_panel);
-          ui.text(R.id.repo_unlock_done_stat, "%d tokens unlocked!", unlock.result.tokens);
+          if (unlock.result.tokens == 0) {
+            ui.enable(R.id.repo_master_password);
+            ui.enable(R.id.repo_unlock);
+            ui.ui(() -> ((TextInputLayout) findViewById(R.id.repo_master_password_panel))
+                .setError("Master password is invalid!"));
+          } else {
+            ui.hide(R.id.repo_master_password_cache_help);
+            ui.hide(R.id.repo_unlock_panel);
+            ui.show(R.id.repo_unlock_done_panel);
+            ui.text(R.id.repo_unlock_done_stat, "%d tokens unlocked!", unlock.result.tokens);
+          }
         }
-      }
+      }).start();
     }
   }
 }

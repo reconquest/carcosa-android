@@ -13,6 +13,7 @@ public class AboutActivity extends AppCompatActivity {
     super.onCreate(savedInstanceState);
 
     setContentView(R.layout.about);
+    EdgeToEdge.apply(findViewById(R.id.toolbar_wrapper));
 
     session = new Session(this, (Carcosa) getIntent().getSerializableExtra("carcosa"), null);
 

@@ -19,6 +19,7 @@ public class SettingsActivity extends AppCompatActivity {
     super.onCreate(savedInstanceState);
 
     setContentView(R.layout.settings);
+    EdgeToEdge.apply(findViewById(R.id.toolbar_wrapper));
 
     ui = new UI(this);
 

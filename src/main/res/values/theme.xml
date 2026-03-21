@@ -1,19 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Carcosa" parent="Theme.MaterialComponents">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-        <item name="colorPrimary">#ffeb3b</item>
-        <item name="colorPrimaryVariant">#ffff72</item>
-        <item name="colorOnPrimary">#000000</item>
-        <item name="colorSecondary">#f57f17</item>
-        <item name="colorSecondaryVariant">#bc5100</item>
-        <item name="colorOnSecondary">#000000</item>
+    <style name="Carcosa" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="colorPrimary">#FFB000</item>
+        <item name="colorPrimaryContainer">#312100</item>
+        <item name="colorOnPrimary">#030406</item>
+        <item name="colorOnPrimaryContainer">#FFB000</item>
+        <item name="colorSecondary">#00E5FF</item>
+        <item name="colorSecondaryContainer">#06262B</item>
+        <item name="colorOnSecondary">#030406</item>
+        <item name="colorTertiary">#B6FF00</item>
+        <item name="colorError">#FF355E</item>
+        <item name="colorSurface">#070A0D</item>
+        <item name="colorOnSurface">#E6F1F5</item>
+        <item name="colorSurfaceContainerLow">#0B1014</item>
+        <item name="colorSurfaceContainer">#111923</item>
+        <item name="android:fontFamily">monospace</item>
+        <item name="android:windowBackground">#030406</item>
+        <item name="android:statusBarColor">#030406</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:navigationBarColor">#030406</item>
     </style>
 
-    <style name="ToolBar" parent="Theme.MaterialComponents">
-      <item name="android:textColorPrimary">#000000</item>
-      <item name="android:background">#ffeb3b</item>
-      <item name="iconTint">#000000</item>
+    <style name="ToolBar" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="android:textColorPrimary">#030406</item>
+        <item name="android:background">#FFB000</item>
+        <item name="iconTint">#030406</item>
+        <item name="android:fontFamily">monospace</item>
     </style>
 </resources>

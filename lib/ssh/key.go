@@ -1,11 +1,11 @@
 package ssh
 
 import (
+	"crypto/ed25519"
 	"crypto/rand"
-	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
-	"io/ioutil"
+	"os"
 
 	"github.com/reconquest/karma-go"
 	"golang.org/x/crypto/ssh"
@@ -17,26 +17,21 @@ type Key struct {
 	Fingerprint string
 }
 
-func NewKey(private *rsa.PrivateKey) (*Key, error) {
-	public, err := ssh.NewPublicKey(&private.PublicKey)
-	if err != nil {
-		return nil, karma.Format(
-			err,
-			"unable to generate public key",
-		)
-	}
-
+func newKey(
+	signer ssh.Signer,
+	privateDER []byte,
+) (*Key, error) {
 	return &Key{
-		Public:      ssh.MarshalAuthorizedKey(public),
-		Private:     x509.MarshalPKCS1PrivateKey(private),
-		Fingerprint: ssh.FingerprintLegacyMD5(public),
+		Public:      ssh.MarshalAuthorizedKey(signer.PublicKey()),
+		Private:     privateDER,
+		Fingerprint: ssh.FingerprintSHA256(signer.PublicKey()),
 	}, nil
 }
 
 func ReadKey(path string) (*Key, error) {
 	facts := karma.Describe("path", path)
 
-	data, err := ioutil.ReadFile(path)
+	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, facts.Format(
 			err,
@@ -44,37 +39,58 @@ func ReadKey(path string) (*Key, error) {
 		)
 	}
 
-	block, _ := pem.Decode(data)
-
-	private, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+	signer, err := ssh.ParsePrivateKey(data)
 	if err != nil {
 		return nil, facts.Format(
 			err,
-			"unable to parse private key block",
+			"unable to parse private key",
 		)
 	}
 
-	return NewKey(private)
+	block, _ := pem.Decode(data)
+	if block == nil {
+		return nil, facts.Format(
+			err,
+			"unable to decode PEM block",
+		)
+	}
+
+	return newKey(signer, block.Bytes)
 }
 
 func GenerateKey() (*Key, error) {
-	private, err := rsa.GenerateKey(rand.Reader, 2048)
+	_, private, err := ed25519.GenerateKey(rand.Reader)
 	if err != nil {
 		return nil, karma.Format(
 			err,
-			"unable to generate private key",
+			"unable to generate ed25519 private key",
 		)
 	}
 
-	return NewKey(private)
+	der, err := x509.MarshalPKCS8PrivateKey(private)
+	if err != nil {
+		return nil, karma.Format(
+			err,
+			"unable to marshal private key",
+		)
+	}
+
+	signer, err := ssh.NewSignerFromKey(private)
+	if err != nil {
+		return nil, karma.Format(
+			err,
+			"unable to create SSH signer",
+		)
+	}
+
+	return newKey(signer, der)
 }
 
 func (key *Key) EncodePrivateKey() []byte {
 	return pem.EncodeToMemory(
 		&pem.Block{
-			Type:    "RSA PRIVATE KEY",
-			Headers: nil,
-			Bytes:   key.Private,
+			Type:  "PRIVATE KEY",
+			Bytes: key.Private,
 		},
 	)
 }

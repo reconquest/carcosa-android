@@ -1,6 +1,13 @@
 DEBUG_ANDROID_PACKAGE=io.reconquest.carcosa.debug
 ANDROID_PACKAGE=io.reconquest.carcosa
 
+export JAVA_HOME ?= /usr/lib/jvm/java-17-openjdk
+export ANDROID_HOME ?= /opt/android-sdk
+
+NDK_VERSION ?= 28.2.13676358
+NDK_TOOLCHAIN=$(ANDROID_HOME)/ndk/$(NDK_VERSION)/toolchains/llvm/prebuilt/linux-x86_64/bin
+export PATH := $(NDK_TOOLCHAIN):$(JAVA_HOME)/bin:$(PATH)
+
 _MAKE=$(MAKE) \
 	  --no-print-directory \
 	  -s
@@ -37,6 +44,7 @@ src/main/jniLibs/%/libcarcosa.so: $(_LIB_SRC)
 		GOARCH=$(GOARCH) \
 		 go build \
 		 	-o=$@ \
+			-ldflags='-extldflags=-Wl,-z,max-page-size=16384' \
 			-buildmode=c-shared ./lib
 
 debug@run: debug@install

@@ -4,7 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -155,7 +155,7 @@ func (state *State) Connect(
 	if key != nil {
 		path := state.getRepoSSHKeyPath(id)
 
-		err := ioutil.WriteFile(path, key.EncodePrivateKey(), 0600)
+		err := os.WriteFile(path, key.EncodePrivateKey(), 0600)
 		if err != nil {
 			return nil, karma.Describe("path", path).Format(
 				err,
@@ -344,7 +344,7 @@ func (state *State) List() ([]*Repo, error) {
 		}
 
 		for _, secret := range secrets {
-			payload, err := ioutil.ReadAll(secret.StreamReader)
+			payload, err := io.ReadAll(secret.StreamReader)
 			if err != nil {
 				return nil, karma.Format(
 					err,

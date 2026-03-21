@@ -1,28 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:orientation="vertical"
-        >
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#030406"
+    android:orientation="vertical">
 
-    <Button
-            android:id="@+id/login"
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_marginLeft="24dp"
+        android:layout_marginRight="24dp"
+        android:background="@drawable/cyber_panel_hot"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:paddingLeft="22dp"
+        android:paddingTop="28dp"
+        android:paddingRight="22dp"
+        android:paddingBottom="28dp">
+
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_centerHorizontal="true"
-            android:text="Login"
-        />
+            android:fontFamily="monospace"
+            android:letterSpacing="0.12"
+            android:text="CARCOSA"
+            android:textColor="#FFB000"
+            android:textSize="24sp"
+            android:textStyle="bold" />
 
-    <ProgressBar
-            android:id="@+id/login_progress"
-            style="@android:style/Widget.ProgressBar.Large"
-            android:layout_centerVertical="true"
-            android:layout_centerHorizontal="true"
-            android:layout_width="24dp"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-        />
+            android:layout_marginTop="4dp"
+            android:fontFamily="monospace"
+            android:text="// BIOMETRIC VAULT GATE"
+            android:textColor="#00E5FF"
+            android:textSize="12sp" />
+
+        <ImageView
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_marginTop="28dp"
+            android:layout_marginBottom="24dp"
+            android:contentDescription="Fingerprint authentication"
+            android:src="@drawable/ic_fingerprint_24dp"
+            android:tint="#B6FF00" />
+
+        <Button
+            android:id="@+id/login"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="monospace"
+            android:text="AUTHENTICATE" />
+
+        <ProgressBar
+            android:id="@+id/login_progress"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="16dp"
+            android:indeterminateTint="#FFB000"
+            android:visibility="gone" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:fontFamily="monospace"
+            android:gravity="center"
+            android:text="encrypted pin cache requires live fingerprint session"
+            android:textColor="#6E7D86"
+            android:textSize="11sp" />
+
+    </LinearLayout>
 </RelativeLayout>
