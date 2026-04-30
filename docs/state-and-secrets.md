@@ -12,6 +12,7 @@ The Go state uses this layout:
 
     <filesDir>/
       pin                         encrypted Goldfinger payload
+      pin.fallback                PIN-derived fallback wrapper, when used
       stderr.log                  redirected Go stderr
       repos/<repo-id>/
         git/                      carcosa git checkout
@@ -108,8 +109,13 @@ existing in-memory adapter flow.
 ## Security boundaries
 
 Goldfinger protects a generated random PIN stored in the `pin` file.
-The user never chooses or types that PIN. The PIN unlocks the app's
-cached master passwords for the current native session.
+The user never chooses or types that PIN. On devices where Goldfinger
+cannot authenticate, `LoginActivity` asks the user for an 8+ digit
+numeric PIN and stores `pin.fallback` instead. That fallback file wraps a
+generated random session PIN with PBKDF2-HMAC-SHA256 and AES-GCM, so the
+user PIN is not sent to native code and is not used directly as the cache
+vault key. Repeated wrong PIN attempts are rate-limited before another
+fallback decrypt is allowed.
 
 The user's carcosa master password is typed only in `RepoActivity` and
 sent to native code for unlock. After a successful unlock it is cached

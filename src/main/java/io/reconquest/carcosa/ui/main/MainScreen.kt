@@ -267,7 +267,7 @@ private fun TerminalTopBar(
                     fontWeight = FontWeight.Black,
                 )
                 Text(
-                    text = if (syncing) "sync bus active / native core busy" else "biometric session online / native core armed",
+                    text = if (syncing) "sync bus active / native core busy" else "auth session online / native core armed",
                     color = colors.muted,
                     style = MaterialTheme.typography.labelSmall,
                     maxLines = 1,

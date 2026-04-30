@@ -324,11 +324,7 @@ func (state *State) List() ([]*Repo, error) {
 
 	for _, repo := range repos {
 		master, err := state.cache(repo.Config.ID).Get(repo.Config.ID)
-		if err != nil {
-			return nil, err
-		}
-
-		if master == nil {
+		if err != nil || master == nil {
 			repo.IsLocked = true
 			continue
 		}

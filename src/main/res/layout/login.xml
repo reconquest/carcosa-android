@@ -35,7 +35,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:fontFamily="monospace"
-            android:text="// BIOMETRIC VAULT GATE"
+            android:text="// VAULT AUTH GATE"
             android:textColor="#00E5FF"
             android:textSize="12sp" />
 
@@ -44,14 +44,69 @@
             android:layout_height="64dp"
             android:layout_marginTop="28dp"
             android:layout_marginBottom="24dp"
-            android:contentDescription="Fingerprint authentication"
+            android:contentDescription="Vault authentication"
             android:src="@drawable/ic_fingerprint_24dp"
             android:tint="#B6FF00" />
+
+        <LinearLayout
+            android:id="@+id/pin_form"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/pin_hint"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="monospace"
+                android:gravity="center"
+                android:textColor="#9BB6C7"
+                android:textSize="11sp" />
+
+            <EditText
+                android:id="@+id/pin_code"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:digits="0123456789"
+                android:fontFamily="monospace"
+                android:hint="PIN"
+                android:inputType="numberPassword"
+                android:singleLine="true"
+                android:textColor="#D6E8F0"
+                android:textColorHint="#6E7D86" />
+
+            <EditText
+                android:id="@+id/pin_confirm"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:digits="0123456789"
+                android:fontFamily="monospace"
+                android:hint="Confirm PIN"
+                android:inputType="numberPassword"
+                android:singleLine="true"
+                android:textColor="#D6E8F0"
+                android:textColorHint="#6E7D86" />
+
+            <TextView
+                android:id="@+id/pin_error"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:fontFamily="monospace"
+                android:gravity="center"
+                android:textColor="#FF4D6D"
+                android:textSize="11sp"
+                android:visibility="gone" />
+        </LinearLayout>
 
         <Button
             android:id="@+id/login"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
             android:fontFamily="monospace"
             android:text="AUTHENTICATE" />
 
@@ -64,12 +119,13 @@
             android:visibility="gone" />
 
         <TextView
+            android:id="@+id/login_status"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="18dp"
             android:fontFamily="monospace"
             android:gravity="center"
-            android:text="encrypted pin cache requires live fingerprint session"
+            android:text="encrypted pin cache requires live biometric session"
             android:textColor="#6E7D86"
             android:textSize="11sp" />
 

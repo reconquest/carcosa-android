@@ -6,10 +6,14 @@ state changes.
 
 ## Activity flow
 
-`LoginActivity` is the launcher activity. It checks biometric support,
-then either decrypts the existing PIN payload with Goldfinger or
-generates a new random PIN and encrypts it. On success it starts
-`MainActivity` with the plaintext PIN in the intent extras.
+`LoginActivity` is the launcher activity. When biometric auth is
+available, it decrypts the existing PIN payload with Goldfinger or
+generates a new random PIN and encrypts it. On devices where Goldfinger
+cannot authenticate, it shows a numeric PIN fallback. First use creates
+an 8+ digit PIN and stores only a slow-PBKDF2/AES-GCM wrapper around a
+random session PIN; later use derives the wrapper key from the typed PIN
+and applies a lockout after repeated failures. On success it starts
+`MainActivity` with the plaintext session PIN in the intent extras.
 
 `MainActivity` creates the Java `Carcosa` facade and initializes native
 state when `hasState()` is false. If the PIN extra is missing and there
@@ -99,6 +103,7 @@ fatal dialog, an inline repo error panel, or a sync alert depending on
 whether the user can continue on the current screen.
 
 `FatalErrorDialog` is reserved for conditions that leave the app unable
-to proceed, such as missing biometric support, failed native init, or a
+to proceed, such as failed native init, a corrupt PIN wrapper, or a
 native list error on the main screen. Inline errors are better when the
-user can edit input and retry, such as connect or unlock failures.
+user can edit input and retry, such as connect, unlock, or PIN fallback
+failures.
